@@ -13,11 +13,21 @@ import com.example.jitterpay.ui.components.*
 
 @Composable
 fun HomeScreen(
-    onAddTransactionClick: () -> Unit = {}
+    onAddTransactionClick: () -> Unit = {},
+    onNavigateToStatistics: () -> Unit = {},
+    onNavigateToProfile: () -> Unit = {}
 ) {
     Scaffold(
         bottomBar = {
             BottomNavBar(
+                selectedTab = "CORE",
+                onTabSelected = { tab ->
+                    when (tab) {
+                        "DATA" -> onNavigateToStatistics()
+                        "PROFILE" -> onNavigateToProfile()
+                        // Add other navigation cases here
+                    }
+                },
                 onAddClick = onAddTransactionClick
             )
         },

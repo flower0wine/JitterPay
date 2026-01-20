@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun BottomNavBar(
+    selectedTab: String = "CORE",
+    onTabSelected: (String) -> Unit = {},
     onAddClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -40,14 +42,34 @@ fun BottomNavBar(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            NavBarItem(icon = Icons.Default.GridView, label = "CORE", isSelected = true)
-            NavBarItem(icon = Icons.Default.BarChart, label = "DATA")
+            NavBarItem(
+                icon = Icons.Default.GridView,
+                label = "CORE",
+                isSelected = selectedTab == "CORE",
+                onClick = { onTabSelected("CORE") }
+            )
+            NavBarItem(
+                icon = Icons.Default.BarChart,
+                label = "DATA",
+                isSelected = selectedTab == "DATA",
+                onClick = { onTabSelected("DATA") }
+            )
             
             // Spacer for the center button
             Spacer(modifier = Modifier.width(60.dp))
             
-            NavBarItem(icon = Icons.Default.CreditCard, label = "ASSET")
-            NavBarItem(icon = Icons.Default.Tune, label = "SYS")
+            NavBarItem(
+                icon = Icons.Default.CreditCard,
+                label = "ASSET",
+                isSelected = selectedTab == "ASSET",
+                onClick = { onTabSelected("ASSET") }
+            )
+            NavBarItem(
+                icon = Icons.Default.Person,
+                label = "PROFILE",
+                isSelected = selectedTab == "PROFILE",
+                onClick = { onTabSelected("PROFILE") }
+            )
         }
         
         // Floating Add Button
@@ -80,11 +102,13 @@ fun BottomNavBar(
 fun NavBarItem(
     icon: ImageVector,
     label: String,
-    isSelected: Boolean = false
+    isSelected: Boolean = false,
+    onClick: () -> Unit = {}
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.clickable(onClick = onClick)
     ) {
         Icon(
             imageVector = icon,
