@@ -1,18 +1,15 @@
 package com.example.jitterpay.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.CurrencyExchange
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -22,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.jitterpay.constants.NavigationTabs
 import com.example.jitterpay.ui.components.BottomNavBar
 import com.example.jitterpay.ui.components.profile.*
 
@@ -39,12 +37,12 @@ fun ProfileScreen(
         },
         bottomBar = {
             BottomNavBar(
-                selectedTab = "PROFILE",
+                selectedTab = NavigationTabs.PROFILE,
                 onTabSelected = { tab ->
                     when (tab) {
-                        "CORE" -> onNavigateToHome()
-                        "DATA" -> onNavigateToStatistics()
-                        "PROFILE" -> { /* Already on profile */ }
+                        NavigationTabs.HOME -> onNavigateToHome()
+                        NavigationTabs.DATA -> onNavigateToStatistics()
+                        NavigationTabs.PROFILE -> { /* Already on profile */ }
                     }
                 },
                 onAddClick = onAddTransactionClick

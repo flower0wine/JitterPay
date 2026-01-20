@@ -12,16 +12,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.jitterpay.constants.ContentDescriptions
+import com.example.jitterpay.constants.NavigationTabs
 
 @Composable
 fun BottomNavBar(
-    selectedTab: String = "CORE",
+    selectedTab: String = NavigationTabs.HOME,
     onTabSelected: (String) -> Unit = {},
     onAddClick: () -> Unit = {},
     modifier: Modifier = Modifier
@@ -43,32 +44,32 @@ fun BottomNavBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             NavBarItem(
-                icon = Icons.Default.GridView,
-                label = "CORE",
-                isSelected = selectedTab == "CORE",
-                onClick = { onTabSelected("CORE") }
+                icon = Icons.Default.Home,
+                label = NavigationTabs.HOME,
+                isSelected = selectedTab == NavigationTabs.HOME,
+                onClick = { onTabSelected(NavigationTabs.HOME) }
             )
             NavBarItem(
                 icon = Icons.Default.BarChart,
-                label = "DATA",
-                isSelected = selectedTab == "DATA",
-                onClick = { onTabSelected("DATA") }
+                label = NavigationTabs.STATS,
+                isSelected = selectedTab == NavigationTabs.STATS,
+                onClick = { onTabSelected(NavigationTabs.STATS) }
             )
             
             // Spacer for the center button
             Spacer(modifier = Modifier.width(60.dp))
             
             NavBarItem(
-                icon = Icons.Default.CreditCard,
-                label = "ASSET",
-                isSelected = selectedTab == "ASSET",
-                onClick = { onTabSelected("ASSET") }
+                icon = Icons.Default.AccountBalanceWallet,
+                label = NavigationTabs.WALLET,
+                isSelected = selectedTab == NavigationTabs.WALLET,
+                onClick = { onTabSelected(NavigationTabs.WALLET) }
             )
             NavBarItem(
                 icon = Icons.Default.Person,
-                label = "PROFILE",
-                isSelected = selectedTab == "PROFILE",
-                onClick = { onTabSelected("PROFILE") }
+                label = NavigationTabs.PROFILE,
+                isSelected = selectedTab == NavigationTabs.PROFILE,
+                onClick = { onTabSelected(NavigationTabs.PROFILE) }
             )
         }
         
@@ -90,7 +91,7 @@ fun BottomNavBar(
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Add",
+                contentDescription = ContentDescriptions.ADD_BUTTON,
                 tint = Color.Black,
                 modifier = Modifier.size(32.dp)
             )

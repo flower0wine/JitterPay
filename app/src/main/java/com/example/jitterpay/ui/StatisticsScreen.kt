@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.jitterpay.constants.NavigationTabs
 import com.example.jitterpay.ui.components.BottomNavBar
 import com.example.jitterpay.ui.components.statistics.*
 
@@ -59,10 +60,10 @@ fun StatisticsScreen(
     Scaffold(
         bottomBar = {
             BottomNavBar(
-                selectedTab = "DATA",
+                selectedTab = NavigationTabs.DATA,
                 onTabSelected = { tab ->
                     when (tab) {
-                        "CORE" -> onNavigateToHome()
+                        NavigationTabs.HOME -> onNavigateToHome()
                         // Add other navigation cases here
                     }
                 },
