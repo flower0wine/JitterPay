@@ -23,7 +23,7 @@ fun HomeScreen(
                 selectedTab = NavigationTabs.HOME,
                 onTabSelected = { tab ->
                     when (tab) {
-                        NavigationTabs.DATA -> onNavigateToStatistics()
+                        NavigationTabs.STATS -> onNavigateToStatistics()
                         NavigationTabs.PROFILE -> onNavigateToProfile()
                         // Add other navigation cases here
                     }

@@ -60,7 +60,7 @@ fun StatisticsScreen(
     Scaffold(
         bottomBar = {
             BottomNavBar(
-                selectedTab = NavigationTabs.DATA,
+                selectedTab = NavigationTabs.STATS,
                 onTabSelected = { tab ->
                     when (tab) {
                         NavigationTabs.HOME -> onNavigateToHome()

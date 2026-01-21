@@ -1,10 +1,15 @@
 package com.example.jitterpay
 
 import android.os.Bundle
+
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+
 import androidx.compose.runtime.*
+
+import dagger.hilt.android.AndroidEntryPoint
+
 import com.example.jitterpay.ui.AddTransactionScreen
 import com.example.jitterpay.ui.HomeScreen
 import com.example.jitterpay.ui.ProfileScreen
@@ -15,6 +20,7 @@ enum class Screen {
     HOME, STATISTICS, ADD_TRANSACTION, PROFILE
 }
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
