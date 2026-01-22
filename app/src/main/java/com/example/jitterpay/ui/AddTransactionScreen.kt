@@ -107,44 +107,70 @@ fun AddTransactionScreen(
 }
 
 private fun updateAmount(current: String, digit: String): String {
-    // Remove leading zeros and handle decimal point
-    val cleaned = current.replace(".", "")
-    
     when (digit) {
         "." -> {
-            // Decimal point is already handled in the format
+            // 已有小数点则忽略
+            if (current.contains(".")) return current
             return current
         }
         "+", "-" -> {
-            // TODO: Handle operators for calculations
             return current
         }
         else -> {
-            val newValue = if (cleaned == "000") {
-                digit.padStart(3, '0')
-            } else {
-                (cleaned + digit).takeLast(10) // Limit to reasonable length
+            // 初始状态 "0.00" 视为无小数
+            if (current == "0.00") {
+                return "$digit.00"
             }
-            
-            // Format as currency with 2 decimal places
-            val intPart = newValue.dropLast(2).ifEmpty { "0" }
-            val decimalPart = newValue.takeLast(2)
-            
-            return "$intPart.$decimalPart"
+
+            // 已有小数点，填充小数部分
+            if (current.contains(".")) {
+                val parts = current.split(".")
+                val intPart = parts[0]
+                val decimalPart = parts.getOrElse(1) { "" }
+
+                // 小数部分已达2位则忽略
+                if (decimalPart.length >= 2) return current
+
+                // 追加到小数部分
+                val newDecimal = (decimalPart + digit).take(2)
+                return "$intPart.$newDecimal"
+            } else {
+                // 无小数点，填充整数部分
+                val newInt = (current + digit).takeLast(10)
+                return "$newInt.00"
+            }
         }
     }
 }
 
 private fun backspaceAmount(current: String): String {
-    val cleaned = current.replace(".", "")
-    
-    if (cleaned.length <= 3) {
+    // 仅有 "0.00" 或更短时，重置为 "0.00"
+    val numericValue = current.replace(".", "")
+    if (numericValue.length <= 3) {
         return "0.00"
     }
-    
-    val newValue = cleaned.dropLast(1)
-    val intPart = newValue.dropLast(2).ifEmpty { "0" }
-    val decimalPart = newValue.takeLast(2)
-    
-    return "$intPart.$decimalPart"
+
+    if (current.contains(".")) {
+        val parts = current.split(".")
+        val intPart = parts[0]
+        val decimalPart = parts.getOrElse(1) { "" }
+
+        // 有小数部分且长度>0，删除小数部分的最后一位
+        if (decimalPart.isNotEmpty()) {
+            val newDecimal = decimalPart.dropLast(1)
+            return if (newDecimal.isEmpty()) "$intPart." else "$intPart.$newDecimal"
+        }
+
+        // 小数部分为空，删除整数部分的最后一位
+        if (intPart.length == 1) {
+            return "0.00"
+        }
+        return "${intPart.dropLast(1)}.00"
+    } else {
+        // 无小数点，删除整数部分的最后一位
+        if (current.length == 1) {
+            return "0.00"
+        }
+        return "${current.dropLast(1)}.00"
+    }
 }

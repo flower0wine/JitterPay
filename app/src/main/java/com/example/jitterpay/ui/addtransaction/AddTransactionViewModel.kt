@@ -47,7 +47,8 @@ class AddTransactionViewModel @Inject constructor(
         val state = _uiState.value
 
         // 验证必填字段
-        if (state.selectedCategory.isNullOrBlank() || state.amount == "0.00") {
+        val amount = state.amount.toDoubleOrNull() ?: 0.0
+        if (state.selectedCategory.isNullOrBlank() || amount <= 0) {
             _uiState.value = state.copy(error = "Please fill in all required fields")
             return
         }
