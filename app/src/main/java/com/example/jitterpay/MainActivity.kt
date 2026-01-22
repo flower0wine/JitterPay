@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,6 +24,7 @@ import com.example.jitterpay.ui.AddTransactionScreen
 import com.example.jitterpay.ui.HomeScreen
 import com.example.jitterpay.ui.ProfileScreen
 import com.example.jitterpay.ui.StatisticsScreen
+import com.example.jitterpay.ui.addtransaction.AddTransactionViewModel
 import com.example.jitterpay.ui.components.BottomNavBar
 import com.example.jitterpay.ui.theme.JitterPayTheme
 
@@ -110,13 +112,10 @@ fun JitterPayApp(
             }
 
             composable(NavigationRoutes.ADD_TRANSACTION) {
+                val viewModel: AddTransactionViewModel = hiltViewModel()
+
                 AddTransactionScreen(
                     onClose = {
-                        navController.popBackStack()
-                    },
-                    onSave = { type, amount, category, date ->
-                        // TODO: Save transaction to database/state
-                        println("Transaction saved: $type, $amount, $category, $date")
                         navController.popBackStack()
                     }
                 )

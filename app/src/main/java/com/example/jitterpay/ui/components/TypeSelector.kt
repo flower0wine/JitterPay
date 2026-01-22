@@ -14,14 +14,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.jitterpay.data.local.entity.TransactionType
 
 @Composable
 fun TypeSelector(
-    selectedType: String = "Expense",
-    onTypeSelected: (String) -> Unit = {},
+    selectedType: TransactionType = TransactionType.EXPENSE,
+    onTypeSelected: (TransactionType) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -37,31 +38,31 @@ fun TypeSelector(
                 .fillMaxHeight()
                 .padding(4.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(if (selectedType == "Expense") MaterialTheme.colorScheme.primary else Color.Transparent)
-                .clickable { onTypeSelected("Expense") },
+                .background(if (selectedType == TransactionType.EXPENSE) MaterialTheme.colorScheme.primary else Color.Transparent)
+                .clickable { onTypeSelected(TransactionType.EXPENSE) },
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "Expense",
-                color = if (selectedType == "Expense") Color.Black else Color.Gray,
+                color = if (selectedType == TransactionType.EXPENSE) Color.Black else Color.Gray,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
         }
-        
+
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
                 .padding(4.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(if (selectedType == "Income") MaterialTheme.colorScheme.primary else Color.Transparent)
-                .clickable { onTypeSelected("Income") },
+                .background(if (selectedType == TransactionType.INCOME) MaterialTheme.colorScheme.primary else Color.Transparent)
+                .clickable { onTypeSelected(TransactionType.INCOME) },
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "Income",
-                color = if (selectedType == "Income") Color.Black else Color.Gray,
+                color = if (selectedType == TransactionType.INCOME) Color.Black else Color.Gray,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )

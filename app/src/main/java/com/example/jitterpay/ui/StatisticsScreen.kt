@@ -10,49 +10,36 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.jitterpay.ui.components.statistics.*
+import com.example.jitterpay.ui.statistics.StatisticsViewModel
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun StatisticsScreen(
     onAddTransactionClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: StatisticsViewModel = hiltViewModel()
 ) {
-    var selectedPeriod by remember { mutableStateOf(TimePeriod.MONTHLY) }
-    
-    // Sample data - replace with actual data from ViewModel/Repository
-    val spendingData = remember(selectedPeriod) {
-        SpendingData(
-            totalSpent = 1280.00,
-            percentageChange = 8.2,
-            categories = listOf(
-                CategorySpending(
-                    name = "Food & Drinks",
-                    amount = 448.00,
-                    percentage = 35.0,
-                    color = Color(0xFFE1FF00)
-                ),
-                CategorySpending(
-                    name = "Transport",
-                    amount = 192.00,
-                    percentage = 15.0,
-                    color = Color(0xFF5E5E5E)
-                ),
-                CategorySpending(
-                    name = "Utilities",
-                    amount = 320.00,
-                    percentage = 25.0,
-                    color = Color(0xFF8E8E93)
-                ),
-                CategorySpending(
-                    name = "Entertainment",
-                    amount = 320.00,
-                    percentage = 25.0,
-                    color = Color(0xFF3A3A3C)
+    val uiState by viewModel.uiState.collectAsState()
+
+    // 转换分类数据为StatisticsScreen需要的格式
+    val spendingData = remember(uiState.categories, uiState.totalSpent) {
+        com.example.jitterpay.ui.components.statistics.SpendingData(
+            totalSpent = uiState.totalSpent,
+            percentageChange = 0.0, // 可以从历史数据计算
+            categories = uiState.categories.map { categorySpending ->
+                com.example.jitterpay.ui.components.statistics.CategorySpending(
+                    name = categorySpending.name,
+                    amount = categorySpending.amount,
+                    percentage = categorySpending.percentage,
+                    color = getCategoryColor(categorySpending.name)
                 )
-            )
+            }
         )
     }
-    
+
     Scaffold(
         bottomBar = {
             // Navigation is now handled by BottomNavBar internally via NavController
@@ -71,33 +58,49 @@ fun StatisticsScreen(
                 onBackClick = { /* Back navigation handled by system */ },
                 onShareClick = { /* TODO: Implement share */ }
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Period Selector
             PeriodSelector(
-                selectedPeriod = selectedPeriod,
-                onPeriodSelected = { selectedPeriod = it }
+                selectedPeriod = uiState.selectedPeriod,
+                onPeriodSelected = { viewModel.selectPeriod(it) }
             )
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             // Donut Chart
             SpendingDonutChart(data = spendingData)
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             // Category Breakdown
             CategoryBreakdownList(categories = spendingData.categories)
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             // Download Button
             DownloadReportButton(
                 onClick = { /* TODO: Implement PDF download */ }
             )
-            
+
             Spacer(modifier = Modifier.height(24.dp))
         }
+    }
+}
+
+/**
+ * 获取分类对应的颜色
+ */
+private fun getCategoryColor(category: String): Color {
+    return when (category.lowercase()) {
+        "dining", "food & drink" -> Color(0xFFE1FF00)
+        "groceries" -> Color(0xFF4CAF50)
+        "travel", "transport" -> Color(0xFF5E5E5E)
+        "shopping" -> Color(0xFFE91E63)
+        "health" -> Color(0xFFFF5722)
+        "bills", "utilities" -> Color(0xFF8E8E93)
+        "entertainment" -> Color(0xFF3A3A3C)
+        else -> Color(0xFF5E5E5E)
     }
 }

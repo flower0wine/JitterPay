@@ -17,28 +17,21 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.jitterpay.data.local.entity.TransactionEntity
+import com.example.jitterpay.data.local.entity.TransactionType
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.TimeUnit
 
-data class Transaction(
-    val title: String,
-    val category: String,
-    val time: String,
-    val amount: String,
-    val status: String,
-    val icon: ImageVector,
-    val isIncome: Boolean = false
-)
-
+/**
+ * 交易记录组件 - 从数据库加载真实数据
+ */
 @Composable
 fun TransactionHistory(
+    transactions: List<TransactionEntity> = emptyList(),
+    onDeleteTransaction: (TransactionEntity) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val transactions = listOf(
-        Transaction("Starbucks Coffee", "FOOD & DRINK", "09:15 AM", "-$5.50", "COMPLETED", Icons.Default.LocalCafe),
-        Transaction("Uber Premier", "TRANSPORT", "YESTERDAY", "-$15.00", "COMPLETED", Icons.Default.DirectionsCar),
-        Transaction("Apple Retail", "SHOPPING", "2 DAYS AGO", "-$129.00", "COMPLETED", Icons.Default.ShoppingCart),
-        Transaction("Monthly Salary", "INCOME", "AUG 01", "+$5,000.00", "RECEIVED", Icons.Default.AccountBalanceWallet, true)
-    )
-
     Column(modifier = modifier.padding(horizontal = 20.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -63,18 +56,65 @@ fun TransactionHistory(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
-        transactions.forEach { transaction ->
-            TransactionItem(transaction)
-            Spacer(modifier = Modifier.height(16.dp))
+
+        if (transactions.isEmpty()) {
+            // 空状态显示
+            EmptyTransactionState()
+        } else {
+            transactions.forEach { transaction ->
+                TransactionItem(
+                    transaction = transaction,
+                    onDelete = { onDeleteTransaction(transaction) }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
 }
 
+/**
+ * 空交易状态
+ */
 @Composable
-fun TransactionItem(transaction: Transaction) {
+private fun EmptyTransactionState() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.ReceiptLong,
+            contentDescription = null,
+            tint = Color.Gray,
+            modifier = Modifier.size(64.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "No transactions yet",
+            color = Color.Gray,
+            fontSize = 16.sp
+        )
+        Text(
+            text = "Tap + to add your first transaction",
+            color = Color.Gray.copy(alpha = 0.7f),
+            fontSize = 14.sp
+        )
+    }
+}
+
+/**
+ * 交易项组件
+ */
+@Composable
+fun TransactionItem(
+    transaction: TransactionEntity,
+    onDelete: () -> Unit = {}
+) {
+    val isIncome = transaction.type == TransactionType.INCOME.name
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -83,38 +123,38 @@ fun TransactionItem(transaction: Transaction) {
             modifier = Modifier
                 .size(56.dp)
                 .clip(RoundedCornerShape(16.dp)),
-            color = if (transaction.isIncome) MaterialTheme.colorScheme.primary else Color(0xFF1C1C1E)
+            color = if (isIncome) MaterialTheme.colorScheme.primary else Color(0xFF1C1C1E)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
-                    imageVector = transaction.icon,
+                    imageVector = getCategoryIcon(transaction.category),
                     contentDescription = null,
-                    tint = if (transaction.isIncome) Color.Black else MaterialTheme.colorScheme.primary,
+                    tint = if (isIncome) Color.Black else MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.width(16.dp))
-        
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = transaction.title,
+                text = transaction.category,
                 color = Color.White,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "${transaction.category} • ${transaction.time}",
+                text = formatTransactionDate(transaction.dateMillis),
                 color = Color.Gray,
                 fontSize = 12.sp
             )
         }
-        
+
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                text = transaction.amount,
-                color = if (transaction.isIncome) MaterialTheme.colorScheme.primary else Color.White,
+                text = transaction.getFormattedAmount(),
+                color = if (isIncome) MaterialTheme.colorScheme.primary else Color.White,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -124,6 +164,45 @@ fun TransactionItem(transaction: Transaction) {
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold
             )
+        }
+    }
+}
+
+/**
+ * 获取分类对应的图标
+ */
+private fun getCategoryIcon(category: String): ImageVector {
+    return when (category.lowercase()) {
+        "dining", "food & drink" -> Icons.Default.Restaurant
+        "groceries" -> Icons.Default.ShoppingCart
+        "travel", "transport" -> Icons.Default.Flight
+        "shopping" -> Icons.Default.ShoppingBag
+        "health" -> Icons.Default.Favorite
+        "bills", "utilities" -> Icons.Default.Receipt
+        "income" -> Icons.Default.AccountBalanceWallet
+        else -> Icons.Default.Category
+    }
+}
+
+/**
+ * 格式化交易日期显示
+ */
+private fun formatTransactionDate(dateMillis: Long): String {
+    val now = System.currentTimeMillis()
+    val diff = now - dateMillis
+
+    return when {
+        diff < TimeUnit.MINUTES.toMillis(1) -> "Just now"
+        diff < TimeUnit.HOURS.toMillis(1) -> "${TimeUnit.MILLISECONDS.toMinutes(diff)} min ago"
+        diff < TimeUnit.DAYS.toMillis(1) -> {
+            val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+            timeFormat.format(Date(dateMillis))
+        }
+        diff < TimeUnit.DAYS.toMillis(2) -> "YESTERDAY"
+        diff < TimeUnit.DAYS.toMillis(7) -> "${TimeUnit.MILLISECONDS.toDays(diff)} DAYS AGO"
+        else -> {
+            val dateFormat = SimpleDateFormat("MMM dd", Locale.getDefault())
+            dateFormat.format(Date(dateMillis))
         }
     }
 }
