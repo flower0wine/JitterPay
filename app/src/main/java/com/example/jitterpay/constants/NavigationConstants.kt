@@ -12,6 +12,17 @@ object NavigationTabs {
 }
 
 /**
+ * Navigation routes for Navigation Compose
+ */
+object NavigationRoutes {
+    const val HOME = "home"
+    const val STATS = "stats"
+    const val WALLET = "wallet"
+    const val PROFILE = "profile"
+    const val ADD_TRANSACTION = "add_transaction"
+}
+
+/**
  * Content descriptions for accessibility
  */
 object ContentDescriptions {

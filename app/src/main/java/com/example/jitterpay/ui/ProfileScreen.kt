@@ -19,34 +19,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.jitterpay.constants.NavigationTabs
-import com.example.jitterpay.ui.components.BottomNavBar
 import com.example.jitterpay.ui.components.profile.*
 
 @Composable
 fun ProfileScreen(
-    onBackClick: () -> Unit = {},
     onAddTransactionClick: () -> Unit = {},
-    onNavigateToHome: () -> Unit = {},
-    onNavigateToStatistics: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Scaffold(
-        topBar = {
-            ProfileTopBar(onBackClick = onBackClick)
-        },
         bottomBar = {
-            BottomNavBar(
-                selectedTab = NavigationTabs.PROFILE,
-                onTabSelected = { tab ->
-                    when (tab) {
-                        NavigationTabs.HOME -> onNavigateToHome()
-                        NavigationTabs.DATA -> onNavigateToStatistics()
-                        NavigationTabs.PROFILE -> { /* Already on profile */ }
-                    }
-                },
-                onAddClick = onAddTransactionClick
-            )
+            // Navigation is now handled by BottomNavBar internally via NavController
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
@@ -56,6 +38,13 @@ fun ProfileScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
+            // Simplified header without back button since it's now a main destination
+            ProfileTopBar(
+                onBackClick = { /* Back navigation handled by system */ }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             ProfileHeader(
                 userName = "Alex Morgan",
                 userEmail = "alex.morgan@flowpay.io",

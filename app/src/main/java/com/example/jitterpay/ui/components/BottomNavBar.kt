@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -17,16 +18,63 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.jitterpay.constants.ContentDescriptions
+import com.example.jitterpay.constants.NavigationRoutes
 import com.example.jitterpay.constants.NavigationTabs
+
+/**
+ * Navigation routes for bottom navigation
+ */
+sealed class BottomNavRoute(
+    val route: String,
+    val tab: String,
+    val icon: ImageVector,
+    val label: String
+) {
+    data object Home : BottomNavRoute(
+        route = NavigationRoutes.HOME,
+        tab = NavigationTabs.HOME,
+        icon = Icons.Default.Home,
+        label = NavigationTabs.HOME
+    )
+
+    data object Stats : BottomNavRoute(
+        route = NavigationRoutes.STATS,
+        tab = NavigationTabs.STATS,
+        icon = Icons.Default.BarChart,
+        label = NavigationTabs.STATS
+    )
+
+    data object Wallet : BottomNavRoute(
+        route = NavigationRoutes.WALLET,
+        tab = NavigationTabs.WALLET,
+        icon = Icons.Default.AccountBalanceWallet,
+        label = NavigationTabs.WALLET
+    )
+
+    data object Profile : BottomNavRoute(
+        route = NavigationRoutes.PROFILE,
+        tab = NavigationTabs.PROFILE,
+        icon = Icons.Default.Person,
+        label = NavigationTabs.PROFILE
+    )
+
+    companion object {
+        val items = listOf(Home, Stats, Wallet, Profile)
+    }
+}
 
 @Composable
 fun BottomNavBar(
-    selectedTab: String = NavigationTabs.HOME,
-    onTabSelected: (String) -> Unit = {},
+    navController: NavController,
     onAddClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -40,39 +88,51 @@ fun BottomNavBar(
                 .height(80.dp)
                 .background(Color.Black)
                 .padding(bottom = 10.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
+            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            NavBarItem(
-                icon = Icons.Default.Home,
-                label = NavigationTabs.HOME,
-                isSelected = selectedTab == NavigationTabs.HOME,
-                onClick = { onTabSelected(NavigationTabs.HOME) }
-            )
-            NavBarItem(
-                icon = Icons.Default.BarChart,
-                label = NavigationTabs.STATS,
-                isSelected = selectedTab == NavigationTabs.STATS,
-                onClick = { onTabSelected(NavigationTabs.STATS) }
-            )
-            
-            // Spacer for the center button
-            Spacer(modifier = Modifier.width(60.dp))
-            
-            NavBarItem(
-                icon = Icons.Default.AccountBalanceWallet,
-                label = NavigationTabs.WALLET,
-                isSelected = selectedTab == NavigationTabs.WALLET,
-                onClick = { onTabSelected(NavigationTabs.WALLET) }
-            )
-            NavBarItem(
-                icon = Icons.Default.Person,
-                label = NavigationTabs.PROFILE,
-                isSelected = selectedTab == NavigationTabs.PROFILE,
-                onClick = { onTabSelected(NavigationTabs.PROFILE) }
-            )
+            // First two items
+            BottomNavRoute.items.take(2).forEach { navItem ->
+                NavBarItem(
+                    icon = navItem.icon,
+                    label = navItem.label,
+                    isSelected = currentRoute == navItem.route,
+                    onClick = {
+                        navController.navigate(navItem.route) {
+                            launchSingleTop = true
+                            restoreState = true
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            // Spacer for the center floating button
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Last two items
+            BottomNavRoute.items.drop(2).forEach { navItem ->
+                NavBarItem(
+                    icon = navItem.icon,
+                    label = navItem.label,
+                    isSelected = currentRoute == navItem.route,
+                    onClick = {
+                        navController.navigate(navItem.route) {
+                            launchSingleTop = true
+                            restoreState = true
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
-        
+
         // Floating Add Button
         Box(
             modifier = Modifier
@@ -104,12 +164,13 @@ fun NavBarItem(
     icon: ImageVector,
     label: String,
     isSelected: Boolean = false,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.clickable(onClick = onClick)
+        modifier = modifier.clickable(onClick = onClick)
     ) {
         Icon(
             imageVector = icon,

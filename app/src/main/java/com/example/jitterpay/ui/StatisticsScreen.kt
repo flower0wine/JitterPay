@@ -10,15 +10,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.jitterpay.constants.NavigationTabs
-import com.example.jitterpay.ui.components.BottomNavBar
 import com.example.jitterpay.ui.components.statistics.*
 
 @Composable
 fun StatisticsScreen(
-    onBackClick: () -> Unit = {},
     onAddTransactionClick: () -> Unit = {},
-    onNavigateToHome: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedPeriod by remember { mutableStateOf(TimePeriod.MONTHLY) }
@@ -59,16 +55,7 @@ fun StatisticsScreen(
     
     Scaffold(
         bottomBar = {
-            BottomNavBar(
-                selectedTab = NavigationTabs.STATS,
-                onTabSelected = { tab ->
-                    when (tab) {
-                        NavigationTabs.HOME -> onNavigateToHome()
-                        // Add other navigation cases here
-                    }
-                },
-                onAddClick = onAddTransactionClick
-            )
+            // Navigation is now handled by BottomNavBar internally via NavController
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
@@ -79,9 +66,9 @@ fun StatisticsScreen(
                 .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Header
+            // Header - simplified without back button since it's now a main destination
             StatisticsHeader(
-                onBackClick = onBackClick,
+                onBackClick = { /* Back navigation handled by system */ },
                 onShareClick = { /* TODO: Implement share */ }
             )
             

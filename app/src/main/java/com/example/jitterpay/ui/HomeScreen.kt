@@ -8,28 +8,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.jitterpay.constants.NavigationTabs
 import com.example.jitterpay.ui.components.*
 
 @Composable
 fun HomeScreen(
-    onAddTransactionClick: () -> Unit = {},
-    onNavigateToStatistics: () -> Unit = {},
-    onNavigateToProfile: () -> Unit = {}
+    onAddTransactionClick: () -> Unit = {}
 ) {
     Scaffold(
         bottomBar = {
-            BottomNavBar(
-                selectedTab = NavigationTabs.HOME,
-                onTabSelected = { tab ->
-                    when (tab) {
-                        NavigationTabs.STATS -> onNavigateToStatistics()
-                        NavigationTabs.PROFILE -> onNavigateToProfile()
-                        // Add other navigation cases here
-                    }
-                },
-                onAddClick = onAddTransactionClick
-            )
+            // Navigation is now handled by BottomNavBar internally via NavController
+            // No need to pass navigation callbacks
         },
         containerColor = Color.Black
     ) { innerPadding ->

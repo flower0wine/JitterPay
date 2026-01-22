@@ -6,19 +6,25 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 import dagger.hilt.android.AndroidEntryPoint
 
+import com.example.jitterpay.constants.NavigationRoutes
 import com.example.jitterpay.ui.AddTransactionScreen
 import com.example.jitterpay.ui.HomeScreen
 import com.example.jitterpay.ui.ProfileScreen
 import com.example.jitterpay.ui.StatisticsScreen
+import com.example.jitterpay.ui.components.BottomNavBar
 import com.example.jitterpay.ui.theme.JitterPayTheme
-
-enum class Screen {
-    HOME, STATISTICS, ADD_TRANSACTION, PROFILE
-}
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -27,42 +33,93 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             JitterPayTheme {
-                var currentScreen by remember { mutableStateOf(Screen.HOME) }
-                
-                when (currentScreen) {
-                    Screen.HOME -> {
-                        HomeScreen(
-                            onAddTransactionClick = { currentScreen = Screen.ADD_TRANSACTION },
-                            onNavigateToStatistics = { currentScreen = Screen.STATISTICS },
-                            onNavigateToProfile = { currentScreen = Screen.PROFILE }
-                        )
+                val navController = rememberNavController()
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route
+
+                // Determine if we should show the bottom nav bar
+                val showBottomNav = currentRoute in listOf(
+                    NavigationRoutes.HOME,
+                    NavigationRoutes.STATS,
+                    NavigationRoutes.WALLET,
+                    NavigationRoutes.PROFILE
+                )
+
+                JitterPayApp(
+                    navController = navController,
+                    showBottomNav = showBottomNav
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun JitterPayApp(
+    navController: NavHostController,
+    showBottomNav: Boolean = true
+) {
+    Scaffold(
+        bottomBar = {
+            if (showBottomNav) {
+                BottomNavBar(
+                    navController = navController,
+                    onAddClick = {
+                        navController.navigate(NavigationRoutes.ADD_TRANSACTION)
                     }
-                    Screen.STATISTICS -> {
-                        StatisticsScreen(
-                            onBackClick = { currentScreen = Screen.HOME },
-                            onAddTransactionClick = { currentScreen = Screen.ADD_TRANSACTION },
-                            onNavigateToHome = { currentScreen = Screen.HOME }
-                        )
+                )
+            }
+        }
+    ) { paddingValues ->
+        NavHost(
+            navController = navController,
+            startDestination = NavigationRoutes.HOME,
+            modifier = Modifier.padding(paddingValues)
+        ) {
+            composable(NavigationRoutes.HOME) {
+                HomeScreen(
+                    onAddTransactionClick = {
+                        navController.navigate(NavigationRoutes.ADD_TRANSACTION)
                     }
-                    Screen.ADD_TRANSACTION -> {
-                        AddTransactionScreen(
-                            onClose = { currentScreen = Screen.HOME },
-                            onSave = { type, amount, category, date ->
-                                // TODO: Save transaction to database/state
-                                println("Transaction saved: $type, $amount, $category, $date")
-                                currentScreen = Screen.HOME
-                            }
-                        )
+                )
+            }
+
+            composable(NavigationRoutes.STATS) {
+                StatisticsScreen(
+                    onAddTransactionClick = {
+                        navController.navigate(NavigationRoutes.ADD_TRANSACTION)
                     }
-                    Screen.PROFILE -> {
-                        ProfileScreen(
-                            onBackClick = { currentScreen = Screen.HOME },
-                            onAddTransactionClick = { currentScreen = Screen.ADD_TRANSACTION },
-                            onNavigateToHome = { currentScreen = Screen.HOME },
-                            onNavigateToStatistics = { currentScreen = Screen.STATISTICS }
-                        )
+                )
+            }
+
+            composable(NavigationRoutes.WALLET) {
+                // Placeholder for Wallet screen
+                HomeScreen(
+                    onAddTransactionClick = {
+                        navController.navigate(NavigationRoutes.ADD_TRANSACTION)
                     }
-                }
+                )
+            }
+
+            composable(NavigationRoutes.PROFILE) {
+                ProfileScreen(
+                    onAddTransactionClick = {
+                        navController.navigate(NavigationRoutes.ADD_TRANSACTION)
+                    }
+                )
+            }
+
+            composable(NavigationRoutes.ADD_TRANSACTION) {
+                AddTransactionScreen(
+                    onClose = {
+                        navController.popBackStack()
+                    },
+                    onSave = { type, amount, category, date ->
+                        // TODO: Save transaction to database/state
+                        println("Transaction saved: $type, $amount, $category, $date")
+                        navController.popBackStack()
+                    }
+                )
             }
         }
     }
