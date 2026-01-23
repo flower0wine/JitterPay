@@ -25,19 +25,9 @@ fun AmountDisplay(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 24.dp),
+            .padding(vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "ENTER AMOUNT",
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium,
-            color = GrayText,
-            letterSpacing = 1.sp
-        )
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
         Text(
             text = "$$formattedAmount",
             fontSize = 56.sp,

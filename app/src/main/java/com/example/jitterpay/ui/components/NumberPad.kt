@@ -4,8 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun NumberPad(
+    inputDisplay: String? = null,
     onNumberClick: (String) -> Unit,
     onOperatorClick: (String) -> Unit,
     onBackspace: () -> Unit,
@@ -30,19 +31,36 @@ fun NumberPad(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
+        // 显示用户输入
+        if (!inputDisplay.isNullOrEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Text(
+                    text = inputDisplay,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                )
+            }
+        }
+
         // Row 1: 1, 2, 3, backspace
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             NumberButton("1", onNumberClick, Modifier.weight(1f))
             NumberButton("2", onNumberClick, Modifier.weight(1f))
             NumberButton("3", onNumberClick, Modifier.weight(1f))
             IconButton(
-                icon = Icons.Default.Backspace,
+                icon = Icons.AutoMirrored.Filled.Backspace,
                 onClick = onBackspace,
                 modifier = Modifier.weight(1f)
             )
@@ -51,7 +69,7 @@ fun NumberPad(
         // Row 2: 4, 5, 6, +
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             NumberButton("4", onNumberClick, Modifier.weight(1f))
             NumberButton("5", onNumberClick, Modifier.weight(1f))
@@ -62,7 +80,7 @@ fun NumberPad(
         // Row 3: 7, 8, 9, -
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             NumberButton("7", onNumberClick, Modifier.weight(1f))
             NumberButton("8", onNumberClick, Modifier.weight(1f))
@@ -73,7 +91,7 @@ fun NumberPad(
         // Row 4: ., 0, confirm button
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             NumberButton(".", onNumberClick, Modifier.weight(1f))
             NumberButton("0", onNumberClick, Modifier.weight(1f))
@@ -93,14 +111,14 @@ private fun NumberButton(
 ) {
     Box(
         modifier = modifier
-            .aspectRatio(1f)
+            .aspectRatio(1.4f)
             .clip(RoundedCornerShape(12.dp))
             .clickable { onClick(number) },
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = number,
-            fontSize = 28.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Medium,
             color = Color.White
         )
@@ -115,14 +133,14 @@ private fun OperatorButton(
 ) {
     Box(
         modifier = modifier
-            .aspectRatio(1f)
+            .aspectRatio(1.4f)
             .clip(RoundedCornerShape(12.dp))
             .clickable { onClick(operator) },
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = operator,
-            fontSize = 28.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Medium,
             color = Color.White
         )
@@ -137,7 +155,7 @@ private fun IconButton(
 ) {
     Box(
         modifier = modifier
-            .aspectRatio(1f)
+            .aspectRatio(1.4f)
             .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
@@ -146,7 +164,7 @@ private fun IconButton(
             imageVector = icon,
             contentDescription = null,
             tint = Color.White,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(20.dp)
         )
     }
 }
@@ -158,7 +176,7 @@ private fun ConfirmButton(
 ) {
     Box(
         modifier = modifier
-            .aspectRatio(2f)
+            .aspectRatio(2.5f)
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.primary)
             .clickable(onClick = onClick),
@@ -168,7 +186,7 @@ private fun ConfirmButton(
             imageVector = Icons.Default.Check,
             contentDescription = "Confirm",
             tint = Color.Black,
-            modifier = Modifier.size(28.dp)
+            modifier = Modifier.size(24.dp)
         )
     }
 }

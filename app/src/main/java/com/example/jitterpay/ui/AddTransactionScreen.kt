@@ -94,6 +94,7 @@ fun AddTransactionScreen(
         }
 
         NumberPad(
+            inputDisplay = uiState.displayAmount,
             onNumberClick = { digit ->
                 if (digit in "0".."9") {
                     viewModel.onDigitClick(digit)
