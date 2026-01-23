@@ -11,12 +11,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.jitterpay.ui.theme.GrayText
+import java.math.BigDecimal
+import java.text.DecimalFormat
 
 @Composable
 fun AmountDisplay(
-    amount: String,
+    amount: BigDecimal,
     modifier: Modifier = Modifier
 ) {
+    // UI层格式化：始终保留两位小数
+    val formattedAmount = DecimalFormat("#0.00").format(amount)
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -34,7 +39,7 @@ fun AmountDisplay(
         Spacer(modifier = Modifier.height(8.dp))
         
         Text(
-            text = "$$amount",
+            text = "$$formattedAmount",
             fontSize = 56.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White

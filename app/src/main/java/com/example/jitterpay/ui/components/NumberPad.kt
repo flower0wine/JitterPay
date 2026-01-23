@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun NumberPad(
     onNumberClick: (String) -> Unit,
+    onOperatorClick: (String) -> Unit,
     onBackspace: () -> Unit,
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier
@@ -55,7 +56,7 @@ fun NumberPad(
             NumberButton("4", onNumberClick, Modifier.weight(1f))
             NumberButton("5", onNumberClick, Modifier.weight(1f))
             NumberButton("6", onNumberClick, Modifier.weight(1f))
-            OperatorButton("+", onNumberClick, Modifier.weight(1f))
+            OperatorButton("+", { onOperatorClick("+") }, Modifier.weight(1f))
         }
         
         // Row 3: 7, 8, 9, -
@@ -66,7 +67,7 @@ fun NumberPad(
             NumberButton("7", onNumberClick, Modifier.weight(1f))
             NumberButton("8", onNumberClick, Modifier.weight(1f))
             NumberButton("9", onNumberClick, Modifier.weight(1f))
-            OperatorButton("-", onNumberClick, Modifier.weight(1f))
+            OperatorButton("-", { onOperatorClick("-") }, Modifier.weight(1f))
         }
         
         // Row 4: ., 0, confirm button

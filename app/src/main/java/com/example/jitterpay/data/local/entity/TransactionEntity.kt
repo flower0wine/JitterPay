@@ -2,8 +2,8 @@ package com.example.jitterpay.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.text.NumberFormat
-import java.util.Locale
+import com.example.jitterpay.domain.model.Money
+import java.math.BigDecimal
 
 /**
  * 交易类型枚举
@@ -54,20 +54,9 @@ data class TransactionEntity(
      * 将存储的金额（分）转换为可读金额字符串
      */
     fun getFormattedAmount(): String {
-        // 使用整数运算避免浮点数精度问题
-        val wholePart = amountCents / 100
-        val decimalPart = amountCents % 100
-
-        // 格式化整数部分（添加逗号分隔）
-        val wholePartFormatted = NumberFormat.getNumberInstance(Locale.US).format(wholePart)
-        val decimalPartFormatted = String.format(Locale.US, "%02d", decimalPart)
-        val formattedAmount = "$wholePartFormatted.$decimalPartFormatted"
-
-        return if (type == TransactionType.INCOME.name) {
-            "+$$formattedAmount"
-        } else {
-            "-$$formattedAmount"
-        }
+        val money = Money.fromCents(amountCents)
+        val isIncome = type == TransactionType.INCOME.name
+        return money.formatWithSign(isIncome)
     }
 
     /**
@@ -75,8 +64,22 @@ data class TransactionEntity(
      */
     companion object {
         fun parseAmountToCents(amountString: String): Long {
-            val cleaned = amountString.replace(".", "")
-            return cleaned.toLongOrNull() ?: 0L
+            return Money.parse(amountString)?.toCents() ?: 0L
+        }
+
+        /**
+         * 将 Money 金额转换为存储格式（分）
+         */
+        fun parseAmountToCents(money: Money): Long {
+            return money.toCents()
+        }
+
+        /**
+         * 将 BigDecimal 金额转换为存储格式（分）
+         * 保留兼容性，内部使用 Money 进行精确计算
+         */
+        fun parseAmountToCents(amount: BigDecimal): Long {
+            return Money.fromBigDecimal(amount).toCents()
         }
     }
 }

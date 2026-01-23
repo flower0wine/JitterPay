@@ -39,6 +39,10 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    lint {
+        checkTestSources = false
+    }
 }
 
 dependencies {

@@ -65,7 +65,8 @@ fun AddTransactionScreen(
                 onTypeSelected = { viewModel.setType(it) }
             )
 
-            AmountDisplay(amount = uiState.amount)
+            // 使用格式化后的金额显示
+            AmountDisplay(amount = uiState.amount.toBigDecimal())
 
             Box(
                 modifier = Modifier.fillMaxWidth(),
@@ -94,83 +95,19 @@ fun AddTransactionScreen(
 
         NumberPad(
             onNumberClick = { digit ->
-                viewModel.setAmount(updateAmount(uiState.amount, digit))
+                if (digit in "0".."9") {
+                    viewModel.onDigitClick(digit)
+                } else if (digit == ".") {
+                    viewModel.onDecimalClick()
+                }
             },
-            onBackspace = {
-                viewModel.setAmount(backspaceAmount(uiState.amount))
+            onOperatorClick = { operator ->
+                viewModel.onOperatorClick(operator)
             },
+            onBackspace = { viewModel.onBackspaceClick() },
             onConfirm = { viewModel.saveTransaction() }
         )
 
         SnackbarHost(hostState = snackbarHostState)
-    }
-}
-
-private fun updateAmount(current: String, digit: String): String {
-    when (digit) {
-        "." -> {
-            // 已有小数点则忽略
-            if (current.contains(".")) return current
-            return current
-        }
-        "+", "-" -> {
-            return current
-        }
-        else -> {
-            // 初始状态 "0.00" 视为无小数
-            if (current == "0.00") {
-                return "$digit.00"
-            }
-
-            // 已有小数点，填充小数部分
-            if (current.contains(".")) {
-                val parts = current.split(".")
-                val intPart = parts[0]
-                val decimalPart = parts.getOrElse(1) { "" }
-
-                // 小数部分已达2位则忽略
-                if (decimalPart.length >= 2) return current
-
-                // 追加到小数部分
-                val newDecimal = (decimalPart + digit).take(2)
-                return "$intPart.$newDecimal"
-            } else {
-                // 无小数点，填充整数部分
-                val newInt = (current + digit).takeLast(10)
-                return "$newInt.00"
-            }
-        }
-    }
-}
-
-private fun backspaceAmount(current: String): String {
-    // 仅有 "0.00" 或更短时，重置为 "0.00"
-    val numericValue = current.replace(".", "")
-    if (numericValue.length <= 3) {
-        return "0.00"
-    }
-
-    if (current.contains(".")) {
-        val parts = current.split(".")
-        val intPart = parts[0]
-        val decimalPart = parts.getOrElse(1) { "" }
-
-        // 有小数部分且长度>0，删除小数部分的最后一位
-        if (decimalPart.isNotEmpty()) {
-            val newDecimal = decimalPart.dropLast(1)
-            return if (newDecimal.isEmpty()) "$intPart." else "$intPart.$newDecimal"
-        }
-
-        // 小数部分为空，删除整数部分的最后一位
-        if (intPart.length == 1) {
-            return "0.00"
-        }
-        return "${intPart.dropLast(1)}.00"
-    } else {
-        // 无小数点，删除整数部分的最后一位
-        if (current.length == 1) {
-            return "0.00"
-        }
-        return "${current.dropLast(1)}.00"
     }
 }
