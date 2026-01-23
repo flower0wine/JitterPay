@@ -1,17 +1,18 @@
-package com.example.jitterpay.ui
+package com.example.jitterpay.ui.home
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.jitterpay.ui.components.*
-import com.example.jitterpay.ui.home.HomeViewModel
+import com.example.jitterpay.ui.components.home.BalanceCard
+import com.example.jitterpay.ui.components.home.QuickActions
+import com.example.jitterpay.ui.components.home.TopHeader
+import com.example.jitterpay.ui.components.home.TransactionHistory
 import java.text.NumberFormat
 import java.util.Locale
 

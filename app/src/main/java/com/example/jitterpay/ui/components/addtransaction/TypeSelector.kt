@@ -1,4 +1,4 @@
-package com.example.jitterpay.ui.components
+package com.example.jitterpay.ui.components.addtransaction
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

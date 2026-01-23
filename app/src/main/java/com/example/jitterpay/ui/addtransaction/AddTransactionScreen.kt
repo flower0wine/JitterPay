@@ -1,4 +1,4 @@
-package com.example.jitterpay.ui
+package com.example.jitterpay.ui.addtransaction
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,9 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.jitterpay.data.local.entity.TransactionType
-import com.example.jitterpay.ui.addtransaction.AddTransactionViewModel
-import com.example.jitterpay.ui.components.*
+import com.example.jitterpay.ui.components.addtransaction.AddTransactionHeader
+import com.example.jitterpay.ui.components.addtransaction.AmountDisplay
+import com.example.jitterpay.ui.components.addtransaction.CategoryGrid
+import com.example.jitterpay.ui.components.addtransaction.DateSelector
+import com.example.jitterpay.ui.components.addtransaction.NumberPad
+import com.example.jitterpay.ui.components.addtransaction.TypeSelector
 import java.text.SimpleDateFormat
 import java.util.*
 

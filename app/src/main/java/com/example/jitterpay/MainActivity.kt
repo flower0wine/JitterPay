@@ -20,10 +20,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import dagger.hilt.android.AndroidEntryPoint
 
 import com.example.jitterpay.constants.NavigationRoutes
-import com.example.jitterpay.ui.AddTransactionScreen
-import com.example.jitterpay.ui.HomeScreen
+import com.example.jitterpay.ui.addtransaction.AddTransactionScreen
+import com.example.jitterpay.ui.home.HomeScreen
 import com.example.jitterpay.ui.ProfileScreen
-import com.example.jitterpay.ui.StatisticsScreen
+import com.example.jitterpay.ui.statistics.StatisticsScreen
 import com.example.jitterpay.ui.addtransaction.AddTransactionViewModel
 import com.example.jitterpay.ui.components.BottomNavBar
 import com.example.jitterpay.ui.theme.JitterPayTheme

@@ -1,4 +1,4 @@
-package com.example.jitterpay.ui
+package com.example.jitterpay.ui.statistics
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,9 +12,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.jitterpay.ui.components.statistics.*
-import com.example.jitterpay.ui.statistics.StatisticsViewModel
-import java.text.NumberFormat
-import java.util.Locale
 
 @Composable
 fun StatisticsScreen(
@@ -26,11 +23,11 @@ fun StatisticsScreen(
 
     // 转换分类数据为StatisticsScreen需要的格式
     val spendingData = remember(uiState.categories, uiState.totalSpent) {
-        com.example.jitterpay.ui.components.statistics.SpendingData(
+        SpendingData(
             totalSpent = uiState.totalSpent,
             percentageChange = 0.0, // 可以从历史数据计算
             categories = uiState.categories.map { categorySpending ->
-                com.example.jitterpay.ui.components.statistics.CategorySpending(
+                CategorySpending(
                     name = categorySpending.name,
                     amount = categorySpending.amount,
                     percentage = categorySpending.percentage,
