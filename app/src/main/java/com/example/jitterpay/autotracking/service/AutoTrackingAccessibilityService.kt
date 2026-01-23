@@ -70,7 +70,10 @@ class AutoTrackingAccessibilityService : AccessibilityService() {
         }
 
         // Check if package is in whitelist
-        val whitelist = DefaultWhitelists.findByPackageName(packageName) ?: return
+        val whitelist = DefaultWhitelists.findByPackageName(packageName) ?: run {
+            return
+        }
+
 
         // Debounce: skip if processing too many events
         val currentTime = System.currentTimeMillis()
@@ -99,7 +102,10 @@ class AutoTrackingAccessibilityService : AccessibilityService() {
         val activityName = event.className?.toString() ?: return
         val screenConfig = whitelist.screenConfigs.find {
             activityName.contains(it.activityName)
-        } ?: return
+        } ?: run {
+            return
+        }
+
 
         // Cancel any existing processing job
         processingJob?.cancel()
@@ -117,6 +123,7 @@ class AutoTrackingAccessibilityService : AccessibilityService() {
                     // Check timeout
                     val elapsedMs = System.currentTimeMillis() - startTime
                     if (elapsedMs >= timeoutMs) {
+                        Log.w("AutoTracking", "[POLLING] Timeout after ${elapsedMs}ms, ${pollCount} polls")
                         break
                     }
 
@@ -132,6 +139,7 @@ class AutoTrackingAccessibilityService : AccessibilityService() {
 
                     // Check if this is a successful payment
                     val isPaymentSuccessful = textParser.isPaymentSuccessful(transactionInfo)
+
 
                     if (transactionInfo.isValid() && isPaymentSuccessful) {
                         detectionTime = System.currentTimeMillis()

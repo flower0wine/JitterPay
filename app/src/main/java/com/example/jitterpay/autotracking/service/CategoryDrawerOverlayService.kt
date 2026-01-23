@@ -96,7 +96,11 @@ class CategoryDrawerOverlayService : android.app.Service(), LifecycleOwner, View
             Log.e("OverlayService", "[START] Failed to start foreground: ${e.message}", e)
         }
 
-        intent ?: return START_NOT_STICKY
+        intent ?: run {
+            Log.e("OverlayService", "[START] Intent is null!")
+            return START_NOT_STICKY
+        }
+
 
         when (intent.action) {
             ACTION_SHOW_DRAWER -> {
@@ -148,6 +152,7 @@ class CategoryDrawerOverlayService : android.app.Service(), LifecycleOwner, View
         container.setViewTreeViewModelStoreOwner(this)
         container.setViewTreeSavedStateRegistryOwner(this)
 
+
         // Create themed context for ComposeView
         val themedContext = android.view.ContextThemeWrapper(
             this,
@@ -187,8 +192,6 @@ class CategoryDrawerOverlayService : android.app.Service(), LifecycleOwner, View
 
             windowManager.addView(container, layoutParams)
             viewAddedTime = System.currentTimeMillis()
-
-            // Check if view is actually attached
 
             lifecycleRegistry.currentState = Lifecycle.State.RESUMED
         } catch (e: SecurityException) {
