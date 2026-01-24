@@ -1,5 +1,7 @@
 package com.example.jitterpay.ui.addtransaction
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.components.addtransaction.AddTransactionHeader
 import com.example.jitterpay.ui.components.addtransaction.AmountDisplay
 import com.example.jitterpay.ui.components.addtransaction.CategoryGrid
@@ -30,6 +33,12 @@ fun AddTransactionScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val navController = rememberNavController()
+    var screenVisible by remember { mutableStateOf(false) }
+
+    // 触发页面进入动画
+    LaunchedEffect(Unit) {
+        screenVisible = true
+    }
 
     // 处理错误提示
     LaunchedEffect(uiState.error) {
@@ -42,15 +51,45 @@ fun AddTransactionScreen(
     // 处理保存成功
     LaunchedEffect(uiState.saveSuccess) {
         if (uiState.saveSuccess) {
+            screenVisible = false
             navController.popBackStack()
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+    // 页面整体进入/退出动画：从顶部滑入并淡入
+    AnimatedVisibility(
+        visible = screenVisible,
+        enter = fadeIn(
+            animationSpec = tween(
+                durationMillis = AnimationConstants.Duration.SHORT,
+                easing = AnimationConstants.Easing.Entrance
+            )
+        ) + expandVertically(
+            expandFrom = Alignment.Top,
+            animationSpec = tween(
+                durationMillis = AnimationConstants.Duration.LONG,
+                easing = AnimationConstants.Easing.Entrance
+            )
+        ),
+        exit = fadeOut(
+            animationSpec = tween(
+                durationMillis = AnimationConstants.Duration.SHORT,
+                easing = AnimationConstants.Easing.Exit
+            )
+        ) + shrinkVertically(
+            shrinkTowards = Alignment.Top,
+            animationSpec = tween(
+                durationMillis = AnimationConstants.Duration.SHORT,
+                easing = AnimationConstants.Easing.Exit
+            )
+        ),
+        label = "addTransactionScreen"
     ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
         AddTransactionHeader(
             onClose = onClose,
             onDone = { viewModel.saveTransaction() }
@@ -113,5 +152,6 @@ fun AddTransactionScreen(
         )
 
         SnackbarHost(hostState = snackbarHostState)
+    }
     }
 }

@@ -1,5 +1,7 @@
 package com.example.jitterpay.ui.components.addtransaction
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,6 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.theme.GrayText
 import com.example.jitterpay.ui.theme.SurfaceDark
 
@@ -41,7 +44,7 @@ fun CategoryGrid(
         Category("Health", Icons.Default.Favorite),
         Category("Bills", Icons.Default.Receipt)
     )
-    
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -55,24 +58,28 @@ fun CategoryGrid(
             letterSpacing = 1.sp,
             modifier = Modifier.padding(bottom = 16.dp)
         )
-        
+
         Column(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            categories.chunked(3).forEach { rowCategories ->
+            categories.chunked(3).forEachIndexed { rowIndex, rowCategories ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    rowCategories.forEach { category ->
-                        CategoryItem(
-                            category = category,
-                            isSelected = selectedCategory == category.name,
-                            onClick = { onCategorySelected(category.name) },
-                            modifier = Modifier.weight(1f)
-                        )
+                    rowCategories.forEachIndexed { colIndex, category ->
+                        // 计算分类项在整个网格中的索引
+                        val itemIndex = rowIndex * 3 + colIndex
+                        Box(modifier = Modifier.weight(1f)) {
+                            CategoryItem(
+                                category = category,
+                                isSelected = selectedCategory == category.name,
+                                onClick = { onCategorySelected(category.name) },
+                                itemIndex = itemIndex
+                            )
+                        }
                     }
-                    
+
                     // Fill remaining space if row is not complete
                     repeat(3 - rowCategories.size) {
                         Spacer(modifier = Modifier.weight(1f))
@@ -88,37 +95,60 @@ private fun CategoryItem(
     category: Category,
     isSelected: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    itemIndex: Int = 0
 ) {
-    Column(
-        modifier = modifier
-            .aspectRatio(1f)
-            .clip(RoundedCornerShape(16.dp))
-            .background(SurfaceDark)
-            .border(
-                width = if (isSelected) 2.dp else 0.dp,
-                color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
-                shape = RoundedCornerShape(16.dp)
+    // 使用 AnimationConstants.Stagger.gridItemDelay() 计算交错延迟
+    val staggerDelay = AnimationConstants.Stagger.gridItemDelay(itemIndex / 3, itemIndex % 3)
+
+    AnimatedVisibility(
+        visible = true,
+        enter = fadeIn(
+            animationSpec = tween(
+                durationMillis = AnimationConstants.Duration.SHORT,
+                delayMillis = 250 + staggerDelay,
+                easing = AnimationConstants.Easing.Entrance
             )
-            .clickable(onClick = onClick)
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        ) + slideInHorizontally(
+            initialOffsetX = { it / 2 },
+            animationSpec = tween(
+                durationMillis = AnimationConstants.Duration.MEDIUM,
+                delayMillis = 250 + staggerDelay,
+                easing = AnimationConstants.Easing.Entrance
+            )
+        ),
+        label = "categoryItem_$itemIndex"
     ) {
-        Icon(
-            imageVector = category.icon,
-            contentDescription = category.name,
-            tint = if (isSelected) MaterialTheme.colorScheme.primary else Color.White,
-            modifier = Modifier.size(32.dp)
-        )
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        Text(
-            text = category.name,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.Medium,
-            color = if (isSelected) Color.White else GrayText
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .clip(RoundedCornerShape(16.dp))
+                .background(SurfaceDark)
+                .border(
+                    width = if (isSelected) 2.dp else 0.dp,
+                    color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
+                    shape = RoundedCornerShape(16.dp)
+                )
+                .clickable(onClick = onClick)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = category.icon,
+                contentDescription = category.name,
+                tint = if (isSelected) MaterialTheme.colorScheme.primary else Color.White,
+                modifier = Modifier.size(32.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = category.name,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium,
+                color = if (isSelected) Color.White else GrayText
+            )
+        }
     }
 }

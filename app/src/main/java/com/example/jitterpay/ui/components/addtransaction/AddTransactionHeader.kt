@@ -1,5 +1,7 @@
 package com.example.jitterpay.ui.components.addtransaction
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -15,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.jitterpay.ui.animation.AnimationConstants
 
 @Composable
 fun AddTransactionHeader(
@@ -22,35 +25,53 @@ fun AddTransactionHeader(
     onDone: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+    AnimatedVisibility(
+        visible = true,
+        enter = fadeIn(
+            animationSpec = tween(
+                durationMillis = AnimationConstants.Duration.SHORT,
+                delayMillis = 50,
+                easing = AnimationConstants.Easing.Entrance
+            )
+        ) + slideInVertically(
+            initialOffsetY = { -it },
+            animationSpec = tween(
+                durationMillis = AnimationConstants.Duration.MEDIUM,
+                easing = AnimationConstants.Easing.Entrance
+            )
+        ),
+        label = "addTransactionHeader"
     ) {
-        IconButton(onClick = onClose) {
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = "Close",
-                tint = Color.White
-            )
-        }
-        
-        Text(
-            text = "Add Transaction",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color.White
-        )
-        
-        TextButton(onClick = onDone) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onClose) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Close",
+                    tint = Color.White
+                )
+            }
+
             Text(
-                text = "Done",
-                fontSize = 16.sp,
+                text = "Add Transaction",
+                fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary
+                color = Color.White
             )
+
+            TextButton(onClick = onDone) {
+                Text(
+                    text = "Done",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }
