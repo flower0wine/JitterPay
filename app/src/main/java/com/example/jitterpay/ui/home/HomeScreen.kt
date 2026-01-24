@@ -1,14 +1,18 @@
 package com.example.jitterpay.ui.home
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.components.home.BalanceCard
 import com.example.jitterpay.ui.components.home.QuickActions
 import com.example.jitterpay.ui.components.home.TopHeader
@@ -42,32 +46,56 @@ fun HomeScreen(
         },
         containerColor = Color.Black
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
+        // Page-level entrance animation with fade and expand
+        AnimatedVisibility(
+            visible = true,
+            enter = fadeIn(
+                animationSpec = tween(
+                    durationMillis = AnimationConstants.Duration.MEDIUM,
+                    easing = AnimationConstants.Easing.Entrance
+                )
+            ) + expandVertically(
+                animationSpec = tween(
+                    durationMillis = AnimationConstants.Duration.MEDIUM,
+                    easing = AnimationConstants.Easing.Entrance
+                ),
+                expandFrom = Alignment.Top
+            ),
+            exit = fadeOut(
+                animationSpec = tween(
+                    durationMillis = AnimationConstants.Duration.SHORT,
+                    easing = AnimationConstants.Easing.Exit
+                )
+            ),
+            label = "homeScreen"
         ) {
-            TopHeader()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                TopHeader()
 
-            Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-            BalanceCard(
-                balance = balanceFormatted,
-                monthlyIncome = formatCurrency(monthlyIncome),
-                monthlySpent = formatCurrency(monthlySpent)
-            )
+                BalanceCard(
+                    balance = balanceFormatted,
+                    monthlyIncome = formatCurrency(monthlyIncome),
+                    monthlySpent = formatCurrency(monthlySpent)
+                )
 
-            QuickActions()
+                QuickActions()
 
-            // 传递真实交易数据到TransactionHistory
-            TransactionHistory(
-                transactions = uiState.transactions,
-                onDeleteTransaction = { viewModel.deleteTransaction(it) }
-            )
+                // 传递真实交易数据到TransactionHistory
+                TransactionHistory(
+                    transactions = uiState.transactions,
+                    onDeleteTransaction = { viewModel.deleteTransaction(it) }
+                )
 
-            // Add extra space at the bottom to ensure content isn't covered by bottom nav
-            Spacer(modifier = Modifier.height(100.dp))
+                // Add extra space at the bottom to ensure content isn't covered by bottom nav
+                Spacer(modifier = Modifier.height(100.dp))
+            }
         }
     }
 }

@@ -1,11 +1,13 @@
 package com.example.jitterpay.ui.components.home
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -16,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.jitterpay.data.local.entity.TransactionEntity
 import com.example.jitterpay.data.local.entity.TransactionType
+import com.example.jitterpay.ui.animation.AnimationConstants
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -60,11 +63,46 @@ fun TransactionHistory(
             // 空状态显示
             EmptyTransactionState()
         } else {
-            transactions.forEach { transaction ->
-                TransactionItem(
-                    transaction = transaction,
-                    onDelete = { onDeleteTransaction(transaction) }
-                )
+            transactions.forEachIndexed { index, transaction ->
+                var isVisible by remember(transaction.id) { mutableStateOf(false) }
+
+                LaunchedEffect(transaction.id) {
+                    isVisible = true
+                }
+
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInHorizontally(
+                        initialOffsetX = { it / 4 },
+                        animationSpec = tween(
+                            durationMillis = AnimationConstants.Duration.MEDIUM,
+                            delayMillis = AnimationConstants.Stagger.listItemDelay(index),
+                            easing = AnimationConstants.Easing.Entrance
+                        )
+                    ) + fadeIn(
+                        animationSpec = tween(
+                            durationMillis = AnimationConstants.Duration.MEDIUM,
+                            delayMillis = AnimationConstants.Stagger.listItemDelay(index)
+                        )
+                    ),
+                    exit = slideOutHorizontally(
+                        targetOffsetX = { -it / 4 },
+                        animationSpec = tween(
+                            durationMillis = AnimationConstants.Duration.SHORT,
+                            easing = AnimationConstants.Easing.Exit
+                        )
+                    ) + fadeOut(
+                        animationSpec = tween(
+                            durationMillis = AnimationConstants.Duration.SHORT
+                        )
+                    ),
+                    label = "transaction_$index"
+                ) {
+                    TransactionItem(
+                        transaction = transaction,
+                        onDelete = { onDeleteTransaction(transaction) }
+                    )
+                }
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
