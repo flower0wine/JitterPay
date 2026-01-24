@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.jitterpay.data.local.entity.TransactionType
 import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.components.home.BalanceCard
 import com.example.jitterpay.ui.components.home.QuickActions
@@ -34,10 +35,10 @@ fun HomeScreen(
 
     // 计算月度收入和支出（简化计算）
     val monthlyIncome = uiState.transactions
-        .filter { it.type == "INCOME" }
+        .filter { it.type == TransactionType.INCOME.name }
         .sumOf { it.amountCents }
     val monthlySpent = uiState.transactions
-        .filter { it.type == "EXPENSE" }
+        .filter { it.type == TransactionType.EXPENSE.name }
         .sumOf { it.amountCents }
 
     var isVisible by remember { mutableStateOf(false) }

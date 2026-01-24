@@ -47,7 +47,10 @@ fun BalanceCard(
 
     // Parse values for counting animation
     val balanceValue = remember(balance) {
-        balance.replace("[^0-9.]".toRegex(), "").toDoubleOrNull() ?: 0.0
+        val isNegative = balance.startsWith("-")
+        val numberStr = balance.replace("[^0-9.]".toRegex(), "")
+        val value = numberStr.toDoubleOrNull() ?: 0.0
+        if (isNegative) -value else value
     }
     val incomeValue = remember(monthlyIncome) {
         monthlyIncome.replace("[^0-9.]".toRegex(), "").toDoubleOrNull() ?: 0.0
