@@ -300,7 +300,6 @@ class CategoryDrawerOverlayService : android.app.Service(), LifecycleOwner, View
                     dateMillis = System.currentTimeMillis()
                 )
 
-                Log.d("OverlayService", "[SAVE] Transaction saved successfully: $amount - $category")
             } catch (e: Exception) {
                 Log.e("OverlayService", "[SAVE] Failed to save transaction: ${e.message}", e)
                 e.printStackTrace()

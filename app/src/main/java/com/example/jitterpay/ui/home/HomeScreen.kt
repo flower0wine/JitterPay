@@ -23,7 +23,6 @@ import java.util.Locale
 
 @Composable
 fun HomeScreen(
-    onAddTransactionClick: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -41,47 +40,15 @@ fun HomeScreen(
         .filter { it.type == TransactionType.EXPENSE.name }
         .sumOf { it.amountCents }
 
-    var isVisible by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        isVisible = true
-    }
-
     Scaffold(
-        bottomBar = {
-            // Navigation is now handled by BottomNavBar internally via NavController
-        },
         containerColor = Color.Black
     ) { innerPadding ->
-        // Page-level entrance animation with fade and expand
-        AnimatedVisibility(
-            visible = isVisible,
-            enter = fadeIn(
-                animationSpec = tween(
-                    durationMillis = AnimationConstants.Duration.MEDIUM,
-                    easing = AnimationConstants.Easing.Entrance
-                )
-            ) + expandVertically(
-                animationSpec = tween(
-                    durationMillis = AnimationConstants.Duration.MEDIUM,
-                    easing = AnimationConstants.Easing.Entrance
-                ),
-                expandFrom = Alignment.Top
-            ),
-            exit = fadeOut(
-                animationSpec = tween(
-                    durationMillis = AnimationConstants.Duration.SHORT,
-                    easing = AnimationConstants.Easing.Exit
-                )
-            ),
-            label = "homeScreen"
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
-            ) {
                 TopHeader()
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -103,7 +70,6 @@ fun HomeScreen(
                 // Add extra space at the bottom to ensure content isn't covered by bottom nav
                 Spacer(modifier = Modifier.height(100.dp))
             }
-        }
     }
 }
 

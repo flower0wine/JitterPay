@@ -68,9 +68,8 @@ sealed class BottomNavRoute(
 
 @Composable
 fun BottomNavBar(
+    modifier: Modifier = Modifier,
     navController: NavController,
-    onAddClick: () -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -99,11 +98,10 @@ fun BottomNavBar(
                     isSelected = currentRoute == navItem.route,
                     onClick = {
                         navController.navigate(navItem.route) {
+                            // Pop up to the target route to clear intermediate entries
+                            popUpTo(navItem.route) { inclusive = true }
+                            // Avoid multiple copies of the same destination
                             launchSingleTop = true
-                            restoreState = true
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
-                            }
                         }
                     },
                     modifier = Modifier.weight(1f)
@@ -121,11 +119,10 @@ fun BottomNavBar(
                     isSelected = currentRoute == navItem.route,
                     onClick = {
                         navController.navigate(navItem.route) {
+                            // Pop up to the target route to clear intermediate entries
+                            popUpTo(navItem.route) { inclusive = true }
+                            // Avoid multiple copies of the same destination
                             launchSingleTop = true
-                            restoreState = true
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
-                            }
                         }
                     },
                     modifier = Modifier.weight(1f)
@@ -146,7 +143,9 @@ fun BottomNavBar(
                 )
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.primary)
-                .clickable(onClick = onAddClick),
+                .clickable(onClick = {
+                    navController.navigate(NavigationRoutes.ADD_TRANSACTION)
+                }),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -161,11 +160,11 @@ fun BottomNavBar(
 
 @Composable
 fun NavBarItem(
+    modifier: Modifier = Modifier,
     icon: ImageVector,
     label: String,
     isSelected: Boolean = false,
     onClick: () -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

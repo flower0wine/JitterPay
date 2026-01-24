@@ -35,7 +35,6 @@ import com.example.jitterpay.ui.components.profile.*
 
 @Composable
 fun ProfileScreen(
-    onAddTransactionClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: AutoTrackingViewModel = hiltViewModel()
 ) {
@@ -56,9 +55,6 @@ fun ProfileScreen(
     }
 
     Scaffold(
-        bottomBar = {
-            // Navigation is now handled by BottomNavBar internally via NavController
-        },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         AnimatedVisibility(

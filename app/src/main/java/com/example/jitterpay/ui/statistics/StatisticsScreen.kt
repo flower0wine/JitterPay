@@ -19,7 +19,6 @@ import com.example.jitterpay.ui.components.statistics.*
 
 @Composable
 fun StatisticsScreen(
-    onAddTransactionClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: StatisticsViewModel = hiltViewModel()
 ) {
@@ -42,68 +41,47 @@ fun StatisticsScreen(
     }
 
     Scaffold(
-        bottomBar = {
-            // Navigation is now handled by BottomNavBar internally via NavController
-        },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-        // Page-level entrance animation with fade and expand
-        AnimatedVisibility(
-            visible = true,
-            enter = fadeIn(
-                animationSpec = tween(
-                    durationMillis = AnimationConstants.Duration.MEDIUM,
-                    easing = AnimationConstants.Easing.Entrance
-                )
-            ) + expandVertically(
-                animationSpec = tween(
-                    durationMillis = AnimationConstants.Duration.MEDIUM,
-                    easing = AnimationConstants.Easing.Entrance
-                ),
-                expandFrom = Alignment.Top
-            ),
-            label = "statisticsScreen"
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(MaterialTheme.colorScheme.background)
+                .verticalScroll(rememberScrollState())
         ) {
-            Column(
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .background(MaterialTheme.colorScheme.background)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                // Header - simplified without back button since it's now a main destination
-                StatisticsHeader(
-                    onBackClick = { /* Back navigation handled by system */ },
-                    onShareClick = { /* TODO: Implement share */ }
-                )
+            // Header - simplified without back button since it's now a main destination
+            StatisticsHeader(
+                onBackClick = { /* Back navigation handled by system */ },
+                onShareClick = { /* TODO: Implement share */ }
+            )
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-                // Period Selector
-                PeriodSelector(
-                    selectedPeriod = uiState.selectedPeriod,
-                    onPeriodSelected = { viewModel.selectPeriod(it) }
-                )
+            // Period Selector
+            PeriodSelector(
+                selectedPeriod = uiState.selectedPeriod,
+                onPeriodSelected = { viewModel.selectPeriod(it) }
+            )
 
-                Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-                // Donut Chart
-                SpendingDonutChart(data = spendingData)
+            // Donut Chart
+            SpendingDonutChart(data = spendingData)
 
-                Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-                // Category Breakdown
-                CategoryBreakdownList(categories = spendingData.categories)
+            // Category Breakdown
+            CategoryBreakdownList(categories = spendingData.categories)
 
-                Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-                // Download Button
-                DownloadReportButton(
-                    onClick = { /* TODO: Implement PDF download */ }
-                )
+            // Download Button
+            DownloadReportButton(
+                onClick = { /* TODO: Implement PDF download */ }
+            )
 
-                Spacer(modifier = Modifier.height(24.dp))
-            }
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

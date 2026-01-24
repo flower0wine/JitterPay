@@ -27,6 +27,8 @@ import com.example.jitterpay.ui.statistics.StatisticsScreen
 import com.example.jitterpay.ui.addtransaction.AddTransactionViewModel
 import com.example.jitterpay.ui.components.BottomNavBar
 import com.example.jitterpay.ui.theme.JitterPayTheme
+import com.example.jitterpay.ui.animation.SlideTransitions
+import com.example.jitterpay.navigation.*
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -66,9 +68,6 @@ fun JitterPayApp(
             if (showBottomNav) {
                 BottomNavBar(
                     navController = navController,
-                    onAddClick = {
-                        navController.navigate(NavigationRoutes.ADD_TRANSACTION)
-                    }
                 )
             }
         }
@@ -78,42 +77,54 @@ fun JitterPayApp(
             startDestination = NavigationRoutes.HOME,
             modifier = Modifier.padding(paddingValues)
         ) {
-            composable(NavigationRoutes.HOME) {
-                HomeScreen(
-                    onAddTransactionClick = {
-                        navController.navigate(NavigationRoutes.ADD_TRANSACTION)
-                    }
-                )
+            composable(
+                route = NavigationRoutes.HOME,
+                enterTransition = { with(this) { getBottomNavEnterTransition() } },
+                exitTransition = { with(this) { getBottomNavExitTransition() } },
+                popEnterTransition = { with(this) { getBottomNavPopEnterTransition() } },
+                popExitTransition = { with(this) { getBottomNavPopExitTransition() } }
+            ) {
+                HomeScreen()
             }
 
-            composable(NavigationRoutes.STATS) {
-                StatisticsScreen(
-                    onAddTransactionClick = {
-                        navController.navigate(NavigationRoutes.ADD_TRANSACTION)
-                    }
-                )
+            composable(
+                route = NavigationRoutes.STATS,
+                enterTransition = { with(this) { getBottomNavEnterTransition() } },
+                exitTransition = { with(this) { getBottomNavExitTransition() } },
+                popEnterTransition = { with(this) { getBottomNavPopEnterTransition() } },
+                popExitTransition = { with(this) { getBottomNavPopExitTransition() } }
+            ) {
+                StatisticsScreen()
             }
 
-            composable(NavigationRoutes.WALLET) {
+            composable(
+                route = NavigationRoutes.WALLET,
+                enterTransition = { with(this) { getBottomNavEnterTransition() } },
+                exitTransition = { with(this) { getBottomNavExitTransition() } },
+                popEnterTransition = { with(this) { getBottomNavPopEnterTransition() } },
+                popExitTransition = { with(this) { getBottomNavPopExitTransition() } }
+            ) {
                 // Placeholder for Wallet screen
-                HomeScreen(
-                    onAddTransactionClick = {
-                        navController.navigate(NavigationRoutes.ADD_TRANSACTION)
-                    }
-                )
+                HomeScreen()
             }
 
-            composable(NavigationRoutes.PROFILE) {
-                ProfileScreen(
-                    onAddTransactionClick = {
-                        navController.navigate(NavigationRoutes.ADD_TRANSACTION)
-                    }
-                )
+            composable(
+                route = NavigationRoutes.PROFILE,
+                enterTransition = { with(this) { getBottomNavEnterTransition() } },
+                exitTransition = { with(this) { getBottomNavExitTransition() } },
+                popEnterTransition = { with(this) { getBottomNavPopEnterTransition() } },
+                popExitTransition = { with(this) { getBottomNavPopExitTransition() } }
+            ) {
+                ProfileScreen()
             }
 
-            composable(NavigationRoutes.ADD_TRANSACTION) {
-                val viewModel: AddTransactionViewModel = hiltViewModel()
-
+            composable(
+                route = NavigationRoutes.ADD_TRANSACTION,
+                enterTransition = { SlideTransitions.slideInRight() },
+                exitTransition = { SlideTransitions.slideOutRight() },
+                popEnterTransition = { SlideTransitions.slideInRight() },
+                popExitTransition = { SlideTransitions.slideOutRight() }
+            ) {
                 AddTransactionScreen(
                     onClose = {
                         navController.popBackStack()
