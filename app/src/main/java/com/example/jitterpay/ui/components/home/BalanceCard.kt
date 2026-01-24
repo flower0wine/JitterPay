@@ -160,7 +160,7 @@ fun BalanceCard(
                             Text(
                                 text = "↗",
                                 color = Color.Black,
-                                fontSize = 14.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Spacer(modifier = Modifier.width(4.dp))
@@ -185,7 +185,7 @@ fun BalanceCard(
                             Text(
                                 text = "↙",
                                 color = Color.Black,
-                                fontSize = 14.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Spacer(modifier = Modifier.width(4.dp))

@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.rememberNavController
 import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.components.addtransaction.AddTransactionHeader
 import com.example.jitterpay.ui.components.addtransaction.AmountDisplay
@@ -32,7 +31,6 @@ fun AddTransactionScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    val navController = rememberNavController()
     var screenVisible by remember { mutableStateOf(false) }
 
     // 触发页面进入动画
@@ -52,7 +50,7 @@ fun AddTransactionScreen(
     LaunchedEffect(uiState.saveSuccess) {
         if (uiState.saveSuccess) {
             screenVisible = false
-            navController.popBackStack()
+            onClose()
         }
     }
 
