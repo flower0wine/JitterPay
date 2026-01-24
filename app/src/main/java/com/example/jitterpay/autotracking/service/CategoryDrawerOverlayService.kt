@@ -28,6 +28,7 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import com.example.jitterpay.R
 import com.example.jitterpay.ui.autotracking.CategoryDrawerContent
+import com.example.jitterpay.ui.theme.JitterPayTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -164,19 +165,21 @@ class CategoryDrawerOverlayService : android.app.Service(), LifecycleOwner, View
         // Create ComposeView
         overlayView = ComposeView(themedContext).apply {
             setContent {
-                CategoryDrawerContent(
-                    transactionData = transactionData,
-                    onCategorySelected = { category ->
-                        // Save transaction with selected category
-                        saveTransaction(amount, paymentMethod, description, category)
-                        hideOverlay()
-                        stopSelf()
-                    },
-                    onCancel = {
-                        hideOverlay()
-                        stopSelf()
-                    }
-                )
+                JitterPayTheme {
+                    CategoryDrawerContent(
+                        transactionData = transactionData,
+                        onCategorySelected = { category ->
+                            // Save transaction with selected category
+                            saveTransaction(amount, paymentMethod, description, category)
+                            hideOverlay()
+                            stopSelf()
+                        },
+                        onCancel = {
+                            hideOverlay()
+                            stopSelf()
+                        }
+                    )
+                }
             }
         }
 
