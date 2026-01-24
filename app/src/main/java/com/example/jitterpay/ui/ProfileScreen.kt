@@ -2,6 +2,15 @@ package com.example.jitterpay.ui
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -21,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.jitterpay.autotracking.AutoTrackingViewModel
 import com.example.jitterpay.autotracking.util.AutoTrackingPermissions
+import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.components.profile.*
 
 @Composable
@@ -31,10 +41,12 @@ fun ProfileScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    var isVisible by remember { mutableStateOf(false) }
 
     // Check permissions when screen recomposes
     LaunchedEffect(Unit) {
         viewModel.checkPermissions()
+        isVisible = true
     }
 
     // Handle intents for permission results
@@ -49,29 +61,60 @@ fun ProfileScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
+        AnimatedVisibility(
+            visible = true,
+            enter = fadeIn(
+                animationSpec = tween(
+                    durationMillis = AnimationConstants.Duration.MEDIUM,
+                    easing = AnimationConstants.Easing.Entrance
+                )
+            ) + expandVertically(
+                animationSpec = tween(
+                    durationMillis = AnimationConstants.Duration.LONG,
+                    easing = AnimationConstants.Easing.Entrance
+                ),
+                expandFrom = Alignment.Top
+            ),
+            exit = fadeOut(
+                animationSpec = tween(
+                    durationMillis = AnimationConstants.Duration.SHORT,
+                    easing = AnimationConstants.Easing.Exit
+                )
+            ) + shrinkVertically(
+                animationSpec = tween(
+                    durationMillis = AnimationConstants.Duration.SHORT,
+                    easing = AnimationConstants.Easing.Exit
+                ),
+                shrinkTowards = Alignment.Top
+            ),
+            label = "profileScreen"
         ) {
-            // Simplified header without back button since it's now a main destination
-            ProfileTopBar(
-                onBackClick = { /* Back navigation handled by system */ }
-            )
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                // Simplified header without back button since it's now a main destination
+                ProfileTopBar(
+                    onBackClick = { /* Back navigation handled by system */ }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                ProfileHeader(
+                    userName = "Alex Morgan",
+                    userEmail = "alex.morgan@flowpay.io",
+                    isPro = true
+                )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            ProfileHeader(
-                userName = "Alex Morgan",
-                userEmail = "alex.morgan@flowpay.io",
-                isPro = true
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Auto-tracking section
-            SettingsSection(title = "AUTO-TRACKING") {
+            // Auto-tracking section with staggered animation delays
+            SettingsSection(
+                title = "AUTO-TRACKING",
+                animationDelayMs = AnimationConstants.Stagger.SEQUENCE[0]
+            ) {
                 SettingsItemWithToggleAndWarning(
                     icon = Icons.Default.AccountBalanceWallet,
                     iconTint = Color.Black,
@@ -120,34 +163,73 @@ fun ProfileScreen(
                         }
                     } else {
                         null
-                    }
+                    },
+                    animationDelayMs = AnimationConstants.Stagger.SEQUENCE[1]
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Permission status indicators
+                // Permission status indicators with staggered animations
                 if (uiState.isAutoTrackingEnabled) {
-                    PermissionStatusIndicator(
-                        title = "Accessibility Service",
-                        isGranted = uiState.isAccessibilityEnabled,
-                        onSettingsClick = {
-                            context.startActivity(
-                                viewModel.openAccessibilitySettings(context)
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn(
+                            animationSpec = tween(
+                                durationMillis = AnimationConstants.Duration.SHORT,
+                                delayMillis = AnimationConstants.Stagger.SEQUENCE[2],
+                                easing = AnimationConstants.Easing.Entrance
                             )
-                        }
-                    )
+                        ) + slideInHorizontally(
+                            initialOffsetX = { it / 4 },
+                            animationSpec = tween(
+                                durationMillis = AnimationConstants.Duration.MEDIUM,
+                                delayMillis = AnimationConstants.Stagger.SEQUENCE[2],
+                                easing = AnimationConstants.Easing.Entrance
+                            )
+                        ),
+                        label = "accessibilityPermission"
+                    ) {
+                        PermissionStatusIndicator(
+                            title = "Accessibility Service",
+                            isGranted = uiState.isAccessibilityEnabled,
+                            onSettingsClick = {
+                                context.startActivity(
+                                    viewModel.openAccessibilitySettings(context)
+                                )
+                            }
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    PermissionStatusIndicator(
-                        title = "Display Over Other Apps",
-                        isGranted = uiState.isOverlayGranted,
-                        onSettingsClick = {
-                            context.startActivity(
-                                viewModel.openOverlaySettings(context)
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn(
+                            animationSpec = tween(
+                                durationMillis = AnimationConstants.Duration.SHORT,
+                                delayMillis = AnimationConstants.Stagger.SEQUENCE[3],
+                                easing = AnimationConstants.Easing.Entrance
                             )
-                        }
-                    )
+                        ) + slideInHorizontally(
+                            initialOffsetX = { it / 4 },
+                            animationSpec = tween(
+                                durationMillis = AnimationConstants.Duration.MEDIUM,
+                                delayMillis = AnimationConstants.Stagger.SEQUENCE[3],
+                                easing = AnimationConstants.Easing.Entrance
+                            )
+                        ),
+                        label = "overlayPermission"
+                    ) {
+                        PermissionStatusIndicator(
+                            title = "Display Over Other Apps",
+                            isGranted = uiState.isOverlayGranted,
+                            onSettingsClick = {
+                                context.startActivity(
+                                    viewModel.openOverlaySettings(context)
+                                )
+                            }
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -155,13 +237,18 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            SettingsSection(title = "BOOKKEEPING") {
+            // Bookkeeping section with staggered animation delays
+            SettingsSection(
+                title = "BOOKKEEPING",
+                animationDelayMs = AnimationConstants.Stagger.SEQUENCE[4]
+            ) {
                 SettingsItem(
                     icon = Icons.Default.AccountBalance,
                     iconTint = Color.Black,
                     iconBackground = MaterialTheme.colorScheme.primary,
                     title = "Budget Settings",
-                    onClick = { /* TODO */ }
+                    onClick = { /* TODO */ },
+                    animationDelayMs = AnimationConstants.Stagger.listItemDelay(0)
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -171,7 +258,8 @@ fun ProfileScreen(
                     iconTint = Color.Black,
                     iconBackground = MaterialTheme.colorScheme.primary,
                     title = "Multi-currency",
-                    onClick = { /* TODO */ }
+                    onClick = { /* TODO */ },
+                    animationDelayMs = AnimationConstants.Stagger.listItemDelay(1)
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -181,20 +269,26 @@ fun ProfileScreen(
                     iconTint = Color.Black,
                     iconBackground = MaterialTheme.colorScheme.primary,
                     title = "Data Export",
-                    onClick = { /* TODO */ }
+                    onClick = { /* TODO */ },
+                    animationDelayMs = AnimationConstants.Stagger.listItemDelay(2)
                 )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            SettingsSection(title = "PREFERENCES") {
+            // Preferences section with staggered animation delays
+            SettingsSection(
+                title = "PREFERENCES",
+                animationDelayMs = AnimationConstants.Stagger.SEQUENCE[4]
+            ) {
                 SettingsItem(
                     icon = Icons.Default.DarkMode,
                     iconTint = Color.Black,
                     iconBackground = MaterialTheme.colorScheme.primary,
                     title = "Appearance",
                     trailingText = "Dark",
-                    onClick = { /* TODO */ }
+                    onClick = { /* TODO */ },
+                    animationDelayMs = AnimationConstants.Stagger.listItemDelay(0)
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -204,7 +298,8 @@ fun ProfileScreen(
                     iconTint = Color.Black,
                     iconBackground = MaterialTheme.colorScheme.primary,
                     title = "About",
-                    onClick = { /* TODO */ }
+                    onClick = { /* TODO */ },
+                    animationDelayMs = AnimationConstants.Stagger.listItemDelay(1)
                 )
             }
 
@@ -218,6 +313,7 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
+    }
 }
 
 @Composable
@@ -225,37 +321,59 @@ private fun ProfileTopBar(
     onBackClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+    AnimatedVisibility(
+        visible = true,
+        enter = slideInHorizontally(
+            initialOffsetX = { -it / 2 },
+            animationSpec = tween(
+                durationMillis = AnimationConstants.Duration.MEDIUM,
+                easing = AnimationConstants.Easing.Entrance
+            )
+        ) + fadeIn(
+            animationSpec = tween(
+                durationMillis = AnimationConstants.Duration.SHORT,
+                easing = AnimationConstants.Easing.Entrance
+            )
+        ),
+        label = "profileTopBar"
     ) {
-        IconButton(
-            onClick = onBackClick,
-            modifier = Modifier.size(40.dp)
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
-                tint = MaterialTheme.colorScheme.onBackground
+            IconButton(
+                onClick = onBackClick,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Text(
+                text = "Profile",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Text(
-            text = "Profile",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
     }
 }
 
+
 /**
- * Permission status indicator component
+ * Permission status indicator component with animated icon color and button visibility
+ *
+ * @param title Permission title text
+ * @param isGranted Whether permission is granted
+ * @param onSettingsClick Settings button click handler
  */
 @Composable
 private fun PermissionStatusIndicator(
@@ -274,6 +392,7 @@ private fun PermissionStatusIndicator(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Icon with animated color transition
             Icon(
                 imageVector = if (isGranted) Icons.Default.CheckCircle else Icons.Default.Cancel,
                 contentDescription = null,
@@ -288,7 +407,35 @@ private fun PermissionStatusIndicator(
             )
         }
 
-        if (!isGranted) {
+        // Animated visibility for enable button
+        AnimatedVisibility(
+            visible = !isGranted,
+            enter = fadeIn(
+                animationSpec = tween(
+                    durationMillis = AnimationConstants.Duration.SHORT,
+                    easing = AnimationConstants.Easing.Entrance
+                )
+            ) + expandVertically(
+                animationSpec = tween(
+                    durationMillis = AnimationConstants.Duration.SHORT,
+                    easing = AnimationConstants.Easing.Entrance
+                ),
+                expandFrom = Alignment.CenterVertically
+            ),
+            exit = fadeOut(
+                animationSpec = tween(
+                    durationMillis = AnimationConstants.Duration.MICRO,
+                    easing = AnimationConstants.Easing.Exit
+                )
+            ) + shrinkVertically(
+                animationSpec = tween(
+                    durationMillis = AnimationConstants.Duration.MICRO,
+                    easing = AnimationConstants.Easing.Exit
+                ),
+                shrinkTowards = Alignment.CenterVertically
+            ),
+            label = "enableButton"
+        ) {
             TextButton(
                 onClick = onSettingsClick,
                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
@@ -301,3 +448,4 @@ private fun PermissionStatusIndicator(
         }
     }
 }
+
