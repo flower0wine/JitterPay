@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -64,46 +65,48 @@ fun TransactionHistory(
             EmptyTransactionState()
         } else {
             transactions.forEachIndexed { index, transaction ->
-                var isVisible by remember(transaction.id) { mutableStateOf(false) }
+                key(transaction.id) {
+                    var isVisible by remember { mutableStateOf(false) }
 
-                LaunchedEffect(transaction.id) {
-                    isVisible = true
-                }
+                    LaunchedEffect(Unit) {
+                        isVisible = true
+                    }
 
-                AnimatedVisibility(
-                    visible = isVisible,
-                    enter = slideInHorizontally(
-                        initialOffsetX = { it / 4 },
-                        animationSpec = tween(
-                            durationMillis = AnimationConstants.Duration.MEDIUM,
-                            delayMillis = AnimationConstants.Stagger.listItemDelay(index),
-                            easing = AnimationConstants.Easing.Entrance
+                    AnimatedVisibility(
+                        visible = isVisible,
+                        enter = slideInHorizontally(
+                            initialOffsetX = { it / 4 },
+                            animationSpec = tween(
+                                durationMillis = AnimationConstants.Duration.MEDIUM,
+                                delayMillis = AnimationConstants.Stagger.listItemDelay(index),
+                                easing = AnimationConstants.Easing.Entrance
+                            )
+                        ) + fadeIn(
+                            animationSpec = tween(
+                                durationMillis = AnimationConstants.Duration.MEDIUM,
+                                delayMillis = AnimationConstants.Stagger.listItemDelay(index)
+                            )
+                        ),
+                        exit = slideOutHorizontally(
+                            targetOffsetX = { -it / 4 },
+                            animationSpec = tween(
+                                durationMillis = AnimationConstants.Duration.SHORT,
+                                easing = AnimationConstants.Easing.Exit
+                            )
+                        ) + fadeOut(
+                            animationSpec = tween(
+                                durationMillis = AnimationConstants.Duration.SHORT
+                            )
+                        ),
+                        label = "transaction_${transaction.id}"
+                    ) {
+                        TransactionItem(
+                            transaction = transaction,
+                            onDelete = { onDeleteTransaction(transaction) }
                         )
-                    ) + fadeIn(
-                        animationSpec = tween(
-                            durationMillis = AnimationConstants.Duration.MEDIUM,
-                            delayMillis = AnimationConstants.Stagger.listItemDelay(index)
-                        )
-                    ),
-                    exit = slideOutHorizontally(
-                        targetOffsetX = { -it / 4 },
-                        animationSpec = tween(
-                            durationMillis = AnimationConstants.Duration.SHORT,
-                            easing = AnimationConstants.Easing.Exit
-                        )
-                    ) + fadeOut(
-                        animationSpec = tween(
-                            durationMillis = AnimationConstants.Duration.SHORT
-                        )
-                    ),
-                    label = "transaction_$index"
-                ) {
-                    TransactionItem(
-                        transaction = transaction,
-                        onDelete = { onDeleteTransaction(transaction) }
-                    )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
@@ -121,7 +124,7 @@ private fun EmptyTransactionState() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
-            imageVector = Icons.Default.ReceiptLong,
+            imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
             contentDescription = null,
             tint = Color.Gray,
             modifier = Modifier.size(64.dp)

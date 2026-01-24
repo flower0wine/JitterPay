@@ -87,23 +87,6 @@ fun BalanceCard(
         label = "spent"
     )
 
-    AnimatedVisibility(
-        visible = true,
-        enter = fadeIn(
-            animationSpec = tween(
-                durationMillis = AnimationConstants.Duration.SHORT,
-                easing = AnimationConstants.Easing.Entrance
-            )
-        ) + slideInVertically(
-            initialOffsetY = { it / 4 },
-            animationSpec = tween(
-                durationMillis = AnimationConstants.Duration.LONG,
-                delayMillis = 100,
-                easing = AnimationConstants.Easing.Entrance
-            )
-        ),
-        label = "balanceCard"
-    ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -213,12 +196,10 @@ fun BalanceCard(
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold
                             )
+                        }
+                    }
+                }
             }
-        }
-        }
-    }
-}
-
         }
     }
 }

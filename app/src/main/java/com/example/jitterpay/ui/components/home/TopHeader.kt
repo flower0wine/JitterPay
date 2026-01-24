@@ -24,29 +24,6 @@ import com.example.jitterpay.ui.animation.AnimationConstants
 fun TopHeader(
     modifier: Modifier = Modifier
 ) {
-    var isVisible by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        isVisible = true
-    }
-
-    AnimatedVisibility(
-        visible = isVisible,
-        enter = slideInVertically(
-            initialOffsetY = { -it / 2 },
-            animationSpec = tween(
-                durationMillis = AnimationConstants.Duration.SHORT,
-                delayMillis = 50,
-                easing = AnimationConstants.Easing.Entrance
-            )
-        ) + fadeIn(
-            animationSpec = tween(
-                durationMillis = AnimationConstants.Duration.SHORT,
-                delayMillis = 50
-            )
-        ),
-        label = "topHeader"
-    ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -129,7 +106,6 @@ fun TopHeader(
                 )
             }
         }
-    }
     }
 }
 

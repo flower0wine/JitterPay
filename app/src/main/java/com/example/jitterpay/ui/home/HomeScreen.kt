@@ -40,6 +40,12 @@ fun HomeScreen(
         .filter { it.type == "EXPENSE" }
         .sumOf { it.amountCents }
 
+    var isVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
     Scaffold(
         bottomBar = {
             // Navigation is now handled by BottomNavBar internally via NavController
@@ -48,7 +54,7 @@ fun HomeScreen(
     ) { innerPadding ->
         // Page-level entrance animation with fade and expand
         AnimatedVisibility(
-            visible = true,
+            visible = isVisible,
             enter = fadeIn(
                 animationSpec = tween(
                     durationMillis = AnimationConstants.Duration.MEDIUM,
