@@ -91,13 +91,6 @@ fun ProfileScreen(
                     .padding(paddingValues)
                     .verticalScroll(rememberScrollState())
             ) {
-                // Simplified header without back button since it's now a main destination
-                ProfileTopBar(
-                    onBackClick = { /* Back navigation handled by system */ }
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
                 ProfileHeader(
                     userName = "Alex Morgan",
                     userEmail = "alex.morgan@flowpay.io",
@@ -311,58 +304,6 @@ fun ProfileScreen(
     }
     }
 }
-
-@Composable
-private fun ProfileTopBar(
-    onBackClick: () -> Unit = {},
-    modifier: Modifier = Modifier
-) {
-    AnimatedVisibility(
-        visible = true,
-        enter = slideInHorizontally(
-            initialOffsetX = { -it / 2 },
-            animationSpec = tween(
-                durationMillis = AnimationConstants.Duration.MEDIUM,
-                easing = AnimationConstants.Easing.Entrance
-            )
-        ) + fadeIn(
-            animationSpec = tween(
-                durationMillis = AnimationConstants.Duration.SHORT,
-                easing = AnimationConstants.Easing.Entrance
-            )
-        ),
-        label = "profileTopBar"
-    ) {
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = onBackClick,
-                modifier = Modifier.size(40.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = MaterialTheme.colorScheme.onBackground
-                )
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Text(
-                text = "Profile",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
-    }
-}
-
 
 /**
  * Permission status indicator component with animated icon color and button visibility

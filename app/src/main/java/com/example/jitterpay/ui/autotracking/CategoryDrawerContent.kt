@@ -48,6 +48,13 @@ fun CategoryDrawerContent(
     val data: CategoryDrawerOverlayService.TransactionData? by transactionData.collectAsState()
     var selectedCategory by remember { mutableStateOf<String?>(null) }
 
+    // 默认选中第一项
+    LaunchedEffect(Unit) {
+        if (selectedCategory == null) {
+            selectedCategory = "Dining"
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()

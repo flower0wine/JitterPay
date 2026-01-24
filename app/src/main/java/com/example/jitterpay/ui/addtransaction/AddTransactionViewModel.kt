@@ -144,7 +144,7 @@ data class AddTransactionUiState(
     val selectedType: TransactionType = TransactionType.EXPENSE,
     val amount: Money = Money.ZERO,
     val displayAmount: String = "",  // 用于显示的原始输入
-    val selectedCategory: String? = null,
+    val selectedCategory: String? = "Dining",
     val selectedDateMillis: Long? = null,
     val description: String = "",
     val isSaving: Boolean = false,

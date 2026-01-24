@@ -50,14 +50,6 @@ fun StatisticsScreen(
                 .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Header - simplified without back button since it's now a main destination
-            StatisticsHeader(
-                onBackClick = { /* Back navigation handled by system */ },
-                onShareClick = { /* TODO: Implement share */ }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             // Period Selector
             PeriodSelector(
                 selectedPeriod = uiState.selectedPeriod,
