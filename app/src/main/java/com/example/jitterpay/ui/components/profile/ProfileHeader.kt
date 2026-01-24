@@ -7,6 +7,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -14,6 +15,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,7 +31,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.painterResource
+import com.example.jitterpay.R
 import com.example.jitterpay.ui.animation.AnimationConstants
+
+// TODO: Add avatar images to app/src/main/res/drawable/ directory
+// Example filenames: avatar_1.png, avatar_2.png, avatar_3.png, etc.
+// Currently using avatar_1 as default
 
 /**
  * Profile header with staggered entrance animations for smooth appearance
@@ -157,12 +165,14 @@ fun ProfileHeader(
                 contentAlignment = Alignment.BottomEnd
             ) {
                 // Avatar circle
-                Box(
+                Image(
+                    painter = painterResource(id = R.drawable.avatar_1),
+                    contentDescription = "Profile Avatar",
                     modifier = Modifier
                         .size(120.dp)
                         .clip(CircleShape)
-                        .border(4.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                        .background(MaterialTheme.colorScheme.surface)
+                        .border(4.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                    contentScale = ContentScale.Crop
                 )
 
                 // Edit button with staggered appearance

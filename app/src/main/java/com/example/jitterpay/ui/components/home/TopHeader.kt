@@ -2,6 +2,7 @@ package com.example.jitterpay.ui.components.home
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -15,10 +16,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.jitterpay.R
 import com.example.jitterpay.ui.animation.AnimationConstants
+
+// TODO: Add avatar images to app/src/main/res/drawable/ directory
+// Example filenames: avatar_1.png, avatar_2.png, avatar_3.png, etc.
+// Currently using avatar_1 as default
 
 @Composable
 fun TopHeader(
@@ -38,12 +46,14 @@ fun TopHeader(
                     .clip(CircleShape)
                     .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
             ) {
-                // Placeholder for profile image
-                Surface(
+                // Profile image
+                Image(
+                    painter = painterResource(id = R.drawable.avatar_1),
+                    contentDescription = "Profile Avatar",
                     modifier = Modifier.fillMaxSize(),
-                    color = Color.LightGray
-                ) {}
-                
+                    contentScale = ContentScale.Crop
+                )
+
                 // Active status dot
                 Box(
                     modifier = Modifier
