@@ -5,6 +5,14 @@ import com.example.jitterpay.data.local.dao.TransactionDao
 import com.example.jitterpay.data.local.entity.TransactionEntity
 import com.example.jitterpay.data.local.entity.TransactionType
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -153,6 +161,96 @@ class TransactionRepository @Inject constructor(
      */
     fun getExpenseByCategory(startOfMonth: Long, endOfMonth: Long): Flow<List<CategoryTotal>> {
         return transactionDao.getExpenseByCategory(startOfMonth, endOfMonth)
+    }
+
+    // ==================== 实时统计操作 ====================
+
+    /**
+     * 获取当前周期的收入总额（分单位）
+     * @param periodType 周期类型：WEEKLY, MONTHLY, YEARLY
+     * @note 使用 kotlinx.datetime 动态计算当前周期的时间范围
+     */
+    fun getCurrentPeriodIncome(periodType: String): Flow<Long> {
+        return getAllTransactions().map { transactions ->
+            val (startMillis, endMillis) = calculateCurrentPeriodRange(periodType)
+            transactions
+                .filter { it.type == TransactionType.INCOME.name }
+                .filter { it.dateMillis >= startMillis && it.dateMillis < endMillis }
+                .sumOf { it.amountCents }
+        }
+    }
+
+    /**
+     * 获取当前周期的支出总额（分单位）
+     * @param periodType 周期类型：WEEKLY, MONTHLY, YEARLY
+     */
+    fun getCurrentPeriodExpense(periodType: String): Flow<Long> {
+        return getAllTransactions().map { transactions ->
+            val (startMillis, endMillis) = calculateCurrentPeriodRange(periodType)
+            transactions
+                .filter { it.type == TransactionType.EXPENSE.name }
+                .filter { it.dateMillis >= startMillis && it.dateMillis < endMillis }
+                .sumOf { it.amountCents }
+        }
+    }
+
+    /**
+     * 按分类统计当前周期的支出
+     * @param periodType 周期类型：WEEKLY, MONTHLY, YEARLY
+     */
+    fun getCurrentPeriodExpenseByCategory(periodType: String): Flow<List<CategoryTotal>> {
+        return getAllTransactions().map { transactions ->
+            val (startMillis, endMillis) = calculateCurrentPeriodRange(periodType)
+            transactions
+                .filter { it.type == TransactionType.EXPENSE.name }
+                .filter { it.dateMillis >= startMillis && it.dateMillis < endMillis }
+                .groupBy { it.category }
+                .map { (category, txs) ->
+                    CategoryTotal(category, txs.sumOf { it.amountCents })
+                }
+                .sortedByDescending { it.totalAmount }
+        }
+    }
+
+    /**
+     * 计算当前周期的时间范围
+     * @param periodType 周期类型：WEEKLY, MONTHLY, YEARLY
+     * @return Pair<开始时间戳(毫秒), 结束时间戳(毫秒)>
+     */
+    private fun calculateCurrentPeriodRange(periodType: String): Pair<Long, Long> {
+        val calendar = Calendar.getInstance()
+        val endMillis = calendar.timeInMillis
+
+        when (periodType) {
+            "WEEKLY" -> {
+                // 计算本周一
+                val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+                // Calendar.SUNDAY = 1, Calendar.MONDAY = 2
+                // 需要找到本周的周一
+                val daysFromMonday = when (dayOfWeek) {
+                    Calendar.SUNDAY -> 6  // 周日往前6天
+                    else -> dayOfWeek - 2  // 周一到周六往前(dayOfWeek-2)天
+                }
+                calendar.add(Calendar.DAY_OF_YEAR, -daysFromMonday)
+            }
+            "MONTHLY" -> {
+                // 设置到本月1日
+                calendar.set(Calendar.DAY_OF_MONTH, 1)
+            }
+            "YEARLY" -> {
+                // 设置到本年1月1日
+                calendar.set(Calendar.DAY_OF_YEAR, 1)
+            }
+        }
+
+        // 清除时分秒
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+
+        val startMillis = calendar.timeInMillis
+        return Pair(startMillis, endMillis)
     }
 
     /**

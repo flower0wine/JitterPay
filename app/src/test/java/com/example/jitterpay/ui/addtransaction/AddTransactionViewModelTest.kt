@@ -2,6 +2,7 @@ package com.example.jitterpay.ui.addtransaction
 
 import com.example.jitterpay.data.local.entity.TransactionType
 import com.example.jitterpay.data.repository.TransactionRepository
+import com.example.jitterpay.domain.usecase.AmountCalculator
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -21,13 +22,15 @@ class AddTransactionViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var repository: TransactionRepository
+    private lateinit var amountCalculator: AmountCalculator
     private lateinit var viewModel: AddTransactionViewModel
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         repository = mockk(relaxed = true)
-        viewModel = AddTransactionViewModel(repository)
+        amountCalculator = mockk(relaxed = true)
+        viewModel = AddTransactionViewModel(repository, amountCalculator)
     }
 
     @After
@@ -41,8 +44,13 @@ class AddTransactionViewModelTest {
     }
 
     @Test
-    fun `initial amount is zero`() {
-        assertEquals("0.00", viewModel.uiState.value.amount)
+    fun `initial display amount is empty`() {
+        assertEquals("", viewModel.uiState.value.displayAmount)
+    }
+
+    @Test
+    fun `initial amount is zero Money`() {
+        assertTrue(viewModel.uiState.value.amount.toCents() == 0L)
     }
 
     @Test
@@ -53,10 +61,17 @@ class AddTransactionViewModelTest {
     }
 
     @Test
-    fun `setAmount updates state`() {
-        viewModel.setAmount("10.50")
+    fun `onDigitClick updates display amount`() {
+        coEvery { amountCalculator.process(any()) } returns AmountCalculator.State(
+            displayValue = "10",
+            currentAmount = com.example.jitterpay.domain.model.Money.fromCents(1000),
+            isEmpty = false
+        )
 
-        assertEquals("10.50", viewModel.uiState.value.amount)
+        viewModel.onDigitClick("1")
+        viewModel.onDigitClick("0")
+
+        assertEquals("10", viewModel.uiState.value.displayAmount)
     }
 
     @Test
@@ -83,11 +98,16 @@ class AddTransactionViewModelTest {
 
     @Test
     fun `saveTransaction with missing category shows error`() = runTest {
-        // Given - no category selected
-        viewModel.setAmount("10.00")
+        // Given - no category selected, but has amount
+        coEvery { amountCalculator.process(any()) } returns AmountCalculator.State(
+            displayValue = "10.00",
+            currentAmount = com.example.jitterpay.domain.model.Money.fromCents(1000),
+            isEmpty = false
+        )
+        viewModel.onDigitClick("10")
 
         // When
-        viewModel.saveTransaction {}
+        viewModel.saveTransaction()
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
@@ -99,10 +119,10 @@ class AddTransactionViewModelTest {
     fun `saveTransaction with zero amount shows error`() = runTest {
         // Given - zero amount
         viewModel.setCategory("Dining")
-        viewModel.setAmount("0.00")
+        // amount is ZERO by default
 
         // When
-        viewModel.saveTransaction {}
+        viewModel.saveTransaction()
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
@@ -113,13 +133,19 @@ class AddTransactionViewModelTest {
     fun `saveTransaction with valid data calls repository`() = runTest {
         // Given
         coEvery { repository.addTransaction(any(), any(), any(), any(), any()) } returns 1L
+        coEvery { amountCalculator.process(any()) } returns AmountCalculator.State(
+            displayValue = "10.00",
+            currentAmount = com.example.jitterpay.domain.model.Money.fromCents(1000),
+            isEmpty = false
+        )
+
         viewModel.setType(TransactionType.EXPENSE)
-        viewModel.setAmount("10.00")
+        viewModel.onDigitClick("10")
         viewModel.setCategory("Dining")
         viewModel.setDate(System.currentTimeMillis())
 
         // When
-        viewModel.saveTransaction {}
+        viewModel.saveTransaction()
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
@@ -138,11 +164,17 @@ class AddTransactionViewModelTest {
     fun `saveTransaction sets isSaving flag while processing`() = runTest {
         // Given
         coEvery { repository.addTransaction(any(), any(), any(), any(), any()) } returns 1L
-        viewModel.setAmount("10.00")
+        coEvery { amountCalculator.process(any()) } returns AmountCalculator.State(
+            displayValue = "10.00",
+            currentAmount = com.example.jitterpay.domain.model.Money.fromCents(1000),
+            isEmpty = false
+        )
+
+        viewModel.onDigitClick("10")
         viewModel.setCategory("Dining")
 
         // When
-        viewModel.saveTransaction {}
+        viewModel.saveTransaction()
 
         // Advance until the coroutine completes
         testDispatcher.scheduler.advanceUntilIdle()
@@ -153,8 +185,14 @@ class AddTransactionViewModelTest {
 
     @Test
     fun `clearError clears error state`() = runTest {
-        // Trigger an error first
-        viewModel.saveTransaction {}
+        // Trigger an error first - save without category
+        coEvery { amountCalculator.process(any()) } returns AmountCalculator.State(
+            displayValue = "10.00",
+            currentAmount = com.example.jitterpay.domain.model.Money.fromCents(1000),
+            isEmpty = false
+        )
+        viewModel.onDigitClick("10")
+        viewModel.saveTransaction()
         testDispatcher.scheduler.advanceUntilIdle()
 
         // When

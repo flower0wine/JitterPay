@@ -2,7 +2,6 @@ package com.example.jitterpay.ui.statistics
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.jitterpay.data.local.dao.CategoryTotal
 import com.example.jitterpay.data.repository.TransactionRepository
 import com.example.jitterpay.ui.components.statistics.TimePeriod
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,7 +10,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.util.Calendar
 import javax.inject.Inject
 
 /**
@@ -34,12 +32,10 @@ class StatisticsViewModel @Inject constructor(
     private fun loadStatistics() {
         viewModelScope.launch {
             _selectedPeriod.collect { period ->
-                val (startOfPeriod, endOfPeriod) = getPeriodRange(period)
-
                 combine(
-                    transactionRepository.getMonthlyIncome(startOfPeriod, endOfPeriod),
-                    transactionRepository.getMonthlyExpense(startOfPeriod, endOfPeriod),
-                    transactionRepository.getExpenseByCategory(startOfPeriod, endOfPeriod)
+                    transactionRepository.getCurrentPeriodIncome(period.name),
+                    transactionRepository.getCurrentPeriodExpense(period.name),
+                    transactionRepository.getCurrentPeriodExpenseByCategory(period.name)
                 ) { income, expense, categoryTotals ->
                     val totalSpent = expense
                     val totalIncome = income
@@ -75,26 +71,6 @@ class StatisticsViewModel @Inject constructor(
 
     fun selectPeriod(period: TimePeriod) {
         _selectedPeriod.value = period
-    }
-
-    private fun getPeriodRange(period: TimePeriod): Pair<Long, Long> {
-        val calendar = Calendar.getInstance()
-        val endMillis = calendar.timeInMillis
-
-        when (period) {
-            TimePeriod.WEEKLY -> {
-                calendar.add(Calendar.DAY_OF_YEAR, -7)
-            }
-            TimePeriod.MONTHLY -> {
-                calendar.add(Calendar.MONTH, -1)
-            }
-            TimePeriod.YEARLY -> {
-                calendar.add(Calendar.YEAR, -1)
-            }
-        }
-        val startMillis = calendar.timeInMillis
-
-        return Pair(startMillis, endMillis)
     }
 }
 
