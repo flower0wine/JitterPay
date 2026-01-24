@@ -1,5 +1,7 @@
 package com.example.jitterpay.ui.components.statistics
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -10,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.jitterpay.ui.animation.AnimationConstants
 
 @Composable
 fun CategoryBreakdownList(
@@ -28,16 +31,17 @@ fun CategoryBreakdownList(
             color = Color.White,
             modifier = Modifier.padding(bottom = 12.dp)
         )
-        
+
         categories.forEachIndexed { index, category ->
             CategoryBreakdownItem(
                 icon = getCategoryIcon(category.name),
                 iconBackgroundColor = category.color,
                 categoryName = category.name,
                 percentage = category.percentage,
-                amount = category.amount
+                amount = category.amount,
+                animationDelay = AnimationConstants.Stagger.listItemDelay(index)
             )
-            
+
             if (index < categories.size - 1) {
                 Spacer(modifier = Modifier.height(8.dp))
             }

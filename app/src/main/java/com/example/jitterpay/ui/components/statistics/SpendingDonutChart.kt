@@ -1,10 +1,19 @@
 package com.example.jitterpay.ui.components.statistics
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -15,6 +24,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.theme.GrayText
 
 data class SpendingData(
@@ -35,76 +45,120 @@ fun SpendingDonutChart(
     data: SpendingData,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(280.dp),
-        contentAlignment = Alignment.Center
+    var isVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
+    // Animate chart entrance with scale
+    val scale by animateFloatAsState(
+        targetValue = if (isVisible) 1f else 0.8f,
+        animationSpec = spring(
+            dampingRatio = 0.8f,
+            stiffness = 300f
+        ),
+        label = "chartScale"
+    )
+
+    // Animate total spent value with counting effect
+    val animatedTotalSpent by animateFloatAsState(
+        targetValue = if (isVisible) data.totalSpent.toFloat() else 0f,
+        animationSpec = tween(
+            durationMillis = AnimationConstants.Duration.COUNTING,
+            delayMillis = 200,
+            easing = AnimationConstants.Easing.Entrance
+        ),
+        label = "totalSpent"
+    )
+
+    AnimatedVisibility(
+        visible = true,
+        enter = fadeIn(
+            animationSpec = tween(
+                durationMillis = AnimationConstants.Duration.MEDIUM,
+                easing = AnimationConstants.Easing.Entrance
+            )
+        ) + scaleIn(
+            animationSpec = tween(
+                durationMillis = AnimationConstants.Duration.MEDIUM,
+                easing = AnimationConstants.Easing.Entrance
+            ),
+            initialScale = 0.8f
+        ),
+        label = "donutChart"
     ) {
-        // Donut Chart
-        Canvas(
-            modifier = Modifier.size(240.dp)
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(280.dp),
+            contentAlignment = Alignment.Center
         ) {
-            val strokeWidth = 40.dp.toPx()
-            val radius = (size.minDimension - strokeWidth) / 2
-            val topLeft = Offset(
-                x = (size.width - radius * 2 - strokeWidth) / 2,
-                y = (size.height - radius * 2 - strokeWidth) / 2
-            )
-            val chartSize = Size(radius * 2 + strokeWidth, radius * 2 + strokeWidth)
-            
-            // Background circle (dark gray)
-            drawArc(
-                color = Color(0xFF2C2C2E),
-                startAngle = 0f,
-                sweepAngle = 360f,
-                useCenter = false,
-                topLeft = topLeft,
-                size = chartSize,
-                style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-            )
-            
-            // Draw category arcs
-            var startAngle = -90f
-            data.categories.forEach { category ->
-                val sweepAngle = (category.percentage.toFloat() / 100f) * 360f
+            // Donut Chart
+            Canvas(
+                modifier = Modifier.size(240.dp)
+            ) {
+                val strokeWidth = 40.dp.toPx()
+                val radius = (size.minDimension - strokeWidth) / 2
+                val topLeft = Offset(
+                    x = (size.width - radius * 2 - strokeWidth) / 2,
+                    y = (size.height - radius * 2 - strokeWidth) / 2
+                )
+                val chartSize = Size(radius * 2 + strokeWidth, radius * 2 + strokeWidth)
+
+                // Background circle (dark gray)
                 drawArc(
-                    color = category.color,
-                    startAngle = startAngle,
-                    sweepAngle = sweepAngle,
+                    color = Color(0xFF2C2C2E),
+                    startAngle = 0f,
+                    sweepAngle = 360f,
                     useCenter = false,
                     topLeft = topLeft,
                     size = chartSize,
                     style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
                 )
-                startAngle += sweepAngle
+
+                // Draw category arcs with animated sweep angles
+                var startAngle = -90f
+                data.categories.forEach { category ->
+                    val sweepAngle = (category.percentage.toFloat() / 100f) * 360f
+                    drawArc(
+                        color = category.color,
+                        startAngle = startAngle,
+                        sweepAngle = sweepAngle,
+                        useCenter = false,
+                        topLeft = topLeft,
+                        size = chartSize,
+                        style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                    )
+                    startAngle += sweepAngle
+                }
             }
-        }
-        
-        // Center text
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "TOTAL SPENT",
-                fontSize = 10.sp,
-                color = GrayText,
-                fontWeight = FontWeight.Medium
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "$${String.format("%.2f", data.totalSpent)}",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "${if (data.percentageChange >= 0) "↑" else "↓"} ${String.format("%.1f", kotlin.math.abs(data.percentageChange))}%",
-                fontSize = 12.sp,
-                color = if (data.percentageChange >= 0) Color(0xFFFF3B30) else Color(0xFF34C759),
-                fontWeight = FontWeight.Medium
-            )
+
+            // Center text with animated value
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "TOTAL SPENT",
+                    fontSize = 10.sp,
+                    color = GrayText,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "$${String.format("%.2f", animatedTotalSpent.toDouble())}",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "${if (data.percentageChange >= 0) "↑" else "↓"} ${String.format("%.1f", kotlin.math.abs(data.percentageChange))}%",
+                    fontSize = 12.sp,
+                    color = if (data.percentageChange >= 0) Color(0xFFFF3B30) else Color(0xFF34C759),
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
     }
 }

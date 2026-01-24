@@ -1,5 +1,7 @@
 package com.example.jitterpay.ui.components.statistics
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.jitterpay.ui.animation.AnimationConstants
 
 enum class TimePeriod {
     WEEKLY, MONTHLY, YEARLY
@@ -25,35 +28,53 @@ fun PeriodSelector(
     onPeriodSelected: (TimePeriod) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
+    AnimatedVisibility(
+        visible = true,
+        enter = fadeIn(
+            animationSpec = tween(
+                durationMillis = AnimationConstants.Duration.SHORT,
+                easing = AnimationConstants.Easing.Entrance
+            )
+        ) + slideInHorizontally(
+            initialOffsetX = { it / 4 },
+            animationSpec = tween(
+                durationMillis = AnimationConstants.Duration.SHORT,
+                delayMillis = 50,
+                easing = AnimationConstants.Easing.Entrance
+            )
+        ),
+        label = "periodSelector"
     ) {
-        PeriodButton(
-            text = "Weekly",
-            isSelected = selectedPeriod == TimePeriod.WEEKLY,
-            onClick = { onPeriodSelected(TimePeriod.WEEKLY) },
-            modifier = Modifier.weight(1f)
-        )
-        
-        PeriodButton(
-            text = "MONTHLY",
-            isSelected = selectedPeriod == TimePeriod.MONTHLY,
-            onClick = { onPeriodSelected(TimePeriod.MONTHLY) },
-            modifier = Modifier.weight(1f)
-        )
-        
-        PeriodButton(
-            text = "Yearly",
-            isSelected = selectedPeriod == TimePeriod.YEARLY,
-            onClick = { onPeriodSelected(TimePeriod.YEARLY) },
-            modifier = Modifier.weight(1f)
-        )
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(4.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            PeriodButton(
+                text = "Weekly",
+                isSelected = selectedPeriod == TimePeriod.WEEKLY,
+                onClick = { onPeriodSelected(TimePeriod.WEEKLY) },
+                modifier = Modifier.weight(1f)
+            )
+
+            PeriodButton(
+                text = "MONTHLY",
+                isSelected = selectedPeriod == TimePeriod.MONTHLY,
+                onClick = { onPeriodSelected(TimePeriod.MONTHLY) },
+                modifier = Modifier.weight(1f)
+            )
+
+            PeriodButton(
+                text = "Yearly",
+                isSelected = selectedPeriod == TimePeriod.YEARLY,
+                onClick = { onPeriodSelected(TimePeriod.YEARLY) },
+                modifier = Modifier.weight(1f)
+            )
+        }
     }
 }
 

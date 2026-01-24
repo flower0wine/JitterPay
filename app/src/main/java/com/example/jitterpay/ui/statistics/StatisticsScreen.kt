@@ -1,5 +1,7 @@
 package com.example.jitterpay.ui.statistics
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -7,10 +9,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.components.statistics.*
 
 @Composable
@@ -43,45 +47,63 @@ fun StatisticsScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.background)
-                .verticalScroll(rememberScrollState())
+        // Page-level entrance animation with fade and expand
+        AnimatedVisibility(
+            visible = true,
+            enter = fadeIn(
+                animationSpec = tween(
+                    durationMillis = AnimationConstants.Duration.MEDIUM,
+                    easing = AnimationConstants.Easing.Entrance
+                )
+            ) + expandVertically(
+                animationSpec = tween(
+                    durationMillis = AnimationConstants.Duration.MEDIUM,
+                    easing = AnimationConstants.Easing.Entrance
+                ),
+                expandFrom = Alignment.Top
+            ),
+            label = "statisticsScreen"
         ) {
-            // Header - simplified without back button since it's now a main destination
-            StatisticsHeader(
-                onBackClick = { /* Back navigation handled by system */ },
-                onShareClick = { /* TODO: Implement share */ }
-            )
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.background)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                // Header - simplified without back button since it's now a main destination
+                StatisticsHeader(
+                    onBackClick = { /* Back navigation handled by system */ },
+                    onShareClick = { /* TODO: Implement share */ }
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // Period Selector
-            PeriodSelector(
-                selectedPeriod = uiState.selectedPeriod,
-                onPeriodSelected = { viewModel.selectPeriod(it) }
-            )
+                // Period Selector
+                PeriodSelector(
+                    selectedPeriod = uiState.selectedPeriod,
+                    onPeriodSelected = { viewModel.selectPeriod(it) }
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            // Donut Chart
-            SpendingDonutChart(data = spendingData)
+                // Donut Chart
+                SpendingDonutChart(data = spendingData)
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            // Category Breakdown
-            CategoryBreakdownList(categories = spendingData.categories)
+                // Category Breakdown
+                CategoryBreakdownList(categories = spendingData.categories)
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            // Download Button
-            DownloadReportButton(
-                onClick = { /* TODO: Implement PDF download */ }
-            )
+                // Download Button
+                DownloadReportButton(
+                    onClick = { /* TODO: Implement PDF download */ }
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+            }
         }
     }
 }
