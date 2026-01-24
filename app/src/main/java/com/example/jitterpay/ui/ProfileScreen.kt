@@ -47,26 +47,7 @@ fun ProfileScreen(
         bottomBar = {
             // Navigation is now handled by BottomNavBar internally via NavController
         },
-        containerColor = MaterialTheme.colorScheme.background,
-        snackbarHost = {
-            if (uiState.lastSavedTransaction != null) {
-                Snackbar(
-                    modifier = Modifier.padding(16.dp),
-                    action = {
-                        TextButton(onClick = { viewModel.clearLastSavedTransaction() }) {
-                            Text("Dismiss")
-                        }
-                    },
-                    dismissAction = {
-                        IconButton(onClick = { viewModel.clearLastSavedTransaction() }) {
-                            Icon(Icons.Default.Close, contentDescription = "Close")
-                        }
-                    }
-                ) {
-                    Text(uiState.lastSavedTransaction ?: "")
-                }
-            }
-        }
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = modifier

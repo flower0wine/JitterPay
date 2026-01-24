@@ -27,11 +27,20 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import com.example.jitterpay.R
+import com.example.jitterpay.data.local.entity.TransactionType
+import com.example.jitterpay.data.repository.TransactionRepository
+import com.example.jitterpay.domain.model.Money
 import com.example.jitterpay.ui.autotracking.CategoryDrawerContent
 import com.example.jitterpay.ui.theme.JitterPayTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * Overlay service for displaying category drawer
@@ -47,6 +56,13 @@ class CategoryDrawerOverlayService : android.app.Service(), LifecycleOwner, View
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val store = ViewModelStore()
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
+
+    // Service scope for coroutines
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    // Inject repository for direct data persistence
+    @Inject
+    lateinit var transactionRepository: TransactionRepository
 
     // Transaction data received from accessibility service
     private val _transactionData = MutableStateFlow<TransactionData?>(null)
@@ -259,6 +275,9 @@ class CategoryDrawerOverlayService : android.app.Service(), LifecycleOwner, View
 
     /**
      * Save the transaction to database
+     *
+     * Uses Hilt-injected TransactionRepository directly instead of broadcast.
+     * This is more reliable as it doesn't depend on UI lifecycle.
      */
     private fun saveTransaction(
         amount: String,
@@ -266,21 +285,34 @@ class CategoryDrawerOverlayService : android.app.Service(), LifecycleOwner, View
         description: String,
         category: String
     ) {
-        // Broadcast transaction data to be saved by the app
-        val intent = Intent("com.example.jitterpay.action.SAVE_TRANSACTION").apply {
-            putExtra("amount", amount)
-            putExtra("payment_method", paymentMethod)
-            putExtra("description", description)
-            putExtra("category", category)
-            putExtra("type", "EXPENSE") // Default to expense
+        serviceScope.launch {
+            try {
+                // Parse amount to cents
+                val money = Money.parse(amount) ?: Money.ZERO
+                val amountCents = money.toCents()
+
+                // Save transaction directly to repository
+                transactionRepository.addTransaction(
+                    type = TransactionType.EXPENSE, // Default to expense
+                    amountCents = amountCents,
+                    category = category,
+                    description = "$paymentMethod - $description",
+                    dateMillis = System.currentTimeMillis()
+                )
+
+                Log.d("OverlayService", "[SAVE] Transaction saved successfully: $amount - $category")
+            } catch (e: Exception) {
+                Log.e("OverlayService", "[SAVE] Failed to save transaction: ${e.message}", e)
+                e.printStackTrace()
+            }
         }
-        sendBroadcast(intent)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         stopForeground(STOP_FOREGROUND_REMOVE)
         hideOverlay()
+        serviceScope.cancel()
         lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
     }
 
