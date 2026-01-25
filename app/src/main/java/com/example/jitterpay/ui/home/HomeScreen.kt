@@ -19,15 +19,18 @@ import com.example.jitterpay.ui.components.home.BalanceCard
 import com.example.jitterpay.ui.components.home.QuickActions
 import com.example.jitterpay.ui.components.home.TopHeader
 import com.example.jitterpay.ui.components.home.TransactionHistory
+import com.example.jitterpay.ui.profile.ProfileViewModel
 import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
+    profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val avatarId by profileViewModel.avatarId.collectAsState()
 
     // 格式化金额显示
     val balanceFormatted = formatCurrency(uiState.totalBalance)
@@ -52,6 +55,7 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             TopHeader(
+                avatarId = avatarId,
                 onSearchClick = {
                     navController.navigate(com.example.jitterpay.constants.NavigationRoutes.SEARCH)
                 }

@@ -27,7 +27,7 @@ class SearchViewModel @Inject constructor(
     private val _selectedType = MutableStateFlow<String?>(null)
     val selectedType: StateFlow<String?> = _selectedType.asStateFlow()
 
-    private val _selectedDateRange = MutableStateFlow<String?>(null)
+    private val _selectedDateRange = MutableStateFlow<String?>("TODAY")
     val selectedDateRange: StateFlow<String?> = _selectedDateRange.asStateFlow()
 
     private val _uiState = MutableStateFlow(SearchUiState())

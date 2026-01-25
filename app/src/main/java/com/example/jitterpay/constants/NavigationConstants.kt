@@ -21,6 +21,7 @@ object NavigationRoutes {
     const val PROFILE = "profile"
     const val ADD_TRANSACTION = "add_transaction"
     const val SEARCH = "search"
+    const val AVATAR_SELECTION = "avatar_selection"
 }
 
 /**

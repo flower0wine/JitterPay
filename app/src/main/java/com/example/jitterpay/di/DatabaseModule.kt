@@ -3,6 +3,7 @@ package com.example.jitterpay.di
 import android.content.Context
 import androidx.room.Room
 import com.example.jitterpay.data.local.JitterPayDatabase
+import com.example.jitterpay.data.local.UserPreferencesDataSource
 import com.example.jitterpay.data.local.dao.TransactionDao
 import dagger.Module
 import dagger.Provides
@@ -58,5 +59,19 @@ object DatabaseModule {
         database: JitterPayDatabase
     ): TransactionDao {
         return database.transactionDao()
+    }
+
+    /**
+     * 提供UserPreferencesDataSource实例
+     *
+     * @param context 应用上下文
+     * @return UserPreferencesDataSource实例
+     */
+    @Provides
+    @Singleton
+    fun provideUserPreferencesDataSource(
+        @ApplicationContext context: Context
+    ): UserPreferencesDataSource {
+        return UserPreferencesDataSource(context)
     }
 }

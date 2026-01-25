@@ -72,6 +72,9 @@ dependencies {
     // Hilt Testing
     androidTestImplementation(libs.hilt.android.testing)
     kspAndroidTest(libs.hilt.compiler)
+
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
     
     implementation(libs.annotations)
 

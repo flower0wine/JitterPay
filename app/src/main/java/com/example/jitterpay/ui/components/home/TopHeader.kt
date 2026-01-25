@@ -31,6 +31,7 @@ import com.example.jitterpay.ui.animation.AnimationConstants
 @Composable
 fun TopHeader(
     modifier: Modifier = Modifier,
+    avatarId: Int = R.drawable.avatar_1,
     onSearchClick: () -> Unit = {}
 ) {
     Row(
@@ -49,7 +50,7 @@ fun TopHeader(
             ) {
                 // Profile image
                 Image(
-                    painter = painterResource(id = R.drawable.avatar_1),
+                    painter = painterResource(id = avatarId),
                     contentDescription = "Profile Avatar",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop

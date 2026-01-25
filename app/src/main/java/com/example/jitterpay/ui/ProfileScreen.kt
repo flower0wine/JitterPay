@@ -32,17 +32,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.jitterpay.autotracking.AutoTrackingViewModel
 import com.example.jitterpay.autotracking.util.AutoTrackingPermissions
 import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.components.profile.*
+import com.example.jitterpay.ui.profile.ProfileViewModel
 
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
-    viewModel: AutoTrackingViewModel = hiltViewModel()
+    navController: NavController? = null,
+    viewModel: AutoTrackingViewModel = hiltViewModel(),
+    profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val avatarId by profileViewModel.avatarId.collectAsState()
     val context = LocalContext.current
     var isVisible by remember { mutableStateOf(false) }
 
@@ -74,7 +79,11 @@ fun ProfileScreen(
                 ProfileHeader(
                     userName = "Alex Morgan",
                     userEmail = "alex.morgan@flowpay.io",
-                    isPro = true
+                    avatarId = avatarId,
+                    isPro = true,
+                    onAvatarClick = {
+                        navController?.navigate(com.example.jitterpay.constants.NavigationRoutes.AVATAR_SELECTION)
+                    }
                 )
 
             Spacer(modifier = Modifier.height(24.dp))

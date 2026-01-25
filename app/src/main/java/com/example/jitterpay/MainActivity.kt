@@ -21,6 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 import com.example.jitterpay.constants.NavigationRoutes
 import com.example.jitterpay.ui.addtransaction.AddTransactionScreen
+import com.example.jitterpay.ui.avatar.AvatarSelectionScreen
 import com.example.jitterpay.ui.home.HomeScreen
 import com.example.jitterpay.ui.ProfileScreen
 import com.example.jitterpay.ui.search.SearchScreen
@@ -116,7 +117,7 @@ fun JitterPayApp(
                 popEnterTransition = { with(this) { getBottomNavPopEnterTransition() } },
                 popExitTransition = { with(this) { getBottomNavPopExitTransition() } }
             ) {
-                ProfileScreen()
+                ProfileScreen(navController = navController)
             }
 
             composable(
@@ -145,6 +146,16 @@ fun JitterPayApp(
                         navController.popBackStack()
                     }
                 )
+            }
+
+            composable(
+                route = NavigationRoutes.AVATAR_SELECTION,
+                enterTransition = { SlideTransitions.slideInRight() },
+                exitTransition = { SlideTransitions.slideOutRight() },
+                popEnterTransition = { SlideTransitions.slideInRight() },
+                popExitTransition = { SlideTransitions.slideOutRight() }
+            ) {
+                AvatarSelectionScreen(navController = navController)
             }
         }
     }

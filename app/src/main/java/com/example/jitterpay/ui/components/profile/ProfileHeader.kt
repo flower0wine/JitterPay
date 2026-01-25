@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -44,7 +45,9 @@ import com.example.jitterpay.ui.animation.AnimationConstants
  *
  * @param userName User's display name
  * @param userEmail User's email address
+ * @param avatarId Resource ID of the avatar image
  * @param isPro Whether user has pro plan
+ * @param onAvatarClick Callback when avatar is clicked
  * @param modifier Modifier for column container
  */
 @Composable
@@ -52,7 +55,9 @@ fun ProfileHeader(
     modifier: Modifier = Modifier,
     userName: String,
     userEmail: String,
+    avatarId: Int = R.drawable.avatar_1,
     isPro: Boolean = true,
+    onAvatarClick: () -> Unit = {}
 ) {
     var isVisible by remember { mutableStateOf(false) }
 
@@ -166,18 +171,21 @@ fun ProfileHeader(
             ) {
                 // Avatar circle
                 Image(
-                    painter = painterResource(id = R.drawable.avatar_1),
+                    painter = painterResource(id = avatarId),
                     contentDescription = "Profile Avatar",
                     modifier = Modifier
                         .size(120.dp)
                         .clip(CircleShape)
-                        .border(4.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                        .border(4.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                        .clickable(onClick = onAvatarClick),
                     contentScale = ContentScale.Crop
                 )
 
                 // Edit button with staggered appearance
                 Box(
-                    modifier = Modifier.alpha(editButtonAlpha),
+                    modifier = Modifier
+                        .alpha(editButtonAlpha)
+                        .clickable(onClick = onAvatarClick),
                     contentAlignment = Alignment.Center
                 ) {
                     Box(
