@@ -92,16 +92,19 @@ fun BottomNavBar(
         ) {
             // First two items
             BottomNavRoute.items.take(2).forEach { navItem ->
+                val isSelected = currentRoute == navItem.route
                 NavBarItem(
                     icon = navItem.icon,
                     label = navItem.label,
-                    isSelected = currentRoute == navItem.route,
+                    isSelected = isSelected,
                     onClick = {
-                        navController.navigate(navItem.route) {
-                            // Pop up to the target route to clear intermediate entries
-                            popUpTo(navItem.route) { inclusive = true }
-                            // Avoid multiple copies of the same destination
-                            launchSingleTop = true
+                        if (!isSelected) {
+                            navController.navigate(navItem.route) {
+                                // Pop up to the target route to clear intermediate entries
+                                popUpTo(navItem.route) { inclusive = true }
+                                // Avoid multiple copies of the same destination
+                                launchSingleTop = true
+                            }
                         }
                     },
                     modifier = Modifier.weight(1f)
@@ -113,16 +116,19 @@ fun BottomNavBar(
 
             // Last two items
             BottomNavRoute.items.drop(2).forEach { navItem ->
+                val isSelected = currentRoute == navItem.route
                 NavBarItem(
                     icon = navItem.icon,
                     label = navItem.label,
-                    isSelected = currentRoute == navItem.route,
+                    isSelected = isSelected,
                     onClick = {
-                        navController.navigate(navItem.route) {
-                            // Pop up to the target route to clear intermediate entries
-                            popUpTo(navItem.route) { inclusive = true }
-                            // Avoid multiple copies of the same destination
-                            launchSingleTop = true
+                        if (!isSelected) {
+                            navController.navigate(navItem.route) {
+                                // Pop up to the target route to clear intermediate entries
+                                popUpTo(navItem.route) { inclusive = true }
+                                // Avoid multiple copies of the same destination
+                                launchSingleTop = true
+                            }
                         }
                     },
                     modifier = Modifier.weight(1f)
@@ -169,7 +175,7 @@ fun NavBarItem(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = modifier.clickable(onClick = onClick)
+        modifier = modifier.clickable(enabled = !isSelected, onClick = onClick)
     ) {
         Icon(
             imageVector = icon,

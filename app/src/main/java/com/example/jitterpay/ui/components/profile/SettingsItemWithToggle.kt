@@ -86,7 +86,10 @@ fun SettingsItemWithToggle(
                 onCheckedChange = null,
                 colors = SwitchDefaults.colors(
                     checkedTrackColor = MaterialTheme.colorScheme.primary,
-                    checkedThumbColor = MaterialTheme.colorScheme.primary
+                    checkedThumbColor = Color.Black,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    uncheckedBorderColor = MaterialTheme.colorScheme.outline
                 )
             )
         }
@@ -132,65 +135,71 @@ fun SettingsItemWithToggleAndWarning(
         )
 
         // Warning banner with expand/collapse animation
-        AnimatedVisibility(
-            visible = isEnabled && warningMessage != null,
-            enter = expandVertically(
-                animationSpec = tween(
-                    durationMillis = AnimationConstants.Duration.MEDIUM,
-                    easing = AnimationConstants.Easing.Entrance
-                ),
-                expandFrom = Alignment.Top
-            ) + fadeIn(
-                animationSpec = tween(
-                    durationMillis = AnimationConstants.Duration.SHORT,
-                    easing = AnimationConstants.Easing.Entrance
-                )
-            ),
-            exit = shrinkVertically(
-                animationSpec = tween(
-                    durationMillis = AnimationConstants.Duration.SHORT,
-                    easing = AnimationConstants.Easing.Exit
-                ),
-                shrinkTowards = Alignment.Top
-            ) + fadeOut(
-                animationSpec = tween(
-                    durationMillis = AnimationConstants.Duration.SHORT,
-                    easing = AnimationConstants.Easing.Exit
-                )
-            ),
-            label = "warningBanner"
-        ) {
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.errorContainer,
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    val message = warningMessage!!
-                    Text(
-                        text = message,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onErrorContainer,
-                        modifier = Modifier.weight(1f)
+        warningMessage?.let { message ->
+            AnimatedVisibility(
+                visible = isEnabled,
+                enter = expandVertically(
+                    animationSpec = tween(
+                        durationMillis = AnimationConstants.Duration.MEDIUM,
+                        easing = AnimationConstants.Easing.Entrance
+                    ),
+                    expandFrom = Alignment.Top
+                ) + fadeIn(
+                    animationSpec = tween(
+                        durationMillis = AnimationConstants.Duration.SHORT,
+                        easing = AnimationConstants.Easing.Entrance
                     )
+                ),
+                exit = shrinkVertically(
+                    animationSpec = tween(
+                        durationMillis = AnimationConstants.Duration.SHORT,
+                        easing = AnimationConstants.Easing.Exit
+                    ),
+                    shrinkTowards = Alignment.Top
+                ) + fadeOut(
+                    animationSpec = tween(
+                        durationMillis = AnimationConstants.Duration.SHORT,
+                        easing = AnimationConstants.Easing.Exit
+                    )
+                ),
+                label = "warningBanner"
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                    if (warningActionLabel != null && onWarningActionClick != null) {
-                        TextButton(
-                            onClick = onWarningActionClick,
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp)
                         ) {
                             Text(
-                                text = warningActionLabel,
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.onErrorContainer
+                                text = message,
+                                fontSize = 13.sp,
+                                lineHeight = 18.sp,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.fillMaxWidth()
                             )
+
+                            if (warningActionLabel != null && onWarningActionClick != null) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                TextButton(
+                                    onClick = onWarningActionClick,
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                                    modifier = Modifier.align(Alignment.End)
+                                ) {
+                                    Text(
+                                        text = warningActionLabel,
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
                         }
                     }
                 }

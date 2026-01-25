@@ -86,7 +86,7 @@ fun ProfileScreen(
                 baseDelayMs = 0
             ) {
                 AnimatedItem(index = 0) {
-                    SettingsItemWithToggleAndWarning(
+                    SettingsItemWithToggle(
                         icon = Icons.Default.AccountBalanceWallet,
                         iconTint = Color.Black,
                         iconBackground = MaterialTheme.colorScheme.primary,
@@ -94,80 +94,74 @@ fun ProfileScreen(
                         isEnabled = uiState.isAutoTrackingEnabled,
                         onToggleChanged = { enabled ->
                             viewModel.toggleAutoTracking(enabled)
-                        },
-                        warningMessage = if (uiState.isAutoTrackingEnabled) {
-                            when {
-                                !uiState.isAccessibilityEnabled -> "Accessibility service not enabled"
-                                !uiState.isOverlayGranted -> "Display over other apps permission not granted"
-                                else -> null
-                            }
-                        } else {
-                            null
-                        },
-                        warningActionLabel = if (uiState.isAutoTrackingEnabled) {
-                            when {
-                                !uiState.isAccessibilityEnabled -> "Enable"
-                                !uiState.isOverlayGranted -> "Grant"
-                                else -> null
-                            }
-                        } else {
-                            null
-                        },
-                        onWarningActionClick = if (uiState.isAutoTrackingEnabled) {
-                            when {
-                                !uiState.isAccessibilityEnabled -> {
-                                    {
-                                        context.startActivity(
-                                            viewModel.openAccessibilitySettings(context)
-                                        )
-                                    }
-                                }
-                                !uiState.isOverlayGranted -> {
-                                    {
-                                        context.startActivity(
-                                            viewModel.openOverlaySettings(context)
-                                        )
-                                    }
-                                }
-                                else -> null
-                            }
-                        } else {
-                            null
                         }
                     )
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Permission status indicators
-                if (uiState.isAutoTrackingEnabled) {
-                    AnimatedItem(index = 1) {
-                        PermissionStatusIndicator(
-                            title = "Accessibility Service",
-                            isGranted = uiState.isAccessibilityEnabled,
-                            onSettingsClick = {
-                                context.startActivity(
-                                    viewModel.openAccessibilitySettings(context)
-                                )
-                            }
+                // Permission status indicators - shown as sub-items when auto-tracking is enabled
+                AnimatedVisibility(
+                    visible = uiState.isAutoTrackingEnabled,
+                    enter = expandVertically(
+                        animationSpec = tween(
+                            durationMillis = AnimationConstants.Duration.MEDIUM,
+                            easing = AnimationConstants.Easing.Entrance
+                        ),
+                        expandFrom = Alignment.Top
+                    ) + fadeIn(
+                        animationSpec = tween(
+                            durationMillis = AnimationConstants.Duration.SHORT,
+                            easing = AnimationConstants.Easing.Entrance
                         )
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    AnimatedItem(index = 2) {
-                        PermissionStatusIndicator(
-                            title = "Display Over Other Apps",
-                            isGranted = uiState.isOverlayGranted,
-                            onSettingsClick = {
-                                context.startActivity(
-                                    viewModel.openOverlaySettings(context)
-                                )
-                            }
+                    ),
+                    exit = shrinkVertically(
+                        animationSpec = tween(
+                            durationMillis = AnimationConstants.Duration.SHORT,
+                            easing = AnimationConstants.Easing.Exit
+                        ),
+                        shrinkTowards = Alignment.Top
+                    ) + fadeOut(
+                        animationSpec = tween(
+                            durationMillis = AnimationConstants.Duration.SHORT,
+                            easing = AnimationConstants.Easing.Exit
                         )
-                    }
+                    ),
+                    label = "permissionIndicators"
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Spacer(modifier = Modifier.height(12.dp))
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                        // First sub-item with connector
+                        SubSettingsItemContainer(
+                            position = SubItemPosition.FIRST
+                        ) {
+                            PermissionSubItem(
+                                title = "Accessibility Service",
+                                isGranted = uiState.isAccessibilityEnabled,
+                                onSettingsClick = {
+                                    context.startActivity(
+                                        viewModel.openAccessibilitySettings(context)
+                                    )
+                                }
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Last sub-item with connector
+                        SubSettingsItemContainer(
+                            position = SubItemPosition.LAST
+                        ) {
+                            PermissionSubItem(
+                                title = "Display Over Other Apps",
+                                isGranted = uiState.isOverlayGranted,
+                                onSettingsClick = {
+                                    context.startActivity(
+                                        viewModel.openOverlaySettings(context)
+                                    )
+                                }
+                            )
+                        }
+                    }
                 }
             }
 
@@ -259,84 +253,5 @@ fun ProfileScreen(
     }
 }
 
-/**
- * Permission status indicator component with animated icon color and button visibility
- *
- * @param title Permission title text
- * @param isGranted Whether permission is granted
- * @param onSettingsClick Settings button click handler
- */
-@Composable
-private fun PermissionStatusIndicator(
-    title: String,
-    isGranted: Boolean,
-    onSettingsClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Icon with animated color transition
-            Icon(
-                imageVector = if (isGranted) Icons.Default.CheckCircle else Icons.Default.Cancel,
-                contentDescription = null,
-                tint = if (isGranted) Color(0xFF4CAF50) else Color(0xFFF44336),
-                modifier = Modifier.size(16.dp)
-            )
 
-            Text(
-                text = title,
-                fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        // Animated visibility for enable button
-        AnimatedVisibility(
-            visible = !isGranted,
-            enter = fadeIn(
-                animationSpec = tween(
-                    durationMillis = AnimationConstants.Duration.SHORT,
-                    easing = AnimationConstants.Easing.Entrance
-                )
-            ) + expandVertically(
-                animationSpec = tween(
-                    durationMillis = AnimationConstants.Duration.SHORT,
-                    easing = AnimationConstants.Easing.Entrance
-                ),
-                expandFrom = Alignment.CenterVertically
-            ),
-            exit = fadeOut(
-                animationSpec = tween(
-                    durationMillis = AnimationConstants.Duration.MICRO,
-                    easing = AnimationConstants.Easing.Exit
-                )
-            ) + shrinkVertically(
-                animationSpec = tween(
-                    durationMillis = AnimationConstants.Duration.MICRO,
-                    easing = AnimationConstants.Easing.Exit
-                ),
-                shrinkTowards = Alignment.CenterVertically
-            ),
-            label = "enableButton"
-        ) {
-            TextButton(
-                onClick = onSettingsClick,
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                Text(
-                    text = "Enable",
-                    fontSize = 12.sp
-                )
-            }
-        }
-    }
-}
 
