@@ -1,20 +1,14 @@
 package com.example.jitterpay.ui.components.profile
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,8 +21,8 @@ import androidx.compose.ui.unit.sp
 import com.example.jitterpay.ui.animation.AnimationConstants
 
 /**
- * Settings item with toggle switch
- * The entire item is clickable for better usability
+ * Settings item with toggle switch - pure UI component without entrance animation
+ * Entrance animation is handled by parent container (SettingsSection)
  *
  * @param icon Item icon
  * @param iconTint Icon color
@@ -37,7 +31,6 @@ import com.example.jitterpay.ui.animation.AnimationConstants
  * @param isEnabled Toggle state
  * @param onToggleChanged Toggle change handler
  * @param modifier Modifier for the surface
- * @param animationDelayMs Delay for entrance animation (staggered list effect)
  */
 @Composable
 fun SettingsItemWithToggle(
@@ -47,82 +40,62 @@ fun SettingsItemWithToggle(
     title: String,
     isEnabled: Boolean,
     onToggleChanged: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    animationDelayMs: Int = 0
+    modifier: Modifier = Modifier
 ) {
-    AnimatedVisibility(
-        visible = true,
-        enter = fadeIn(
-            animationSpec = tween(
-                durationMillis = AnimationConstants.Duration.SHORT,
-                delayMillis = animationDelayMs,
-                easing = AnimationConstants.Easing.Entrance
-            )
-        ) + slideInHorizontally(
-            initialOffsetX = { it / 3 },
-            animationSpec = tween(
-                durationMillis = AnimationConstants.Duration.MEDIUM,
-                delayMillis = animationDelayMs,
-                easing = AnimationConstants.Easing.Entrance
-            )
-        ),
-        label = "settingsItemWithToggle"
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(12.dp),
+        onClick = { onToggleChanged(!isEnabled) }
     ) {
-        Surface(
-            modifier = modifier
-                .fillMaxWidth(),
-            color = MaterialTheme.colorScheme.surface,
-            shape = RoundedCornerShape(12.dp),
-            onClick = { onToggleChanged(!isEnabled) }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
+            // Icon
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .size(40.dp)
+                    .background(iconBackground, RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
             ) {
-                // Icon
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(iconBackground, RoundedCornerShape(8.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = title,
-                        tint = iconTint,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                // Title
-                Text(
-                    text = title,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.weight(1f)
-                )
-
-                // Toggle switch with spring animation for smooth color transition
-                Switch(
-                    checked = isEnabled,
-                    onCheckedChange = null, // Handled by parent click
-                    colors = SwitchDefaults.colors(
-                        checkedTrackColor = MaterialTheme.colorScheme.primary,
-                        checkedThumbColor = MaterialTheme.colorScheme.primary
-                    )
+                Icon(
+                    imageVector = icon,
+                    contentDescription = title,
+                    tint = iconTint,
+                    modifier = Modifier.size(24.dp)
                 )
             }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Title
+            Text(
+                text = title,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.weight(1f)
+            )
+
+            // Toggle switch
+            Switch(
+                checked = isEnabled,
+                onCheckedChange = null,
+                colors = SwitchDefaults.colors(
+                    checkedTrackColor = MaterialTheme.colorScheme.primary,
+                    checkedThumbColor = MaterialTheme.colorScheme.primary
+                )
+            )
         }
     }
 }
 
 /**
- * Settings item with toggle and optional warning banner with expand/collapse animation
+ * Settings item with toggle and optional warning banner
+ * Warning banner has expand/collapse animation
  *
  * @param icon Item icon
  * @param iconTint Icon color
@@ -134,10 +107,10 @@ fun SettingsItemWithToggle(
  * @param warningActionLabel Action button label
  * @param onWarningActionClick Action button click handler
  * @param modifier Modifier for the column
- * @param animationDelayMs Delay for entrance animation (staggered list effect)
  */
 @Composable
 fun SettingsItemWithToggleAndWarning(
+    modifier: Modifier = Modifier,
     icon: ImageVector,
     iconTint: Color,
     iconBackground: Color,
@@ -146,9 +119,7 @@ fun SettingsItemWithToggleAndWarning(
     onToggleChanged: (Boolean) -> Unit,
     warningMessage: String? = null,
     warningActionLabel: String? = null,
-    onWarningActionClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
-    animationDelayMs: Int = 0
+    onWarningActionClick: (() -> Unit)? = null
 ) {
     Column(modifier = modifier) {
         SettingsItemWithToggle(
@@ -157,8 +128,7 @@ fun SettingsItemWithToggleAndWarning(
             iconBackground = iconBackground,
             title = title,
             isEnabled = isEnabled,
-            onToggleChanged = onToggleChanged,
-            animationDelayMs = animationDelayMs
+            onToggleChanged = onToggleChanged
         )
 
         // Warning banner with expand/collapse animation
@@ -203,7 +173,6 @@ fun SettingsItemWithToggleAndWarning(
                         .padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // warningMessage is guaranteed non-null in this AnimatedVisibility scope
                     val message = warningMessage!!
                     Text(
                         text = message,
@@ -212,17 +181,13 @@ fun SettingsItemWithToggleAndWarning(
                         modifier = Modifier.weight(1f)
                     )
 
-                    // Show action button - use requireNotNull for safety
                     if (warningActionLabel != null && onWarningActionClick != null) {
-                        val label = warningActionLabel!!
-                        val click = onWarningActionClick!!
-
                         TextButton(
-                            onClick = click,
+                            onClick = onWarningActionClick,
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                text = label,
+                                text = warningActionLabel,
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.onErrorContainer
                             )

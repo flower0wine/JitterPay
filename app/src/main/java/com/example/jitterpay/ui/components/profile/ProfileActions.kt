@@ -24,12 +24,14 @@ import com.example.jitterpay.ui.animation.AnimationConstants
  * @param onSwitchAccount Switch account button click handler
  * @param onSignOut Sign out button click handler
  * @param modifier Modifier for the column container
+ * @param isVisible Controls visibility for entrance animation
  */
 @Composable
 fun ProfileActions(
+    modifier: Modifier = Modifier,
     onSwitchAccount: () -> Unit = {},
     onSignOut: () -> Unit = {},
-    modifier: Modifier = Modifier
+    isVisible: Boolean = true
 ) {
     Column(
         modifier = modifier
@@ -38,7 +40,7 @@ fun ProfileActions(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AnimatedVisibility(
-            visible = true,
+            visible = isVisible,
             enter = scaleIn(
                 animationSpec = tween(
                     durationMillis = AnimationConstants.Duration.MEDIUM,
@@ -81,7 +83,7 @@ fun ProfileActions(
         Spacer(modifier = Modifier.height(16.dp))
 
         AnimatedVisibility(
-            visible = true,
+            visible = isVisible,
             enter = scaleIn(
                 animationSpec = tween(
                     durationMillis = AnimationConstants.Duration.MEDIUM,
@@ -121,7 +123,7 @@ fun ProfileActions(
         Spacer(modifier = Modifier.height(8.dp))
 
         AnimatedVisibility(
-            visible = true,
+            visible = isVisible,
             enter = fadeIn(
                 animationSpec = tween(
                     durationMillis = AnimationConstants.Duration.SHORT,

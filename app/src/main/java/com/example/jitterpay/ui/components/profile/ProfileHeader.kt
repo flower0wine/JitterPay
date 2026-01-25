@@ -49,10 +49,10 @@ import com.example.jitterpay.ui.animation.AnimationConstants
  */
 @Composable
 fun ProfileHeader(
+    modifier: Modifier = Modifier,
     userName: String,
     userEmail: String,
     isPro: Boolean = true,
-    modifier: Modifier = Modifier
 ) {
     var isVisible by remember { mutableStateOf(false) }
 

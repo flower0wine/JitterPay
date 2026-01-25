@@ -20,6 +20,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,6 +49,10 @@ fun ProfileScreen(
     // Check permissions when screen recomposes
     LaunchedEffect(Unit) {
         viewModel.checkPermissions()
+    }
+
+    // Trigger entrance animations after composition
+    LaunchedEffect(Unit) {
         isVisible = true
     }
 
@@ -57,40 +65,12 @@ fun ProfileScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-        AnimatedVisibility(
-            visible = true,
-            enter = fadeIn(
-                animationSpec = tween(
-                    durationMillis = AnimationConstants.Duration.MEDIUM,
-                    easing = AnimationConstants.Easing.Entrance
-                )
-            ) + expandVertically(
-                animationSpec = tween(
-                    durationMillis = AnimationConstants.Duration.LONG,
-                    easing = AnimationConstants.Easing.Entrance
-                ),
-                expandFrom = Alignment.Top
-            ),
-            exit = fadeOut(
-                animationSpec = tween(
-                    durationMillis = AnimationConstants.Duration.SHORT,
-                    easing = AnimationConstants.Easing.Exit
-                )
-            ) + shrinkVertically(
-                animationSpec = tween(
-                    durationMillis = AnimationConstants.Duration.SHORT,
-                    easing = AnimationConstants.Easing.Exit
-                ),
-                shrinkTowards = Alignment.Top
-            ),
-            label = "profileScreen"
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
         ) {
-            Column(
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .verticalScroll(rememberScrollState())
-            ) {
                 ProfileHeader(
                     userName = "Alex Morgan",
                     userEmail = "alex.morgan@flowpay.io",
@@ -99,85 +79,69 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Auto-tracking section with staggered animation delays
+            // Auto-tracking section
             SettingsSection(
                 title = "AUTO-TRACKING",
-                animationDelayMs = AnimationConstants.Stagger.SEQUENCE[0]
+                isVisible = isVisible,
+                baseDelayMs = 0
             ) {
-                SettingsItemWithToggleAndWarning(
-                    icon = Icons.Default.AccountBalanceWallet,
-                    iconTint = Color.Black,
-                    iconBackground = MaterialTheme.colorScheme.primary,
-                    title = "Auto-tracking",
-                    isEnabled = uiState.isAutoTrackingEnabled,
-                    onToggleChanged = { enabled ->
-                        // Allow toggling regardless of permission status
-                        viewModel.toggleAutoTracking(enabled)
-                    },
-                    warningMessage = if (uiState.isAutoTrackingEnabled) {
-                        when {
-                            !uiState.isAccessibilityEnabled -> "Accessibility service not enabled"
-                            !uiState.isOverlayGranted -> "Display over other apps permission not granted"
-                            else -> null
-                        }
-                    } else {
-                        null
-                    },
-                    warningActionLabel = if (uiState.isAutoTrackingEnabled) {
-                        when {
-                            !uiState.isAccessibilityEnabled -> "Enable"
-                            !uiState.isOverlayGranted -> "Grant"
-                            else -> null
-                        }
-                    } else {
-                        null
-                    },
-                    onWarningActionClick = if (uiState.isAutoTrackingEnabled) {
-                        when {
-                            !uiState.isAccessibilityEnabled -> {
-                                {
-                                    context.startActivity(
-                                        viewModel.openAccessibilitySettings(context)
-                                    )
-                                }
+                AnimatedItem(index = 0) {
+                    SettingsItemWithToggleAndWarning(
+                        icon = Icons.Default.AccountBalanceWallet,
+                        iconTint = Color.Black,
+                        iconBackground = MaterialTheme.colorScheme.primary,
+                        title = "Auto-tracking",
+                        isEnabled = uiState.isAutoTrackingEnabled,
+                        onToggleChanged = { enabled ->
+                            viewModel.toggleAutoTracking(enabled)
+                        },
+                        warningMessage = if (uiState.isAutoTrackingEnabled) {
+                            when {
+                                !uiState.isAccessibilityEnabled -> "Accessibility service not enabled"
+                                !uiState.isOverlayGranted -> "Display over other apps permission not granted"
+                                else -> null
                             }
-                            !uiState.isOverlayGranted -> {
-                                {
-                                    context.startActivity(
-                                        viewModel.openOverlaySettings(context)
-                                    )
-                                }
+                        } else {
+                            null
+                        },
+                        warningActionLabel = if (uiState.isAutoTrackingEnabled) {
+                            when {
+                                !uiState.isAccessibilityEnabled -> "Enable"
+                                !uiState.isOverlayGranted -> "Grant"
+                                else -> null
                             }
-                            else -> null
+                        } else {
+                            null
+                        },
+                        onWarningActionClick = if (uiState.isAutoTrackingEnabled) {
+                            when {
+                                !uiState.isAccessibilityEnabled -> {
+                                    {
+                                        context.startActivity(
+                                            viewModel.openAccessibilitySettings(context)
+                                        )
+                                    }
+                                }
+                                !uiState.isOverlayGranted -> {
+                                    {
+                                        context.startActivity(
+                                            viewModel.openOverlaySettings(context)
+                                        )
+                                    }
+                                }
+                                else -> null
+                            }
+                        } else {
+                            null
                         }
-                    } else {
-                        null
-                    },
-                    animationDelayMs = AnimationConstants.Stagger.SEQUENCE[1]
-                )
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Permission status indicators with staggered animations
+                // Permission status indicators
                 if (uiState.isAutoTrackingEnabled) {
-                    AnimatedVisibility(
-                        visible = true,
-                        enter = fadeIn(
-                            animationSpec = tween(
-                                durationMillis = AnimationConstants.Duration.SHORT,
-                                delayMillis = AnimationConstants.Stagger.SEQUENCE[2],
-                                easing = AnimationConstants.Easing.Entrance
-                            )
-                        ) + slideInHorizontally(
-                            initialOffsetX = { it / 4 },
-                            animationSpec = tween(
-                                durationMillis = AnimationConstants.Duration.MEDIUM,
-                                delayMillis = AnimationConstants.Stagger.SEQUENCE[2],
-                                easing = AnimationConstants.Easing.Entrance
-                            )
-                        ),
-                        label = "accessibilityPermission"
-                    ) {
+                    AnimatedItem(index = 1) {
                         PermissionStatusIndicator(
                             title = "Accessibility Service",
                             isGranted = uiState.isAccessibilityEnabled,
@@ -191,24 +155,7 @@ fun ProfileScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    AnimatedVisibility(
-                        visible = true,
-                        enter = fadeIn(
-                            animationSpec = tween(
-                                durationMillis = AnimationConstants.Duration.SHORT,
-                                delayMillis = AnimationConstants.Stagger.SEQUENCE[3],
-                                easing = AnimationConstants.Easing.Entrance
-                            )
-                        ) + slideInHorizontally(
-                            initialOffsetX = { it / 4 },
-                            animationSpec = tween(
-                                durationMillis = AnimationConstants.Duration.MEDIUM,
-                                delayMillis = AnimationConstants.Stagger.SEQUENCE[3],
-                                easing = AnimationConstants.Easing.Entrance
-                            )
-                        ),
-                        label = "overlayPermission"
-                    ) {
+                    AnimatedItem(index = 2) {
                         PermissionStatusIndicator(
                             title = "Display Over Other Apps",
                             isGranted = uiState.isOverlayGranted,
@@ -226,82 +173,89 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Bookkeeping section with staggered animation delays
+            // Bookkeeping section - starts shortly after auto-tracking items
             SettingsSection(
                 title = "BOOKKEEPING",
-                animationDelayMs = AnimationConstants.Stagger.SEQUENCE[4]
+                isVisible = isVisible,
+                baseDelayMs = 200
             ) {
-                SettingsItem(
-                    icon = Icons.Default.AccountBalance,
-                    iconTint = Color.Black,
-                    iconBackground = MaterialTheme.colorScheme.primary,
-                    title = "Budget Settings",
-                    onClick = { /* TODO */ },
-                    animationDelayMs = AnimationConstants.Stagger.listItemDelay(0)
-                )
+                AnimatedItem(index = 0) {
+                    SettingsItem(
+                        icon = Icons.Default.AccountBalance,
+                        iconTint = Color.Black,
+                        iconBackground = MaterialTheme.colorScheme.primary,
+                        title = "Budget Settings",
+                        onClick = { /* TODO */ }
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                SettingsItem(
-                    icon = Icons.Default.CurrencyExchange,
-                    iconTint = Color.Black,
-                    iconBackground = MaterialTheme.colorScheme.primary,
-                    title = "Multi-currency",
-                    onClick = { /* TODO */ },
-                    animationDelayMs = AnimationConstants.Stagger.listItemDelay(1)
-                )
+                AnimatedItem(index = 1) {
+                    SettingsItem(
+                        icon = Icons.Default.CurrencyExchange,
+                        iconTint = Color.Black,
+                        iconBackground = MaterialTheme.colorScheme.primary,
+                        title = "Multi-currency",
+                        onClick = { /* TODO */ }
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                SettingsItem(
-                    icon = Icons.Default.Upload,
-                    iconTint = Color.Black,
-                    iconBackground = MaterialTheme.colorScheme.primary,
-                    title = "Data Export",
-                    onClick = { /* TODO */ },
-                    animationDelayMs = AnimationConstants.Stagger.listItemDelay(2)
-                )
+                AnimatedItem(index = 2) {
+                    SettingsItem(
+                        icon = Icons.Default.Upload,
+                        iconTint = Color.Black,
+                        iconBackground = MaterialTheme.colorScheme.primary,
+                        title = "Data Export",
+                        onClick = { /* TODO */ }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Preferences section with staggered animation delays
+            // Preferences section - continues the flow
             SettingsSection(
                 title = "PREFERENCES",
-                animationDelayMs = AnimationConstants.Stagger.SEQUENCE[4]
+                isVisible = isVisible,
+                baseDelayMs = 350
             ) {
-                SettingsItem(
-                    icon = Icons.Default.DarkMode,
-                    iconTint = Color.Black,
-                    iconBackground = MaterialTheme.colorScheme.primary,
-                    title = "Appearance",
-                    trailingText = "Dark",
-                    onClick = { /* TODO */ },
-                    animationDelayMs = AnimationConstants.Stagger.listItemDelay(0)
-                )
+                AnimatedItem(index = 0) {
+                    SettingsItem(
+                        icon = Icons.Default.DarkMode,
+                        iconTint = Color.Black,
+                        iconBackground = MaterialTheme.colorScheme.primary,
+                        title = "Appearance",
+                        trailingText = "Dark",
+                        onClick = { /* TODO */ }
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                SettingsItem(
-                    icon = Icons.Default.Info,
-                    iconTint = Color.Black,
-                    iconBackground = MaterialTheme.colorScheme.primary,
-                    title = "About",
-                    onClick = { /* TODO */ },
-                    animationDelayMs = AnimationConstants.Stagger.listItemDelay(1)
-                )
+                AnimatedItem(index = 1) {
+                    SettingsItem(
+                        icon = Icons.Default.Info,
+                        iconTint = Color.Black,
+                        iconBackground = MaterialTheme.colorScheme.primary,
+                        title = "About",
+                        onClick = { /* TODO */ }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
             ProfileActions(
                 onSwitchAccount = { /* TODO */ },
-                onSignOut = { /* TODO */ }
+                onSignOut = { /* TODO */ },
+                isVisible = isVisible
             )
 
             Spacer(modifier = Modifier.height(24.dp))
         }
-    }
     }
 }
 

@@ -1,7 +1,5 @@
 package com.example.jitterpay.ui.components.profile
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,10 +15,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.jitterpay.ui.animation.AnimationConstants
 
 /**
- * Settings item with slide-in from right animation
+ * Settings item - pure UI component without animation logic
+ * Animation is handled by parent container (SettingsSection)
  *
  * @param icon Item icon displayed in left box
  * @param iconTint Color for the icon
@@ -29,90 +27,69 @@ import com.example.jitterpay.ui.animation.AnimationConstants
  * @param trailingText Optional text displayed before chevron
  * @param onClick Click handler
  * @param modifier Modifier for the item surface
- * @param animationDelayMs Delay in milliseconds before animation starts (for staggered list effects)
  */
 @Composable
 fun SettingsItem(
+    modifier: Modifier = Modifier,
     icon: ImageVector,
     iconTint: Color,
     iconBackground: Color,
     title: String,
     trailingText: String? = null,
-    onClick: () -> Unit = {},
-    modifier: Modifier = Modifier,
-    animationDelayMs: Int = 0
+    onClick: () -> Unit = {}
 ) {
-    AnimatedVisibility(
-        visible = true,
-        enter = fadeIn(
-            animationSpec = tween(
-                durationMillis = AnimationConstants.Duration.SHORT,
-                delayMillis = animationDelayMs,
-                easing = AnimationConstants.Easing.Entrance
-            )
-        ) + slideInHorizontally(
-            initialOffsetX = { it / 3 },
-            animationSpec = tween(
-                durationMillis = AnimationConstants.Duration.MEDIUM,
-                delayMillis = animationDelayMs,
-                easing = AnimationConstants.Easing.Entrance
-            )
-        ),
-        label = "settingsItem"
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        color = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(12.dp)
     ) {
-        Surface(
-            modifier = modifier
+        Row(
+            modifier = Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick),
-            color = MaterialTheme.colorScheme.surface,
-            shape = RoundedCornerShape(12.dp)
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .size(40.dp)
+                    .background(iconBackground, RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(iconBackground, RoundedCornerShape(8.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = title,
-                        tint = iconTint,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Text(
-                    text = title,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.weight(1f)
-                )
-
-                if (trailingText != null) {
-                    Text(
-                        text = trailingText,
-                        fontSize = 14.sp,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
-                }
-
                 Icon(
-                    imageVector = Icons.Default.ChevronRight,
-                    contentDescription = "Navigate",
-                    tint = Color.Gray,
-                    modifier = Modifier.size(20.dp)
+                    imageVector = icon,
+                    contentDescription = title,
+                    tint = iconTint,
+                    modifier = Modifier.size(24.dp)
                 )
             }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Text(
+                text = title,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.weight(1f)
+            )
+
+            if (trailingText != null) {
+                Text(
+                    text = trailingText,
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+            }
+
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = "Navigate",
+                tint = Color.Gray,
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 }

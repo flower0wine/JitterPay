@@ -39,6 +39,7 @@ fun CategoryBreakdownItem(
     var isVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(150)
         isVisible = true
     }
 
@@ -54,7 +55,7 @@ fun CategoryBreakdownItem(
     )
 
     AnimatedVisibility(
-        visible = true,
+        visible = isVisible,
         enter = fadeIn(
             animationSpec = tween(
                 durationMillis = AnimationConstants.Duration.SHORT,
