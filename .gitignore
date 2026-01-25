@@ -17,3 +17,4 @@ local.properties
 
 *.logprompts/
 .kotlin/
+release/
