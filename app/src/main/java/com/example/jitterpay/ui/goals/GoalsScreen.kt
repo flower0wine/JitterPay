@@ -14,48 +14,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.jitterpay.ui.components.goals.GoalCard
 import com.example.jitterpay.ui.components.goals.GoalsHeader
 import com.example.jitterpay.ui.components.goals.TotalProgressCard
 
 @Composable
 fun GoalsScreen(
+    modifier: Modifier = Modifier,
     navController: NavController,
-    modifier: Modifier = Modifier
+    viewModel: GoalsViewModel = hiltViewModel(),
 ) {
-    // TODO: Replace with ViewModel data
-    val sampleGoals = remember {
-        listOf(
-            GoalData(
-                id = 1,
-                title = "Emergency Fund",
-                targetAmount = 10000.0,
-                currentAmount = 7500.0,
-                category = GoalCategory.SAVINGS,
-                iconType = GoalIconType.SHIELD
-            ),
-            GoalData(
-                id = 2,
-                title = "Dream Vacation",
-                targetAmount = 5000.0,
-                currentAmount = 3200.0,
-                category = GoalCategory.TRAVEL,
-                iconType = GoalIconType.FLIGHT
-            ),
-            GoalData(
-                id = 3,
-                title = "New Laptop",
-                targetAmount = 2000.0,
-                currentAmount = 2000.0,
-                category = GoalCategory.PURCHASE,
-                iconType = GoalIconType.LAPTOP
-            )
-        )
-    }
+    val uiState by viewModel.uiState.collectAsState()
 
-    val totalTarget = sampleGoals.sumOf { it.targetAmount }
-    val totalCurrent = sampleGoals.sumOf { it.currentAmount }
-    val completedGoals = sampleGoals.count { it.isCompleted }
+    val totalTarget = uiState.goals.sumOf { it.targetAmount }
+    val totalCurrent = uiState.goals.sumOf { it.currentAmount }
+    val completedGoals = uiState.goals.count { it.isCompleted }
 
     Scaffold(
         containerColor = Color.Black
@@ -74,7 +48,7 @@ fun GoalsScreen(
                 totalTarget = totalTarget,
                 totalCurrent = totalCurrent,
                 completedGoals = completedGoals,
-                totalGoals = sampleGoals.size
+                totalGoals = uiState.goals.size
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -116,7 +90,7 @@ fun GoalsScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            sampleGoals.forEach { goal ->
+            uiState.goals.forEach { goal ->
                 GoalCard(
                     goal = goal,
                     onCardClick = {
@@ -124,7 +98,7 @@ fun GoalsScreen(
                             com.example.jitterpay.constants.NavigationRoutes.goalDetail(goal.id)
                         )
                     },
-                    onAddFunds = { /* TODO: Add funds to goal */ }
+                    onAddFunds = { viewModel.addFundsToGoal(goal.id, 100.0) }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
             }
@@ -134,39 +108,3 @@ fun GoalsScreen(
     }
 }
 
-data class GoalData(
-    val id: Long,
-    val title: String,
-    val targetAmount: Double,
-    val currentAmount: Double,
-    val category: GoalCategory,
-    val iconType: GoalIconType
-) {
-    val progress: Float
-        get() = (currentAmount / targetAmount).toFloat().coerceIn(0f, 1f)
-    
-    val isCompleted: Boolean
-        get() = currentAmount >= targetAmount
-    
-    val remainingAmount: Double
-        get() = (targetAmount - currentAmount).coerceAtLeast(0.0)
-}
-
-enum class GoalCategory {
-    SAVINGS,
-    TRAVEL,
-    PURCHASE,
-    INVESTMENT,
-    OTHER
-}
-
-enum class GoalIconType {
-    SHIELD,
-    FLIGHT,
-    LAPTOP,
-    HOME,
-    CAR,
-    EDUCATION,
-    HEALTH,
-    GIFT
-}

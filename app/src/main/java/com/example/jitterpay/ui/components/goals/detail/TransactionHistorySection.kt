@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.jitterpay.data.local.entity.GoalTransactionEntity
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -22,34 +23,9 @@ import java.util.*
 @Composable
 fun TransactionHistorySection(
     goalId: Long,
+    transactions: List<GoalTransactionEntity>,
     modifier: Modifier = Modifier
 ) {
-    // TODO: Replace with ViewModel data
-    val transactions = remember {
-        listOf(
-            GoalTransaction(
-                id = 1,
-                amount = 2500.0,
-                type = GoalTransactionType.DEPOSIT,
-                date = Date(System.currentTimeMillis() - 86400000 * 2),
-                note = "Initial deposit"
-            ),
-            GoalTransaction(
-                id = 2,
-                amount = 3000.0,
-                type = GoalTransactionType.DEPOSIT,
-                date = Date(System.currentTimeMillis() - 86400000 * 5),
-                note = "Monthly savings"
-            ),
-            GoalTransaction(
-                id = 3,
-                amount = 2000.0,
-                type = GoalTransactionType.DEPOSIT,
-                date = Date(System.currentTimeMillis() - 86400000 * 10),
-                note = "Bonus"
-            )
-        )
-    }
 
     Column(
         modifier = modifier
@@ -89,9 +65,11 @@ fun TransactionHistorySection(
 
 @Composable
 private fun TransactionItem(
-    transaction: GoalTransaction,
+    transaction: GoalTransactionEntity,
     modifier: Modifier = Modifier
 ) {
+    val date = Date(transaction.dateMillis)
+
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -108,19 +86,19 @@ private fun TransactionItem(
             Surface(
                 modifier = Modifier.size(40.dp),
                 shape = RoundedCornerShape(10.dp),
-                color = if (transaction.type == GoalTransactionType.DEPOSIT)
+                color = if (transaction.isDeposit())
                     MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
                 else
                     Color(0xFF2C2C2E)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = if (transaction.type == GoalTransactionType.DEPOSIT)
+                        imageVector = if (transaction.isDeposit())
                             Icons.AutoMirrored.Filled.TrendingUp
                         else
                             Icons.AutoMirrored.Filled.TrendingDown,
-                        contentDescription = transaction.type.name,
-                        tint = if (transaction.type == GoalTransactionType.DEPOSIT)
+                        contentDescription = transaction.type,
+                        tint = if (transaction.isDeposit())
                             MaterialTheme.colorScheme.primary
                         else
                             Color.Gray,
@@ -133,27 +111,24 @@ private fun TransactionItem(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = transaction.note ?: if (transaction.type == GoalTransactionType.DEPOSIT)
-                        "Deposit"
-                    else
-                        "Withdrawal",
+                    text = transaction.description.ifBlank {
+                        if (transaction.isDeposit()) "Deposit" else "Withdrawal"
+                    },
                     color = Color.White,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = formatDate(transaction.date),
+                    text = formatDate(date),
                     color = Color.Gray,
                     fontSize = 12.sp
                 )
             }
 
             Text(
-                text = "${if (transaction.type == GoalTransactionType.DEPOSIT) "+" else "-"}${
-                    NumberFormat.getCurrencyInstance(Locale.US).format(transaction.amount)
-                }",
-                color = if (transaction.type == GoalTransactionType.DEPOSIT)
+                text = transaction.getFormattedAmount(),
+                color = if (transaction.isDeposit())
                     MaterialTheme.colorScheme.primary
                 else
                     Color.Gray,
@@ -214,15 +189,3 @@ private fun formatDate(date: Date): String {
     }
 }
 
-data class GoalTransaction(
-    val id: Long,
-    val amount: Double,
-    val type: GoalTransactionType,
-    val date: Date,
-    val note: String? = null
-)
-
-enum class GoalTransactionType {
-    DEPOSIT,
-    WITHDRAWAL
-}

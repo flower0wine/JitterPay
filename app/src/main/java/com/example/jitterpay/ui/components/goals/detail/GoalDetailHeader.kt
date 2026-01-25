@@ -57,14 +57,6 @@ fun GoalDetailHeader(
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = getCategoryText(goal.category),
-            color = Color.Gray,
-            fontSize = 14.sp
-        )
     }
 }
 
@@ -81,12 +73,3 @@ private fun getGoalIcon(iconType: GoalIconType): ImageVector {
     }
 }
 
-private fun getCategoryText(category: com.example.jitterpay.ui.goals.GoalCategory): String {
-    return when (category) {
-        com.example.jitterpay.ui.goals.GoalCategory.SAVINGS -> "Savings Goal"
-        com.example.jitterpay.ui.goals.GoalCategory.TRAVEL -> "Travel Goal"
-        com.example.jitterpay.ui.goals.GoalCategory.PURCHASE -> "Purchase Goal"
-        com.example.jitterpay.ui.goals.GoalCategory.INVESTMENT -> "Investment Goal"
-        com.example.jitterpay.ui.goals.GoalCategory.OTHER -> "Personal Goal"
-    }
-}

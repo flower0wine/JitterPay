@@ -2,7 +2,7 @@
 
 # 任务
 
-- 目前你需要确保记账功能和账本数据的展示功能正常，记账功能位于 app\src\main\java\com\example\jitterpay\ui\AddTransactionScreen.kt，展示功能在 app\src\main\java\com\example\jitterpay\ui\HomeScreen.kt和app\src\main\java\com\example\jitterpay\ui\StatisticsScreen.kt 都有。
+- 目前你需要确保添加目标和目标的展示功能正常，添加目标功能位于 app\src\main\java\com\example\jitterpay\ui\goals\AddGoalScreen.kt，目标展示在 app\src\main\java\com\example\jitterpay\ui\goals\GoalsScreen.kt 和 app\src\main\java\com\example\jitterpay\ui\goals\GoalDetailScreen.kt 都有。
 - 使用 room 这个依赖来实现记账数据的持久化，模块功能实现之后需要编写测试确保其功能正确，同时也要避免测试代码文件内容过长，需要做好分类，但是不要拆得过于散乱。
 
 # 要求

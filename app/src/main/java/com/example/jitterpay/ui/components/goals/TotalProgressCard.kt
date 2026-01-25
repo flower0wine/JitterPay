@@ -72,7 +72,7 @@ fun TotalProgressCard(
         label = "totalCurrent"
     )
 
-    val progress = (totalCurrent / totalTarget).toFloat().coerceIn(0f, 1f)
+    val progress = if (totalTarget == 0.0) 0f else (totalCurrent / totalTarget).toFloat().coerceIn(0f, 1f)
 
     Card(
         modifier = modifier

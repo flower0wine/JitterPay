@@ -11,29 +11,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.jitterpay.ui.components.goals.detail.*
 
 @Composable
 fun GoalDetailScreen(
     goalId: Long,
     navController: NavController,
+    viewModel: GoalDetailViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
-    // TODO: Replace with ViewModel data
-    val goal = remember {
-        GoalData(
-            id = goalId,
-            title = "Emergency Fund",
-            targetAmount = 10000.0,
-            currentAmount = 7500.0,
-            category = GoalCategory.SAVINGS,
-            iconType = GoalIconType.SHIELD
-        )
+    LaunchedEffect(goalId) {
+        viewModel.loadGoal(goalId)
     }
 
-    val milestones = remember {
-        calculateMilestones(goal)
-    }
+    val uiState by viewModel.uiState.collectAsState()
+
+    val goal = uiState.goalDetail?.goal
+    val milestones = goal?.let { calculateMilestones(it) } ?: emptyList()
 
     Scaffold(
         containerColor = Color.Black,
@@ -51,33 +46,36 @@ fun GoalDetailScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
-            GoalDetailHeader(goal = goal)
+            goal?.let {
+                GoalDetailHeader(goal = it)
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            GoalProgressSection(goal = goal)
+                GoalProgressSection(goal = it)
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            MilestonesSection(
-                milestones = milestones,
-                currentAmount = goal.currentAmount
-            )
+                MilestonesSection(
+                    milestones = milestones,
+                    currentAmount = it.currentAmount
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            GoalActionsSection(
-                goal = goal,
-                onAddFunds = { /* TODO: Add funds */ },
-                onWithdraw = { /* TODO: Withdraw */ },
-                onEditGoal = { /* TODO: Edit goal */ }
-            )
+                GoalActionsSection(
+                    goal = it,
+                    onAddFunds = { /* TODO: Show add funds dialog */ },
+                    onWithdraw = { /* TODO: Show withdraw dialog */ },
+                    onEditGoal = { /* TODO: Navigate to edit screen */ }
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            TransactionHistorySection(
-                goalId = goal.id
-            )
+                TransactionHistorySection(
+                    goalId = goalId,
+                    transactions = uiState.goalDetail?.transactions ?: emptyList()
+                )
+            }
 
             Spacer(modifier = Modifier.height(100.dp))
         }
@@ -158,3 +156,4 @@ enum class MilestoneIconType {
     MEDAL,
     CROWN
 }
+

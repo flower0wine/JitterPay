@@ -2,24 +2,23 @@ package com.example.jitterpay.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.example.jitterpay.data.local.dao.GoalDao
+import com.example.jitterpay.data.local.dao.GoalTransactionDao
 import com.example.jitterpay.data.local.dao.TransactionDao
+import com.example.jitterpay.data.local.entity.GoalEntity
+import com.example.jitterpay.data.local.entity.GoalTransactionEntity
 import com.example.jitterpay.data.local.entity.TransactionEntity
 
 /**
  * JitterPay 记账应用数据库
  *
- * 数据库版本管理说明：
- * - version = 1: 初始版本，包含transactions表
- * - 未来版本升级时，使用Room的迁移策略
- *
- * 当前已考虑的扩展：
- * - categories表：用于存储用户自定义分类
- * - accounts表：用于多账户支持
- * - budgets表：用于预算管理
+ * 注意：开发环境使用fallbackToDestructiveMigration()，生产环境应配置适当的迁移策略
  */
 @Database(
     entities = [
-        TransactionEntity::class
+        TransactionEntity::class,
+        GoalEntity::class,
+        GoalTransactionEntity::class
     ],
     version = 1,
     exportSchema = false
@@ -30,6 +29,16 @@ abstract class JitterPayDatabase : RoomDatabase() {
      * 获取交易数据访问对象
      */
     abstract fun transactionDao(): TransactionDao
+
+    /**
+     * 获取目标数据访问对象
+     */
+    abstract fun goalDao(): GoalDao
+
+    /**
+     * 获取目标交易数据访问对象
+     */
+    abstract fun goalTransactionDao(): GoalTransactionDao
 
     companion object {
         const val DATABASE_NAME = "jitterpay_database"

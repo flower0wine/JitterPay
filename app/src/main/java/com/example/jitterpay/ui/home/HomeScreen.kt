@@ -1,20 +1,17 @@
 package com.example.jitterpay.ui.home
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.jitterpay.constants.NavigationRoutes
 import com.example.jitterpay.data.local.entity.TransactionType
-import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.components.home.BalanceCard
 import com.example.jitterpay.ui.components.home.QuickActions
 import com.example.jitterpay.ui.components.home.TopHeader
@@ -57,7 +54,7 @@ fun HomeScreen(
             TopHeader(
                 avatarId = avatarId,
                 onSearchClick = {
-                    navController.navigate(com.example.jitterpay.constants.NavigationRoutes.SEARCH)
+                    navController.navigate(NavigationRoutes.SEARCH)
                 }
             )
 
@@ -71,7 +68,12 @@ fun HomeScreen(
 
             QuickActions(
                 onGoalsClick = {
-                    navController.navigate(com.example.jitterpay.constants.NavigationRoutes.GOALS)
+                    navController.navigate(NavigationRoutes.GOALS) {
+                        popUpTo(NavigationRoutes.HOME) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
                 }
             )
 

@@ -9,19 +9,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.jitterpay.ui.components.goals.addgoal.*
 
 @Composable
 fun AddGoalScreen(
     navController: NavController,
+    viewModel: GoalsViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
     var goalTitle by remember { mutableStateOf("") }
     var targetAmount by remember { mutableStateOf("") }
     var selectedIcon by remember { mutableStateOf<GoalIconType?>(GoalIconType.SHIELD) }
 
-    val isFormValid = goalTitle.isNotBlank() && 
-                     targetAmount.isNotBlank() && 
+    val isFormValid = goalTitle.isNotBlank() &&
+                     targetAmount.isNotBlank() &&
                      selectedIcon != null
 
     Scaffold(
@@ -64,7 +66,14 @@ fun AddGoalScreen(
             CreateGoalButton(
                 isEnabled = isFormValid,
                 onClick = {
-                    // TODO: Create goal and navigate back
+                    val newGoal = GoalData(
+                        id = 0,
+                        title = goalTitle,
+                        targetAmount = targetAmount.toDouble(),
+                        currentAmount = 0.0,
+                        iconType = selectedIcon!!
+                    )
+                    viewModel.addGoal(newGoal)
                     navController.navigateUp()
                 }
             )

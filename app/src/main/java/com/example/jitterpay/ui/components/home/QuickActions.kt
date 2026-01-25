@@ -21,8 +21,8 @@ import com.example.jitterpay.ui.animation.AnimationConstants
 
 @Composable
 fun QuickActions(
+    modifier: Modifier = Modifier,
     onGoalsClick: () -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     var isVisible by remember { mutableStateOf(false) }
 
