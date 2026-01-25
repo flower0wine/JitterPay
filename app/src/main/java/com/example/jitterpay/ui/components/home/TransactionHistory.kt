@@ -1,7 +1,7 @@
 package com.example.jitterpay.ui.components.home
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.jitterpay.data.local.entity.TransactionEntity
@@ -117,29 +118,52 @@ fun TransactionHistory(
  */
 @Composable
 private fun EmptyTransactionState() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    var visible by remember { mutableStateOf(false) }
+    
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(100)
+        visible = true
+    }
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(animationSpec = tween(600)) + scaleIn(
+            initialScale = 0.9f,
+            animationSpec = tween(600, easing = androidx.compose.animation.core.FastOutSlowInEasing)
+        )
     ) {
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
-            contentDescription = null,
-            tint = Color.Gray,
-            modifier = Modifier.size(64.dp)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "No transactions yet",
-            color = Color.Gray,
-            fontSize = 16.sp
-        )
-        Text(
-            text = "Tap + to add your first transaction",
-            color = Color.Gray.copy(alpha = 0.7f),
-            fontSize = 14.sp
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 48.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
+                contentDescription = null,
+                tint = Color.Gray.copy(alpha = 0.4f),
+                modifier = Modifier.size(72.dp)
+            )
+            
+            Spacer(modifier = Modifier.height(20.dp))
+            
+            Text(
+                text = "No Transactions Yet",
+                color = Color.White,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = "Start tracking your spending by\nadding your first transaction",
+                color = Color.Gray,
+                fontSize = 14.sp,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                lineHeight = 20.sp
+            )
+        }
     }
 }
 

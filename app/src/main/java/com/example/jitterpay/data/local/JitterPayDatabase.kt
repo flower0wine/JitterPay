@@ -11,8 +11,6 @@ import com.example.jitterpay.data.local.entity.TransactionEntity
 
 /**
  * JitterPay 记账应用数据库
- *
- * 注意：开发环境使用fallbackToDestructiveMigration()，生产环境应配置适当的迁移策略
  */
 @Database(
     entities = [

@@ -19,9 +19,6 @@ import javax.inject.Singleton
  *
  * 使用Hilt的@Module和@InstallIn注解来定义依赖提供方式。
  * 安装在SingletonComponent中，确保数据库实例在应用生命周期内保持单例。
- *
- * 注意：开发环境使用fallbackToDestructiveMigration()以简化开发流程，
- * 生产环境应配置适当的Room迁移策略
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -29,9 +26,6 @@ object DatabaseModule {
 
     /**
      * 提供JitterPayDatabase实例
-     *
-     * 使用Room.databaseBuilder创建数据库，设置数据库名称。
-     * 开发环境使用fallbackToDestructiveMigration()简化数据库重置。
      *
      * @param context 应用上下文
      * @return JitterPayDatabase实例
@@ -46,7 +40,8 @@ object DatabaseModule {
             JitterPayDatabase::class.java,
             JitterPayDatabase.DATABASE_NAME
         )
-            .fallbackToDestructiveMigration()
+            // 不允许删除数据库
+            .fallbackToDestructiveMigration(false)
             .build()
     }
 
