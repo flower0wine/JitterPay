@@ -7,7 +7,7 @@ object NavigationTabs {
     const val HOME = "Home"
     const val STATS = "Stats"
     const val DATA = "DATA"
-    const val WALLET = "Wallet"
+    const val GOALS = "Goals"
     const val PROFILE = "Profile"
 }
 
@@ -17,12 +17,12 @@ object NavigationTabs {
 object NavigationRoutes {
     const val HOME = "home"
     const val STATS = "stats"
-    const val WALLET = "wallet"
+    const val GOALS = "goals"
     const val PROFILE = "profile"
     const val ADD_TRANSACTION = "add_transaction"
     const val SEARCH = "search"
     const val AVATAR_SELECTION = "avatar_selection"
-    const val GOALS = "goals"
+    const val ADD_GOAL = "add_goal"
     const val GOAL_DETAIL = "goal_detail/{goalId}"
     
     fun goalDetail(goalId: Long): String = "goal_detail/$goalId"

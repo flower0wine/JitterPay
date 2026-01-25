@@ -163,6 +163,16 @@ fun JitterPayApp(
             }
 
             composable(
+                route = NavigationRoutes.ADD_GOAL,
+                enterTransition = { SlideTransitions.slideInRight() },
+                exitTransition = { SlideTransitions.slideOutRight() },
+                popEnterTransition = { SlideTransitions.slideInRight() },
+                popExitTransition = { SlideTransitions.slideOutRight() }
+            ) {
+                AddGoalScreen(navController = navController)
+            }
+
+            composable(
                 route = NavigationRoutes.GOAL_DETAIL,
                 arguments = listOf(
                     navArgument("goalId") { type = NavType.LongType }

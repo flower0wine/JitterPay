@@ -58,7 +58,7 @@ fun GoalsScreen(
     val completedGoals = sampleGoals.count { it.isCompleted }
 
     Scaffold(
-        containerColor = Color.Black,
+        containerColor = Color.Black
     ) { innerPadding ->
         Column(
             modifier = modifier
@@ -79,13 +79,40 @@ fun GoalsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                text = "YOUR GOALS",
-                color = Color.Gray,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 20.dp)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "YOUR GOALS",
+                    color = Color.Gray,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                TextButton(
+                    onClick = {
+                        navController.navigate(com.example.jitterpay.constants.NavigationRoutes.ADD_GOAL)
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add Goal",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "New Goal",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 

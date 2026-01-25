@@ -14,7 +14,7 @@ import com.example.jitterpay.ui.animation.SlideTransitions
 private val BOTTOM_NAV_ORDER = listOf(
     NavigationRoutes.HOME,
     NavigationRoutes.STATS,
-    NavigationRoutes.WALLET,
+    NavigationRoutes.GOALS,
     NavigationRoutes.PROFILE
 )
 

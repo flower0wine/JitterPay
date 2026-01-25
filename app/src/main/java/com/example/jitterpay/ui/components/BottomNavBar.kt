@@ -49,9 +49,9 @@ sealed class BottomNavRoute(
 
     data object Goals : BottomNavRoute(
         route = NavigationRoutes.GOALS,
-        tab = NavigationTabs.WALLET,
+        tab = NavigationTabs.GOALS,
         icon = Icons.Default.TrackChanges,
-        label = "Goals"
+        label = NavigationTabs.GOALS
     )
 
     data object Profile : BottomNavRoute(
