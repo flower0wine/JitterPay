@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.jitterpay.data.local.entity.TransactionType
 import com.example.jitterpay.ui.animation.AnimationConstants
@@ -23,6 +24,7 @@ import java.util.Locale
 
 @Composable
 fun HomeScreen(
+    navController: NavController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -49,27 +51,31 @@ fun HomeScreen(
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
         ) {
-                TopHeader()
+            TopHeader(
+                onSearchClick = {
+                    navController.navigate(com.example.jitterpay.constants.NavigationRoutes.SEARCH)
+                }
+            )
 
-                Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-                BalanceCard(
-                    balance = balanceFormatted,
-                    monthlyIncome = formatCurrency(monthlyIncome),
-                    monthlySpent = formatCurrency(monthlySpent)
-                )
+            BalanceCard(
+                balance = balanceFormatted,
+                monthlyIncome = formatCurrency(monthlyIncome),
+                monthlySpent = formatCurrency(monthlySpent)
+            )
 
-                QuickActions()
+            QuickActions()
 
-                // 传递真实交易数据到TransactionHistory
-                TransactionHistory(
-                    transactions = uiState.transactions,
-                    onDeleteTransaction = { viewModel.deleteTransaction(it) }
-                )
+            // 传递真实交易数据到TransactionHistory
+            TransactionHistory(
+                transactions = uiState.transactions,
+                onDeleteTransaction = { viewModel.deleteTransaction(it) }
+            )
 
-                // Add extra space at the bottom to ensure content isn't covered by bottom nav
-                Spacer(modifier = Modifier.height(100.dp))
-            }
+            // Add extra space at the bottom to ensure content isn't covered by bottom nav
+            Spacer(modifier = Modifier.height(100.dp))
+        }
     }
 }
 

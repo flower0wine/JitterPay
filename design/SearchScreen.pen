@@ -1,0 +1,792 @@
+{
+  "version": "2.6",
+  "children": [
+    {
+      "type": "frame",
+      "id": "ipc6j",
+      "x": 0,
+      "y": 0,
+      "name": "SearchScreen",
+      "width": 375,
+      "height": 812,
+      "fill": "#000000",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "2VevP",
+          "name": "StatusBar",
+          "width": "fill_container",
+          "height": 44,
+          "padding": [
+            16,
+            16,
+            0,
+            16
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "CNg0Z",
+              "name": "Time",
+              "fill": "#FFFFFF",
+              "content": "9:41",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "nbYnf",
+              "name": "StatusBarIcons",
+              "gap": 4,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "WJ5Il",
+                  "name": "Signal",
+                  "width": 16,
+                  "height": 16,
+                  "iconFontName": "signal_cellular_alt",
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "fill": "#FFFFFF"
+                },
+                {
+                  "type": "icon_font",
+                  "id": "KBBAF",
+                  "name": "Wifi",
+                  "width": 16,
+                  "height": 16,
+                  "iconFontName": "wifi",
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "fill": "#FFFFFF"
+                },
+                {
+                  "type": "icon_font",
+                  "id": "DVO8o",
+                  "name": "Battery",
+                  "width": 16,
+                  "height": 16,
+                  "iconFontName": "battery_full",
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "fill": "#FFFFFF"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "zk2yB",
+          "name": "Header",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 16,
+          "padding": [
+            16,
+            20
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "gijbB",
+              "name": "SearchBarContainer",
+              "width": "fill_container",
+              "height": 48,
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "9klek",
+                  "name": "SearchBar",
+                  "width": "fill_container",
+                  "height": 48,
+                  "fill": "#1C1C1E",
+                  "gap": 8,
+                  "padding": [
+                    12,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "l4pGj",
+                      "name": "SearchIcon",
+                      "width": 24,
+                      "height": 24,
+                      "iconFontName": "search",
+                      "iconFontFamily": "Material Symbols Rounded",
+                      "fill": "#8E8E93"
+                    },
+                    {
+                      "type": "text",
+                      "id": "aiYyG",
+                      "name": "SearchInput",
+                      "fill": "#8E8E93",
+                      "content": "Search transactions...",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "CekHg",
+                  "name": "FilterButton",
+                  "width": 48,
+                  "height": 48,
+                  "fill": "#1C1C1E",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "fE1VG",
+                      "name": "FilterIcon",
+                      "width": 24,
+                      "height": 24,
+                      "iconFontName": "tune",
+                      "iconFontFamily": "Material Symbols Rounded",
+                      "fill": "#E1FF00"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "UTehR",
+              "name": "QuickFilters",
+              "width": "fill_container",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "KwHol",
+                  "name": "FilterChip",
+                  "fill": "#1C1C1E",
+                  "gap": 6,
+                  "padding": [
+                    8,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "9dF6P",
+                      "name": "ChipIcon",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "arrow_upward",
+                      "iconFontFamily": "Material Symbols Rounded",
+                      "fill": "#4CAF50"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ej3Ug",
+                      "name": "ChipLabel",
+                      "fill": "#FFFFFF",
+                      "content": "Income",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Ehg3n",
+                  "name": "FilterChipActive",
+                  "fill": "#E1FF00",
+                  "gap": 6,
+                  "padding": [
+                    8,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "tnZkW",
+                      "name": "ChipIcon",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "arrow_downward",
+                      "iconFontFamily": "Material Symbols Rounded",
+                      "fill": "#000000"
+                    },
+                    {
+                      "type": "text",
+                      "id": "x70bA",
+                      "name": "ChipLabel",
+                      "fill": "#000000",
+                      "content": "Expense",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "tyN1G",
+                  "name": "FilterChip",
+                  "fill": "#1C1C1E",
+                  "gap": 6,
+                  "padding": [
+                    8,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "qPZwP",
+                      "name": "ChipIcon",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "calendar_today",
+                      "iconFontFamily": "Material Symbols Rounded",
+                      "fill": "#8E8E93"
+                    },
+                    {
+                      "type": "text",
+                      "id": "1FlYg",
+                      "name": "ChipLabel",
+                      "fill": "#FFFFFF",
+                      "content": "This Month",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "5Jec4",
+                  "name": "ClearFilters",
+                  "fill": "#8E8E93",
+                  "content": "Clear",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "500"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "lGU9d",
+          "name": "Content",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 16,
+          "padding": [
+            0,
+            20
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "pX30u",
+              "name": "ResultsHeader",
+              "width": "fill_container",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "unNfK",
+                  "name": "ResultsCount",
+                  "fill": "#FFFFFF",
+                  "content": "12 Results",
+                  "fontFamily": "Inter",
+                  "fontSize": 20,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "frame",
+                  "id": "fGzF5",
+                  "name": "SortButton",
+                  "gap": 6,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "QrJf3",
+                      "name": "SortLabel",
+                      "fill": "#E1FF00",
+                      "content": "Recent",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "icon_font",
+                      "id": "VLjhL",
+                      "name": "SortIcon",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "keyboard_arrow_down",
+                      "iconFontFamily": "Material Symbols Rounded",
+                      "fill": "#E1FF00"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "t5Rvq",
+              "name": "DateSection",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "jy7oB",
+                  "name": "DateLabel",
+                  "fill": "#8E8E93",
+                  "content": "TODAY",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "frame",
+                  "id": "d9bHL",
+                  "name": "TransactionItem",
+                  "width": "fill_container",
+                  "height": 72,
+                  "fill": "#1C1C1E",
+                  "gap": 16,
+                  "padding": [
+                    12,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "F83DJ",
+                      "name": "CategoryIcon",
+                      "width": 48,
+                      "height": 48,
+                      "fill": "#1C1C1E",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "73lLs",
+                          "name": "CategoryIconSymbol",
+                          "width": 24,
+                          "height": 24,
+                          "iconFontName": "restaurant",
+                          "iconFontFamily": "Material Symbols Rounded",
+                          "fill": "#E1FF00"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "MENNm",
+                      "name": "TransactionDetails",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "WnzMa",
+                          "name": "CategoryName",
+                          "fill": "#FFFFFF",
+                          "content": "Food & Drink",
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Kzlkv",
+                          "name": "TransactionTime",
+                          "fill": "#8E8E93",
+                          "content": "2:30 PM • Restaurant",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "e8tQZ",
+                      "name": "TransactionAmount",
+                      "fill": "#FFFFFF",
+                      "content": "-$24.50",
+                      "fontFamily": "Inter",
+                      "fontSize": 18,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "lXokU",
+                  "name": "TransactionItem",
+                  "width": "fill_container",
+                  "height": 72,
+                  "fill": "#1C1C1E",
+                  "gap": 16,
+                  "padding": [
+                    12,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "lzGov",
+                      "name": "CategoryIcon",
+                      "width": 48,
+                      "height": 48,
+                      "fill": "#1C1C1E",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "IEiUi",
+                          "name": "CategoryIconSymbol",
+                          "width": 24,
+                          "height": 24,
+                          "iconFontName": "shopping_cart",
+                          "iconFontFamily": "Material Symbols Rounded",
+                          "fill": "#E91E63"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "b8gJy",
+                      "name": "TransactionDetails",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "61u1B",
+                          "name": "CategoryName",
+                          "fill": "#FFFFFF",
+                          "content": "Groceries",
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "fYcQe",
+                          "name": "TransactionTime",
+                          "fill": "#8E8E93",
+                          "content": "10:15 AM • Supermarket",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "nV4dw",
+                      "name": "TransactionAmount",
+                      "fill": "#FFFFFF",
+                      "content": "-$86.30",
+                      "fontFamily": "Inter",
+                      "fontSize": 18,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "WQa7x",
+              "name": "DateSection",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "T4J4j",
+                  "name": "DateLabel",
+                  "fill": "#8E8E93",
+                  "content": "YESTERDAY",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "frame",
+                  "id": "TZhHO",
+                  "name": "TransactionItem",
+                  "width": "fill_container",
+                  "height": 72,
+                  "fill": "#1C1C1E",
+                  "gap": 16,
+                  "padding": [
+                    12,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "eTc6F",
+                      "name": "CategoryIcon",
+                      "width": 48,
+                      "height": 48,
+                      "fill": "#E1FF00",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "XqV4P",
+                          "name": "CategoryIconSymbol",
+                          "width": 24,
+                          "height": 24,
+                          "iconFontName": "account_balance_wallet",
+                          "iconFontFamily": "Material Symbols Rounded",
+                          "fill": "#000000"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Ug9ma",
+                      "name": "TransactionDetails",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "YTLCG",
+                          "name": "CategoryName",
+                          "fill": "#FFFFFF",
+                          "content": "Salary",
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "MrhJ0",
+                          "name": "TransactionTime",
+                          "fill": "#8E8E93",
+                          "content": "9:00 AM • Direct Deposit",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "Cs7DQ",
+                      "name": "TransactionAmount",
+                      "fill": "#E1FF00",
+                      "content": "+$3,250.00",
+                      "fontFamily": "Inter",
+                      "fontSize": 18,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "fg8Cs",
+          "name": "BottomNav",
+          "width": "fill_container",
+          "height": 80,
+          "fill": "#000000",
+          "padding": [
+            0,
+            0,
+            0,
+            10
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "nZ9fZ",
+              "name": "NavItem",
+              "layout": "vertical",
+              "gap": 4,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "yE1M1",
+                  "name": "NavIcon",
+                  "width": 24,
+                  "height": 24,
+                  "iconFontName": "home",
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "fill": "#8E8E93"
+                },
+                {
+                  "type": "text",
+                  "id": "GR14M",
+                  "name": "NavLabel",
+                  "fill": "#8E8E93",
+                  "content": "Home",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Om6Jb",
+              "name": "NavSpacer",
+              "width": 64,
+              "height": 64
+            },
+            {
+              "type": "frame",
+              "id": "wfuMO",
+              "name": "NavItem",
+              "layout": "vertical",
+              "gap": 4,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "MgtA8",
+                  "name": "NavIcon",
+                  "width": 24,
+                  "height": 24,
+                  "iconFontName": "bar_chart",
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "fill": "#E1FF00"
+                },
+                {
+                  "type": "text",
+                  "id": "UjDke",
+                  "name": "NavLabel",
+                  "fill": "#E1FF00",
+                  "content": "Stats",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "KhO6j",
+              "name": "NavItem",
+              "layout": "vertical",
+              "gap": 4,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "fwTxK",
+                  "name": "NavIcon",
+                  "width": 24,
+                  "height": 24,
+                  "iconFontName": "account_balance_wallet",
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "fill": "#8E8E93"
+                },
+                {
+                  "type": "text",
+                  "id": "b5hTP",
+                  "name": "NavLabel",
+                  "fill": "#8E8E93",
+                  "content": "Wallet",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "FkdiF",
+              "name": "NavItem",
+              "layout": "vertical",
+              "gap": 4,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "GCAVB",
+                  "name": "NavIcon",
+                  "width": 24,
+                  "height": 24,
+                  "iconFontName": "person",
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "fill": "#8E8E93"
+                },
+                {
+                  "type": "text",
+                  "id": "TFN0n",
+                  "name": "NavLabel",
+                  "fill": "#8E8E93",
+                  "content": "Profile",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "H5inX",
+              "name": "AddButton",
+              "width": 64,
+              "height": 64,
+              "fill": "#E1FF00",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "LSqQm",
+                  "name": "AddIcon",
+                  "width": 32,
+                  "height": 32,
+                  "iconFontName": "add",
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "fill": "#000000"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

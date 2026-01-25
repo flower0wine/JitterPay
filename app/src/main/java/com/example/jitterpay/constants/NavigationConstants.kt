@@ -20,6 +20,7 @@ object NavigationRoutes {
     const val WALLET = "wallet"
     const val PROFILE = "profile"
     const val ADD_TRANSACTION = "add_transaction"
+    const val SEARCH = "search"
 }
 
 /**

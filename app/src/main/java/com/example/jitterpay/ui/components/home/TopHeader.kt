@@ -30,7 +30,8 @@ import com.example.jitterpay.ui.animation.AnimationConstants
 
 @Composable
 fun TopHeader(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onSearchClick: () -> Unit = {}
 ) {
     Row(
         modifier = modifier
@@ -85,7 +86,7 @@ fun TopHeader(
         
         Row {
             IconButton(
-                onClick = { },
+                onClick = onSearchClick,
                 modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)

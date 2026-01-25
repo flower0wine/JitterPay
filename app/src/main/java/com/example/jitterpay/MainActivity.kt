@@ -23,6 +23,7 @@ import com.example.jitterpay.constants.NavigationRoutes
 import com.example.jitterpay.ui.addtransaction.AddTransactionScreen
 import com.example.jitterpay.ui.home.HomeScreen
 import com.example.jitterpay.ui.ProfileScreen
+import com.example.jitterpay.ui.search.SearchScreen
 import com.example.jitterpay.ui.statistics.StatisticsScreen
 import com.example.jitterpay.ui.addtransaction.AddTransactionViewModel
 import com.example.jitterpay.ui.components.BottomNavBar
@@ -84,7 +85,7 @@ fun JitterPayApp(
                 popEnterTransition = { with(this) { getBottomNavPopEnterTransition() } },
                 popExitTransition = { with(this) { getBottomNavPopExitTransition() } }
             ) {
-                HomeScreen()
+                HomeScreen(navController = navController)
             }
 
             composable(
@@ -105,7 +106,7 @@ fun JitterPayApp(
                 popExitTransition = { with(this) { getBottomNavPopExitTransition() } }
             ) {
                 // Placeholder for Wallet screen
-                HomeScreen()
+                HomeScreen(navController = navController)
             }
 
             composable(
@@ -127,6 +128,20 @@ fun JitterPayApp(
             ) {
                 AddTransactionScreen(
                     onClose = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(
+                route = NavigationRoutes.SEARCH,
+                enterTransition = { SlideTransitions.slideInRight() },
+                exitTransition = { SlideTransitions.slideOutRight() },
+                popEnterTransition = { SlideTransitions.slideInRight() },
+                popExitTransition = { SlideTransitions.slideOutRight() }
+            ) {
+                SearchScreen(
+                    onNavigateBack = {
                         navController.popBackStack()
                     }
                 )
