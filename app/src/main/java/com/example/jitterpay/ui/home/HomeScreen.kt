@@ -69,7 +69,11 @@ fun HomeScreen(
                 monthlySpent = formatCurrency(monthlySpent)
             )
 
-            QuickActions()
+            QuickActions(
+                onGoalsClick = {
+                    navController.navigate(com.example.jitterpay.constants.NavigationRoutes.GOALS)
+                }
+            )
 
             // 传递真实交易数据到TransactionHistory
             TransactionHistory(

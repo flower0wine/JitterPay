@@ -47,11 +47,11 @@ sealed class BottomNavRoute(
         label = NavigationTabs.STATS
     )
 
-    data object Wallet : BottomNavRoute(
-        route = NavigationRoutes.WALLET,
+    data object Goals : BottomNavRoute(
+        route = NavigationRoutes.GOALS,
         tab = NavigationTabs.WALLET,
-        icon = Icons.Default.AccountBalanceWallet,
-        label = NavigationTabs.WALLET
+        icon = Icons.Default.TrackChanges,
+        label = "Goals"
     )
 
     data object Profile : BottomNavRoute(
@@ -62,7 +62,7 @@ sealed class BottomNavRoute(
     )
 
     companion object {
-        val items = listOf(Home, Stats, Wallet, Profile)
+        val items = listOf(Home, Stats, Goals, Profile)
     }
 }
 

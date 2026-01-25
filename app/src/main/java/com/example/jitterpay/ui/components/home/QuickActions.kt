@@ -2,6 +2,7 @@ package com.example.jitterpay.ui.components.home
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -20,6 +21,7 @@ import com.example.jitterpay.ui.animation.AnimationConstants
 
 @Composable
 fun QuickActions(
+    onGoalsClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var isVisible by remember { mutableStateOf(false) }
@@ -38,25 +40,29 @@ fun QuickActions(
             icon = Icons.Default.Send,
             label = "SEND",
             isVisible = isVisible,
-            delayMillis = AnimationConstants.Stagger.QUICK_ACTIONS[0]
+            delayMillis = AnimationConstants.Stagger.QUICK_ACTIONS[0],
+            onClick = {}
         )
         QuickActionButton(
-            icon = Icons.Default.AccountBalance,
-            label = "BANK",
+            icon = Icons.Default.TrackChanges,
+            label = "GOALS",
             isVisible = isVisible,
-            delayMillis = AnimationConstants.Stagger.QUICK_ACTIONS[1]
+            delayMillis = AnimationConstants.Stagger.QUICK_ACTIONS[1],
+            onClick = onGoalsClick
         )
         QuickActionButton(
             icon = Icons.Default.Receipt,
             label = "BILLS",
             isVisible = isVisible,
-            delayMillis = AnimationConstants.Stagger.QUICK_ACTIONS[2]
+            delayMillis = AnimationConstants.Stagger.QUICK_ACTIONS[2],
+            onClick = {}
         )
         QuickActionButton(
             icon = Icons.Default.MoreHoriz,
             label = "MORE",
             isVisible = isVisible,
-            delayMillis = AnimationConstants.Stagger.QUICK_ACTIONS[3]
+            delayMillis = AnimationConstants.Stagger.QUICK_ACTIONS[3],
+            onClick = {}
         )
     }
 }
@@ -66,7 +72,8 @@ fun QuickActionButton(
     icon: ImageVector,
     label: String,
     isVisible: Boolean,
-    delayMillis: Int
+    delayMillis: Int,
+    onClick: () -> Unit = {}
 ) {
     AnimatedVisibility(
         visible = isVisible,
@@ -93,31 +100,34 @@ fun QuickActionButton(
         label = "quickAction_$label"
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.clickable(onClick = onClick)
         ) {
-        Surface(
-            modifier = Modifier
-                .size(64.dp)
-                .clip(CircleShape),
-            color = Color(0xFF1C1C1E)
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = label,
-                    tint = if (label == "SEND") MaterialTheme.colorScheme.primary else Color.White,
-                    modifier = Modifier.size(24.dp)
-                )
+            Surface(
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape),
+                color = Color(0xFF1C1C1E)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = label,
+                        tint = if (label == "SEND" || label == "GOALS") 
+                            MaterialTheme.colorScheme.primary 
+                        else 
+                            Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = label,
+                color = Color.Gray,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = label,
-            color = Color.Gray,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
     }
 }
-

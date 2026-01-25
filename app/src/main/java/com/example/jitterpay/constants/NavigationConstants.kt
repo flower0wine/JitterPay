@@ -22,6 +22,10 @@ object NavigationRoutes {
     const val ADD_TRANSACTION = "add_transaction"
     const val SEARCH = "search"
     const val AVATAR_SELECTION = "avatar_selection"
+    const val GOALS = "goals"
+    const val GOAL_DETAIL = "goal_detail/{goalId}"
+    
+    fun goalDetail(goalId: Long): String = "goal_detail/$goalId"
 }
 
 /**
