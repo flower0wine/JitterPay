@@ -101,9 +101,10 @@ fun BottomNavBar(
                         if (!isSelected) {
                             navController.navigate(navItem.route) {
                                 // Pop up to the target route to clear intermediate entries
-                                popUpTo(navItem.route) { inclusive = true }
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
                                 // Avoid multiple copies of the same destination
                                 launchSingleTop = true
+                                restoreState = true
                             }
                         }
                     },
@@ -125,9 +126,10 @@ fun BottomNavBar(
                         if (!isSelected) {
                             navController.navigate(navItem.route) {
                                 // Pop up to the target route to clear intermediate entries
-                                popUpTo(navItem.route) { inclusive = true }
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
                                 // Avoid multiple copies of the same destination
                                 launchSingleTop = true
+                                restoreState = true
                             }
                         }
                     },

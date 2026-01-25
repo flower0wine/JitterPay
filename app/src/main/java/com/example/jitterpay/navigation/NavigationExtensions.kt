@@ -96,9 +96,9 @@ fun AnimatedContentTransitionScope<NavBackStackEntry>.getBottomNavPopEnterTransi
     val targetRoute = targetState.destination.route
 
     val transition = if (shouldSlideInRight(currentRoute, targetRoute)) {
-        SlideTransitions.slideInLeft()
-    } else {
         SlideTransitions.slideInRight()
+    } else {
+        SlideTransitions.slideInLeft()
     }
     return transition
 }
@@ -112,9 +112,9 @@ fun AnimatedContentTransitionScope<NavBackStackEntry>.getBottomNavPopExitTransit
     val targetRoute = targetState.destination.route
 
     val transition = if (shouldSlideInRight(currentRoute, targetRoute)) {
-        SlideTransitions.slideOutRight()
-    } else {
         SlideTransitions.slideOutLeft()
+    } else {
+        SlideTransitions.slideOutRight()
     }
     return transition
 }
