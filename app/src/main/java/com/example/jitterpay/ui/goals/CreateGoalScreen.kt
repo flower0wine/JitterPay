@@ -14,9 +14,9 @@ import com.example.jitterpay.ui.components.goals.addgoal.*
 
 @Composable
 fun CreateGoalScreen(
+    modifier: Modifier = Modifier,
     navController: NavController,
     viewModel: GoalsViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
 ) {
     var goalTitle by remember { mutableStateOf("") }
     var targetAmount by remember { mutableStateOf("") }

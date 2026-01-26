@@ -27,10 +27,10 @@ import java.text.DecimalFormat
 
 @Composable
 fun WithdrawFundsScreen(
+    modifier: Modifier = Modifier,
     goalId: Long,
     navController: NavController,
     viewModel: GoalDetailViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val goal = uiState.goalDetail?.goal

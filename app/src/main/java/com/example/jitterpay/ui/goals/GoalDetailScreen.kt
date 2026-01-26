@@ -17,10 +17,10 @@ import com.example.jitterpay.ui.components.goals.detail.*
 
 @Composable
 fun GoalDetailScreen(
+    modifier: Modifier = Modifier,
     goalId: Long,
     navController: NavController,
     viewModel: GoalDetailViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
 ) {
     LaunchedEffect(goalId) {
         viewModel.loadGoal(goalId)
