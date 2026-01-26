@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.goals.GoalData
 import com.example.jitterpay.ui.goals.GoalIconType
+import com.example.jitterpay.util.rememberThrottledClick
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -127,7 +128,7 @@ fun GoalCard(
 
                     if (!goal.isCompleted) {
                         IconButton(
-                            onClick = onAddFunds,
+                            onClick = rememberThrottledClick(onClick = onAddFunds),
                             modifier = Modifier.size(36.dp)
                         ) {
                             Surface(
