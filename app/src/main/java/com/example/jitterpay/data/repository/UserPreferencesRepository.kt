@@ -27,4 +27,18 @@ class UserPreferencesRepository @Inject constructor(
     suspend fun saveAvatarId(avatarId: Int): Unit {
         userPreferencesDataSource.saveAvatarId(avatarId)
     }
+
+    /**
+     * 获取快速添加金额
+     */
+    fun getQuickAddAmount(): Flow<Int> = userPreferencesDataSource.quickAddAmount
+
+    /**
+     * 保存快速添加金额
+     *
+     * @param amount 快速添加金额
+     */
+    suspend fun saveQuickAddAmount(amount: Int): Unit {
+        userPreferencesDataSource.saveQuickAddAmount(amount)
+    }
 }

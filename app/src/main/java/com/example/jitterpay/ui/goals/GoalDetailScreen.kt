@@ -10,8 +10,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.example.jitterpay.constants.NavigationRoutes
 import com.example.jitterpay.ui.components.goals.detail.*
 
 @Composable
@@ -26,6 +27,7 @@ fun GoalDetailScreen(
     }
 
     val uiState by viewModel.uiState.collectAsState()
+    val quickAddAmount by viewModel.quickAddAmount.collectAsState()
 
     val goal = uiState.goalDetail?.goal
     val milestones = goal?.let { calculateMilestones(it) } ?: emptyList()
@@ -64,9 +66,18 @@ fun GoalDetailScreen(
 
                 GoalActionsSection(
                     goal = it,
-                    onAddFunds = { /* TODO: Show add funds dialog */ },
-                    onWithdraw = { /* TODO: Show withdraw dialog */ },
-                    onEditGoal = { /* TODO: Navigate to edit screen */ }
+                    onAddFunds = { navController.navigate(NavigationRoutes.addFunds(goalId)) },
+                    onWithdraw = { navController.navigate(NavigationRoutes.withdrawFunds(goalId)) },
+                    onEditGoal = { navController.navigate(NavigationRoutes.editGoal(goalId)) }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                QuickAddAmountSection(
+                    currentAmount = quickAddAmount,
+                    onAmountChange = { newAmount ->
+                        viewModel.updateQuickAddAmount(newAmount)
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))

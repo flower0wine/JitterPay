@@ -5,21 +5,32 @@ import androidx.lifecycle.viewModelScope
 import com.example.jitterpay.data.local.entity.GoalEntity
 import com.example.jitterpay.data.local.entity.GoalIconType as DomainGoalIconType
 import com.example.jitterpay.data.repository.GoalRepository
+import com.example.jitterpay.data.repository.UserPreferencesRepository
 import com.example.jitterpay.ui.goals.GoalIconType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class GoalsViewModel @Inject constructor(
-    private val goalRepository: GoalRepository
+    private val goalRepository: GoalRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(GoalsUiState())
     val uiState: StateFlow<GoalsUiState> = _uiState.asStateFlow()
+
+    val quickAddAmount: StateFlow<Int> = userPreferencesRepository.getQuickAddAmount()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = 100
+        )
 
     init {
         loadGoals()

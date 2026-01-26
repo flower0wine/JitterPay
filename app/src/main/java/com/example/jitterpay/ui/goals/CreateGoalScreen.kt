@@ -13,7 +13,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.jitterpay.ui.components.goals.addgoal.*
 
 @Composable
-fun AddGoalScreen(
+fun CreateGoalScreen(
     navController: NavController,
     viewModel: GoalsViewModel = hiltViewModel(),
     modifier: Modifier = Modifier

@@ -24,9 +24,12 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.jitterpay.ui.addtransaction.AddTransactionScreen
 import com.example.jitterpay.ui.avatar.AvatarSelectionScreen
-import com.example.jitterpay.ui.goals.AddGoalScreen
+import com.example.jitterpay.ui.goals.AddFundsScreen
+import com.example.jitterpay.ui.goals.CreateGoalScreen
+import com.example.jitterpay.ui.goals.EditGoalScreen
 import com.example.jitterpay.ui.goals.GoalDetailScreen
 import com.example.jitterpay.ui.goals.GoalsScreen
+import com.example.jitterpay.ui.goals.WithdrawFundsScreen
 import com.example.jitterpay.ui.home.HomeScreen
 import com.example.jitterpay.ui.ProfileScreen
 import com.example.jitterpay.ui.search.SearchScreen
@@ -169,7 +172,7 @@ fun JitterPayApp(
                 popEnterTransition = { SlideTransitions.slideInRight() },
                 popExitTransition = { SlideTransitions.slideOutRight() }
             ) {
-                AddGoalScreen(navController = navController)
+                CreateGoalScreen(navController = navController)
             }
 
             composable(
@@ -184,6 +187,57 @@ fun JitterPayApp(
             ) { backStackEntry ->
                 val goalId = backStackEntry.arguments?.getLong("goalId") ?: 0L
                 GoalDetailScreen(
+                    goalId = goalId,
+                    navController = navController
+                )
+            }
+
+            composable(
+                route = NavigationRoutes.ADD_FUNDS,
+                arguments = listOf(
+                    navArgument("goalId") { type = NavType.LongType }
+                ),
+                enterTransition = { SlideTransitions.slideInRight() },
+                exitTransition = { SlideTransitions.slideOutRight() },
+                popEnterTransition = { SlideTransitions.slideInRight() },
+                popExitTransition = { SlideTransitions.slideOutRight() }
+            ) { backStackEntry ->
+                val goalId = backStackEntry.arguments?.getLong("goalId") ?: 0L
+                AddFundsScreen(
+                    goalId = goalId,
+                    navController = navController
+                )
+            }
+
+            composable(
+                route = NavigationRoutes.WITHDRAW_FUNDS,
+                arguments = listOf(
+                    navArgument("goalId") { type = NavType.LongType }
+                ),
+                enterTransition = { SlideTransitions.slideInRight() },
+                exitTransition = { SlideTransitions.slideOutRight() },
+                popEnterTransition = { SlideTransitions.slideInRight() },
+                popExitTransition = { SlideTransitions.slideOutRight() }
+            ) { backStackEntry ->
+                val goalId = backStackEntry.arguments?.getLong("goalId") ?: 0L
+                WithdrawFundsScreen(
+                    goalId = goalId,
+                    navController = navController
+                )
+            }
+
+            composable(
+                route = NavigationRoutes.EDIT_GOAL,
+                arguments = listOf(
+                    navArgument("goalId") { type = NavType.LongType }
+                ),
+                enterTransition = { SlideTransitions.slideInRight() },
+                exitTransition = { SlideTransitions.slideOutRight() },
+                popEnterTransition = { SlideTransitions.slideInRight() },
+                popExitTransition = { SlideTransitions.slideOutRight() }
+            ) { backStackEntry ->
+                val goalId = backStackEntry.arguments?.getLong("goalId") ?: 0L
+                EditGoalScreen(
                     goalId = goalId,
                     navController = navController
                 )

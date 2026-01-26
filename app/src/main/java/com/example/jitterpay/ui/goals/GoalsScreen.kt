@@ -30,6 +30,7 @@ fun GoalsScreen(
     viewModel: GoalsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val quickAddAmount by viewModel.quickAddAmount.collectAsState()
 
     val hasGoals = uiState.goals.isNotEmpty()
     val totalTarget = uiState.goals.sumOf { it.targetAmount }
@@ -106,7 +107,7 @@ fun GoalsScreen(
                                 com.example.jitterpay.constants.NavigationRoutes.goalDetail(goal.id)
                             )
                         },
-                        onAddFunds = { viewModel.addFundsToGoal(goal.id, 100.0) }
+                        onAddFunds = { viewModel.addFundsToGoal(goal.id, quickAddAmount.toDouble()) }
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                 }

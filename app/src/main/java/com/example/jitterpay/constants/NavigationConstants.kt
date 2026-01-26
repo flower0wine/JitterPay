@@ -24,8 +24,14 @@ object NavigationRoutes {
     const val AVATAR_SELECTION = "avatar_selection"
     const val ADD_GOAL = "add_goal"
     const val GOAL_DETAIL = "goal_detail/{goalId}"
+    const val ADD_FUNDS = "add_funds/{goalId}"
+    const val WITHDRAW_FUNDS = "withdraw_funds/{goalId}"
+    const val EDIT_GOAL = "edit_goal/{goalId}"
     
     fun goalDetail(goalId: Long): String = "goal_detail/$goalId"
+    fun addFunds(goalId: Long): String = "add_funds/$goalId"
+    fun withdrawFunds(goalId: Long): String = "withdraw_funds/$goalId"
+    fun editGoal(goalId: Long): String = "edit_goal/$goalId"
 }
 
 /**
