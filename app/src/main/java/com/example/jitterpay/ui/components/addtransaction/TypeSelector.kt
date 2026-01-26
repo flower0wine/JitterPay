@@ -54,41 +54,61 @@ fun TypeSelector(
                 .background(Color(0xFF1C1C1E)),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .padding(4.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(if (selectedType == TransactionType.EXPENSE) MaterialTheme.colorScheme.primary else Color.Transparent)
-                    .clickable { onTypeSelected(TransactionType.EXPENSE) },
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Expense",
-                    color = if (selectedType == TransactionType.EXPENSE) Color.Black else Color.Gray,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            TypeButton(
+                text = "Expense",
+                isSelected = selectedType == TransactionType.EXPENSE,
+                onClick = { onTypeSelected(TransactionType.EXPENSE) },
+                modifier = Modifier.weight(1f)
+            )
 
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .padding(4.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(if (selectedType == TransactionType.INCOME) MaterialTheme.colorScheme.primary else Color.Transparent)
-                    .clickable { onTypeSelected(TransactionType.INCOME) },
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Income",
-                    color = if (selectedType == TransactionType.INCOME) Color.Black else Color.Gray,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            TypeButton(
+                text = "Income",
+                isSelected = selectedType == TransactionType.INCOME,
+                onClick = { onTypeSelected(TransactionType.INCOME) },
+                modifier = Modifier.weight(1f)
+            )
         }
+    }
+}
+
+@Composable
+private fun TypeButton(
+    text: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // 选中状态的缩放动画
+    val scale by animateFloatAsState(
+        targetValue = if (isSelected) 1f else 0.95f,
+        animationSpec = tween(
+            durationMillis = AnimationConstants.Duration.SHORT,
+            easing = AnimationConstants.Easing.Standard
+        ),
+        label = "typeButtonScale"
+    )
+
+    Box(
+        modifier = modifier
+            .fillMaxHeight()
+            .padding(4.dp)
+            .scale(scale)
+            .clip(RoundedCornerShape(8.dp))
+            .animateContentSize(
+                animationSpec = tween(
+                    durationMillis = AnimationConstants.Duration.SHORT,
+                    easing = AnimationConstants.Easing.Standard
+                )
+            )
+            .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            color = if (isSelected) Color.Black else Color.Gray,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
