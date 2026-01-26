@@ -18,10 +18,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "com.example.jitterpay.HiltTestRunner"
-
-        ndk {
-            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
-        }
     }
 
     signingConfigs {
@@ -50,17 +46,21 @@ android {
             isEnable = true
             reset()
             include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+            isUniversalApk = true 
         }
     }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
     buildFeatures {
         compose = true
-    }
-    kotlinOptions {
-        jvmTarget = "11"
     }
 
     lint {
