@@ -74,6 +74,9 @@ fun HomeScreen(
                         }
                         launchSingleTop = true
                     }
+                },
+                onRecurringClick = {
+                    navController.navigate(NavigationRoutes.RECURRING)
                 }
             )
 

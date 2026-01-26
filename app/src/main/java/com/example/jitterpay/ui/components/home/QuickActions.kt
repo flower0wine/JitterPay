@@ -23,6 +23,7 @@ import com.example.jitterpay.ui.animation.AnimationConstants
 fun QuickActions(
     modifier: Modifier = Modifier,
     onGoalsClick: () -> Unit = {},
+    onRecurringClick: () -> Unit = {},
 ) {
     var isVisible by remember { mutableStateOf(false) }
 
@@ -51,11 +52,11 @@ fun QuickActions(
             onClick = onGoalsClick
         )
         QuickActionButton(
-            icon = Icons.Default.Receipt,
-            label = "BILLS",
+            icon = Icons.Default.Schedule,
+            label = "RECURRING",
             isVisible = isVisible,
             delayMillis = AnimationConstants.Stagger.QUICK_ACTIONS[2],
-            onClick = {}
+            onClick = onRecurringClick
         )
         QuickActionButton(
             icon = Icons.Default.MoreHoriz,
@@ -113,7 +114,7 @@ fun QuickActionButton(
                     Icon(
                         imageVector = icon,
                         contentDescription = label,
-                        tint = if (label == "SEND" || label == "GOALS") 
+                        tint = if (label == "SEND" || label == "GOALS" || label == "RECURRING") 
                             MaterialTheme.colorScheme.primary 
                         else 
                             Color.White,

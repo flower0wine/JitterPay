@@ -32,6 +32,8 @@ import com.example.jitterpay.ui.goals.GoalsScreen
 import com.example.jitterpay.ui.goals.WithdrawFundsScreen
 import com.example.jitterpay.ui.home.HomeScreen
 import com.example.jitterpay.ui.ProfileScreen
+import com.example.jitterpay.ui.recurring.AddRecurringScreen
+import com.example.jitterpay.ui.recurring.RecurringScreen
 import com.example.jitterpay.ui.search.SearchScreen
 import com.example.jitterpay.ui.statistics.StatisticsScreen
 import com.example.jitterpay.ui.addtransaction.AddTransactionViewModel
@@ -240,6 +242,30 @@ fun JitterPayApp(
                 EditGoalScreen(
                     goalId = goalId,
                     navController = navController
+                )
+            }
+
+            composable(
+                route = NavigationRoutes.RECURRING,
+                enterTransition = { SlideTransitions.slideInRight() },
+                exitTransition = { SlideTransitions.slideOutRight() },
+                popEnterTransition = { SlideTransitions.slideInRight() },
+                popExitTransition = { SlideTransitions.slideOutRight() }
+            ) {
+                RecurringScreen(navController = navController)
+            }
+
+            composable(
+                route = NavigationRoutes.ADD_RECURRING,
+                enterTransition = { SlideTransitions.slideInRight() },
+                exitTransition = { SlideTransitions.slideOutRight() },
+                popEnterTransition = { SlideTransitions.slideInRight() },
+                popExitTransition = { SlideTransitions.slideOutRight() }
+            ) {
+                AddRecurringScreen(
+                    onClose = {
+                        navController.popBackStack()
+                    }
                 )
             }
         }
