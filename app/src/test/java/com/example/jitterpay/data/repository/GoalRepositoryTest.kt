@@ -1,5 +1,7 @@
 package com.example.jitterpay.data.repository
 
+import com.example.jitterpay.data.local.dao.GoalDao
+import com.example.jitterpay.data.local.dao.GoalTransactionDao
 import com.example.jitterpay.data.local.entity.GoalEntity
 import com.example.jitterpay.data.local.entity.GoalIconType
 import com.example.jitterpay.data.local.entity.GoalTransactionEntity

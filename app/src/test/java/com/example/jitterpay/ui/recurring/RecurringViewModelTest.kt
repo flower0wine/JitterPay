@@ -1,6 +1,7 @@
 package com.example.jitterpay.ui.recurring
 
 import com.example.jitterpay.data.repository.RecurringRepository
+import com.example.jitterpay.scheduler.RecurringTransactionScheduler
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -28,6 +29,7 @@ class RecurringViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var repository: RecurringRepository
+    private lateinit var scheduler: RecurringTransactionScheduler
     private lateinit var viewModel: RecurringViewModel
 
     private val testRecurringTransactions = listOf(
@@ -70,6 +72,7 @@ class RecurringViewModelTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         repository = mockk(relaxed = true)
+        scheduler = mockk(relaxed = true)
     }
 
     @After
@@ -85,7 +88,7 @@ class RecurringViewModelTest {
         every { repository.getAllRecurring() } returns flowOf(emptyList())
 
         // When
-        viewModel = RecurringViewModel(repository)
+        viewModel = RecurringViewModel(repository, scheduler)
 
         // Then - immediately after creation
         assertTrue(viewModel.uiState.value.isLoading)
@@ -97,7 +100,7 @@ class RecurringViewModelTest {
         every { repository.getAllRecurring() } returns flowOf(testRecurringTransactions)
 
         // When
-        viewModel = RecurringViewModel(repository)
+        viewModel = RecurringViewModel(repository, scheduler)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
@@ -111,7 +114,7 @@ class RecurringViewModelTest {
         every { repository.getAllRecurring() } returns flowOf(emptyList())
 
         // When
-        viewModel = RecurringViewModel(repository)
+        viewModel = RecurringViewModel(repository, scheduler)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
@@ -125,7 +128,7 @@ class RecurringViewModelTest {
         every { repository.getAllRecurring() } returns flowOf(testRecurringTransactions)
 
         // When
-        viewModel = RecurringViewModel(repository)
+        viewModel = RecurringViewModel(repository, scheduler)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
@@ -145,7 +148,7 @@ class RecurringViewModelTest {
     fun `toggleRecurringActive calls repository`() = runTest {
         // Given
         every { repository.getAllRecurring() } returns flowOf(testRecurringTransactions)
-        viewModel = RecurringViewModel(repository)
+        viewModel = RecurringViewModel(repository, scheduler)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // When
@@ -161,7 +164,7 @@ class RecurringViewModelTest {
         // Given
         every { repository.getAllRecurring() } returns flowOf(testRecurringTransactions)
         coEvery { repository.toggleActive(1L) } throws Exception("Database error")
-        viewModel = RecurringViewModel(repository)
+        viewModel = RecurringViewModel(repository, scheduler)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // When
@@ -178,7 +181,7 @@ class RecurringViewModelTest {
     fun `deleteRecurring calls repository`() = runTest {
         // Given
         every { repository.getAllRecurring() } returns flowOf(testRecurringTransactions)
-        viewModel = RecurringViewModel(repository)
+        viewModel = RecurringViewModel(repository, scheduler)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // When
@@ -194,7 +197,7 @@ class RecurringViewModelTest {
         // Given
         every { repository.getAllRecurring() } returns flowOf(testRecurringTransactions)
         coEvery { repository.deleteById(1L) } throws Exception("Delete failed")
-        viewModel = RecurringViewModel(repository)
+        viewModel = RecurringViewModel(repository, scheduler)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // When
@@ -212,7 +215,7 @@ class RecurringViewModelTest {
         // Given
         every { repository.getAllRecurring() } returns flowOf(testRecurringTransactions)
         coEvery { repository.toggleActive(1L) } throws Exception("Error")
-        viewModel = RecurringViewModel(repository)
+        viewModel = RecurringViewModel(repository, scheduler)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Trigger error
@@ -234,7 +237,7 @@ class RecurringViewModelTest {
         every { repository.getAllRecurring() } throws RuntimeException(errorMessage)
 
         // When
-        viewModel = RecurringViewModel(repository)
+        viewModel = RecurringViewModel(repository, scheduler)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
@@ -250,7 +253,7 @@ class RecurringViewModelTest {
         every { repository.getAllRecurring() } returns flowOf(testRecurringTransactions)
 
         // When
-        viewModel = RecurringViewModel(repository)
+        viewModel = RecurringViewModel(repository, scheduler)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
@@ -264,7 +267,7 @@ class RecurringViewModelTest {
         every { repository.getAllRecurring() } returns flowOf(testRecurringTransactions)
 
         // When
-        viewModel = RecurringViewModel(repository)
+        viewModel = RecurringViewModel(repository, scheduler)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then - only active expenses count for total monthly expense
@@ -284,7 +287,7 @@ class RecurringViewModelTest {
         every { repository.getAllRecurring() } returns flowOf(transactionsWithInactive)
 
         // When
-        viewModel = RecurringViewModel(repository)
+        viewModel = RecurringViewModel(repository, scheduler)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
@@ -300,7 +303,7 @@ class RecurringViewModelTest {
         every { repository.getAllRecurring() } returns flowOf(emptyList())
 
         // When
-        viewModel = RecurringViewModel(repository)
+        viewModel = RecurringViewModel(repository, scheduler)
 
         // Then
         coVerify { repository.getAllRecurring() }
@@ -312,7 +315,7 @@ class RecurringViewModelTest {
         every { repository.getAllRecurring() } returns flowOf(testRecurringTransactions)
 
         // When
-        viewModel = RecurringViewModel(repository)
+        viewModel = RecurringViewModel(repository, scheduler)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then

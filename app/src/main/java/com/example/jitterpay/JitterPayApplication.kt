@@ -32,8 +32,8 @@ class JitterPayApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
 
-        // Initialize WorkManager with our configuration
-        WorkManager.initialize(this, workManagerConfiguration)
+        // WorkManager is automatically initialized by Configuration.Provider interface
+        // No need to call WorkManager.initialize() manually
 
         // Initialize recurring transaction scheduler
         // This ensures that periodic checks for recurring transactions

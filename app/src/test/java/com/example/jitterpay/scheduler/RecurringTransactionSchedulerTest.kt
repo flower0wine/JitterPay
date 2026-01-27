@@ -2,6 +2,7 @@ package com.example.jitterpay.scheduler
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import androidx.work.testing.WorkManagerTestInitHelper
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -16,7 +17,7 @@ import org.robolectric.annotation.Config
  * Verifies that WorkManager is properly configured for periodic checks.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [28])
+@Config(sdk = [28], manifest = Config.NONE)
 class RecurringTransactionSchedulerTest {
 
     private lateinit var context: Context
@@ -24,7 +25,11 @@ class RecurringTransactionSchedulerTest {
     @Before
     fun setup() {
         // Get application context for testing
-        context = ApplicationProvider.getApplicationContext()
+        context = ApplicationProvider.getApplicationContext<Context>()
+
+        // Initialize WorkManager for testing
+        // Use WorkManagerTestInitHelper for proper initialization in tests
+        WorkManagerTestInitHelper.initializeTestWorkManager(context)
     }
 
     @Test

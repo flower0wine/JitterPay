@@ -21,7 +21,7 @@ import dagger.assisted.AssistedInject
  */
 @HiltWorker
 class RecurringTransactionWorker @AssistedInject constructor(
-    @Assisted private val context: Context,
+    @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
     private val recurringRepository: RecurringRepository,
     private val transactionRepository: TransactionRepository
