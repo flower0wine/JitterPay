@@ -33,6 +33,8 @@ data class RecurringEntity(
     val nextExecutionDateMillis: Long,
     val isActive: Boolean = true,
     val estimatedMonthlyAmount: Long,
+    val reminderEnabled: Boolean = false,
+    val reminderDaysBefore: Int = 0,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 ) {

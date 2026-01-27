@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,16 +30,16 @@ import com.example.jitterpay.ui.goals.GoalDetailScreen
 import com.example.jitterpay.ui.goals.GoalsScreen
 import com.example.jitterpay.ui.goals.WithdrawFundsScreen
 import com.example.jitterpay.ui.home.HomeScreen
-import com.example.jitterpay.ui.ProfileScreen
+import com.example.jitterpay.ui.profile.ProfileScreen
 import com.example.jitterpay.ui.recurring.AddRecurringScreen
 import com.example.jitterpay.ui.recurring.RecurringScreen
 import com.example.jitterpay.ui.search.SearchScreen
 import com.example.jitterpay.ui.statistics.StatisticsScreen
-import com.example.jitterpay.ui.addtransaction.AddTransactionViewModel
 import com.example.jitterpay.ui.components.BottomNavBar
 import com.example.jitterpay.ui.theme.JitterPayTheme
 import com.example.jitterpay.ui.animation.SlideTransitions
 import com.example.jitterpay.navigation.*
+import com.example.jitterpay.ui.recurring.RecurringDetailScreen
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -267,6 +266,19 @@ fun JitterPayApp(
                         navController.popBackStack()
                     }
                 )
+            }
+
+            composable(
+                route = NavigationRoutes.RECURRING_DETAIL,
+                arguments = listOf(
+                    navArgument("recurringId") { type = NavType.LongType }
+                ),
+                enterTransition = { SlideTransitions.slideInRight() },
+                exitTransition = { SlideTransitions.slideOutRight() },
+                popEnterTransition = { SlideTransitions.slideInRight() },
+                popExitTransition = { SlideTransitions.slideOutRight() }
+            ) {
+                RecurringDetailScreen(navController = navController)
             }
         }
     }

@@ -33,9 +33,15 @@ fun RecurringScreen(
 
     val hasRecurring = uiState.recurringTransactions.isNotEmpty()
     val activeCount = uiState.recurringTransactions.count { it.isActive }
-    val totalMonthlyAmount = uiState.recurringTransactions
-        .filter { it.isActive }
+    
+    val activeTransactions = uiState.recurringTransactions.filter { it.isActive }
+    val totalMonthlyIncome = activeTransactions
+        .filter { it.type == "INCOME" }
         .sumOf { it.estimatedMonthlyAmount }
+    val totalMonthlyExpense = activeTransactions
+        .filter { it.type == "EXPENSE" }
+        .sumOf { it.estimatedMonthlyAmount }
+    val netMonthlyAmount = totalMonthlyIncome - totalMonthlyExpense
 
     Scaffold(
         containerColor = Color.Black
@@ -55,7 +61,9 @@ fun RecurringScreen(
                 RecurringSummaryCard(
                     activeCount = activeCount,
                     totalCount = uiState.recurringTransactions.size,
-                    estimatedMonthlyAmount = totalMonthlyAmount
+                    monthlyIncome = totalMonthlyIncome,
+                    monthlyExpense = totalMonthlyExpense,
+                    netMonthlyAmount = netMonthlyAmount
                 )
                 Spacer(modifier = Modifier.height(24.dp))
             }

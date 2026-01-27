@@ -18,6 +18,8 @@ data class AddRecurringUiState(
     val frequency: RecurringFrequency = RecurringFrequency.DAILY,
     val startDate: Long = System.currentTimeMillis(),
     val type: String = "EXPENSE",
+    val reminderEnabled: Boolean = false,
+    val reminderDaysBefore: Int = 0,
     val saveSuccess: Boolean = false,
     val error: String? = null
 )
@@ -54,6 +56,13 @@ class AddRecurringViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(type = type)
     }
 
+    fun setReminder(enabled: Boolean, daysBefore: Int) {
+        _uiState.value = _uiState.value.copy(
+            reminderEnabled = enabled,
+            reminderDaysBefore = daysBefore
+        )
+    }
+
     fun saveRecurring() {
         viewModelScope.launch {
             val state = _uiState.value
@@ -76,7 +85,9 @@ class AddRecurringViewModel @Inject constructor(
                     type = state.type,
                     category = state.category,
                     frequency = state.frequency.name,
-                    startDateMillis = state.startDate
+                    startDateMillis = state.startDate,
+                    reminderEnabled = state.reminderEnabled,
+                    reminderDaysBefore = state.reminderDaysBefore
                 )
                 _uiState.value = state.copy(saveSuccess = true, error = null)
             } catch (e: Exception) {

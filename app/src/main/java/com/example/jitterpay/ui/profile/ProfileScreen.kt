@@ -1,22 +1,15 @@
-package com.example.jitterpay.ui
+package com.example.jitterpay.ui.profile
 
-import android.content.Context
-import android.content.Intent
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -28,16 +21,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.jitterpay.autotracking.AutoTrackingViewModel
-import com.example.jitterpay.autotracking.util.AutoTrackingPermissions
+import com.example.jitterpay.constants.NavigationRoutes
 import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.components.profile.*
-import com.example.jitterpay.ui.profile.ProfileViewModel
 
 @Composable
 fun ProfileScreen(
@@ -82,7 +72,7 @@ fun ProfileScreen(
                     avatarId = avatarId,
                     isPro = true,
                     onAvatarClick = {
-                        navController?.navigate(com.example.jitterpay.constants.NavigationRoutes.AVATAR_SELECTION)
+                        navController?.navigate(NavigationRoutes.AVATAR_SELECTION)
                     }
                 )
 

@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.jitterpay.data.local.entity.TransactionType
 
 @Composable
 fun RecurringAmountInput(
@@ -35,7 +36,7 @@ fun RecurringAmountInput(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             TextField(
                 value = amount,
@@ -60,24 +61,26 @@ fun RecurringAmountInput(
                 ),
                 modifier = Modifier
                     .weight(1f)
+                    .height(56.dp)
                     .clip(RoundedCornerShape(12.dp))
             )
 
             Row(
                 modifier = Modifier
+                    .height(56.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(Color(0xFF1C1C1E))
                     .padding(4.dp)
             ) {
                 TypeButton(
                     text = "Expense",
-                    isSelected = type == "EXPENSE",
-                    onClick = { onTypeChange("EXPENSE") }
+                    isSelected = type == TransactionType.EXPENSE.name,
+                    onClick = { onTypeChange(TransactionType.EXPENSE.name) }
                 )
                 TypeButton(
                     text = "Income",
-                    isSelected = type == "INCOME",
-                    onClick = { onTypeChange("INCOME") }
+                    isSelected = type == TransactionType.INCOME.name,
+                    onClick = { onTypeChange(TransactionType.INCOME.name) }
                 )
             }
         }
@@ -97,7 +100,8 @@ private fun TypeButton(
             containerColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
             contentColor = if (isSelected) Color.Black else Color.Gray
         ),
-        modifier = modifier.height(40.dp),
+        shape = RoundedCornerShape(12.dp),
+        modifier = modifier.fillMaxHeight(),
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
         Text(

@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.components.recurring.addrecurring.*
+import com.example.jitterpay.ui.components.recurring.detail.RecurringReminderSelector
 
 @Composable
 fun AddRecurringScreen(
@@ -195,6 +196,33 @@ fun AddRecurringScreen(
                 RecurringStartDateSelector(
                     startDate = uiState.startDate,
                     onDateSelected = { viewModel.setStartDate(it) }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = fadeIn(
+                    animationSpec = tween(
+                        durationMillis = AnimationConstants.Duration.MEDIUM,
+                        delayMillis = 300,
+                        easing = AnimationConstants.Easing.Entrance
+                    )
+                ) + slideInVertically(
+                    initialOffsetY = { it / 4 },
+                    animationSpec = tween(
+                        durationMillis = AnimationConstants.Duration.MEDIUM,
+                        delayMillis = 300,
+                        easing = AnimationConstants.Easing.Entrance
+                    )
+                ),
+                label = "reminderSelector"
+            ) {
+                RecurringReminderSelector(
+                    enabled = uiState.reminderEnabled,
+                    daysBefore = uiState.reminderDaysBefore,
+                    onReminderChange = { enabled, days -> viewModel.setReminder(enabled, days) }
                 )
             }
 

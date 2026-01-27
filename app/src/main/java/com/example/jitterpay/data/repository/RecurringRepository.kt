@@ -35,6 +35,8 @@ class RecurringRepository @Inject constructor(
      * @param category 分类
      * @param frequency 执行频率
      * @param startDateMillis 起始日期（毫秒）
+     * @param reminderEnabled 是否启用提醒
+     * @param reminderDaysBefore 提前几天提醒
      * @return 插入记录的ID
      */
     suspend fun addRecurring(
@@ -43,7 +45,9 @@ class RecurringRepository @Inject constructor(
         type: String,
         category: String,
         frequency: String,
-        startDateMillis: Long
+        startDateMillis: Long,
+        reminderEnabled: Boolean = false,
+        reminderDaysBefore: Int = 0
     ): Long {
         val nextExecutionDate = RecurringEntity.calculateNextExecutionDate(startDateMillis, frequency)
         val estimatedMonthly = RecurringEntity.calculateEstimatedMonthlyAmount(amountCents, frequency)
@@ -56,10 +60,63 @@ class RecurringRepository @Inject constructor(
             frequency = frequency,
             startDateMillis = startDateMillis,
             nextExecutionDateMillis = nextExecutionDate,
-            estimatedMonthlyAmount = estimatedMonthly
+            estimatedMonthlyAmount = estimatedMonthly,
+            reminderEnabled = reminderEnabled,
+            reminderDaysBefore = reminderDaysBefore
         )
 
         return recurringDao.insertRecurring(entity)
+    }
+
+    /**
+     * 更新定时记账记录
+     *
+     * @param id 记录ID
+     * @param title 标题
+     * @param amountCents 金额（分）
+     * @param type 交易类型（INCOME/EXPENSE）
+     * @param category 分类
+     * @param frequency 执行频率
+     * @param startDateMillis 起始日期（毫秒）
+     * @param reminderEnabled 是否启用提醒
+     * @param reminderDaysBefore 提前几天提醒
+     */
+    suspend fun updateRecurring(
+        id: Long,
+        title: String,
+        amountCents: Long,
+        type: String,
+        category: String,
+        frequency: String,
+        startDateMillis: Long,
+        reminderEnabled: Boolean = false,
+        reminderDaysBefore: Int = 0
+    ) {
+        val existing = recurringDao.getById(id) ?: return
+
+        // Recalculate derived values
+        // If start date or frequency changed, we might need to recalculate next execution date.
+        // For simplicity in this edit, we'll reset next execution date based on new start date and frequency
+        // This effectively "resets" the schedule if edited.
+        // A more complex logic might try to keep the relative progress, but resetting is safer for user intent when editing parameters.
+        val nextExecutionDate = RecurringEntity.calculateNextExecutionDate(startDateMillis, frequency)
+        val estimatedMonthly = RecurringEntity.calculateEstimatedMonthlyAmount(amountCents, frequency)
+
+        val updatedEntity = existing.copy(
+            title = title,
+            amountCents = amountCents,
+            type = type,
+            category = category,
+            frequency = frequency,
+            startDateMillis = startDateMillis,
+            nextExecutionDateMillis = nextExecutionDate,
+            estimatedMonthlyAmount = estimatedMonthly,
+            reminderEnabled = reminderEnabled,
+            reminderDaysBefore = reminderDaysBefore,
+            updatedAt = System.currentTimeMillis()
+        )
+
+        recurringDao.updateRecurring(updatedEntity)
     }
 
     /**
@@ -108,6 +165,13 @@ class RecurringRepository @Inject constructor(
      */
     suspend fun getById(id: Long): RecurringTransaction? {
         return recurringDao.getById(id)?.toUiModel()
+    }
+
+    /**
+     * 根据ID获取定时记账实体（包含所有字段）
+     */
+    suspend fun getByIdEntity(id: Long): RecurringEntity? {
+        return recurringDao.getById(id)
     }
 
     /**
