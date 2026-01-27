@@ -3,6 +3,7 @@ package com.example.jitterpay.ui.recurring
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.jitterpay.data.repository.RecurringRepository
+import com.example.jitterpay.scheduler.RecurringTransactionScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,7 +40,8 @@ data class RecurringUiState(
 
 @HiltViewModel
 class RecurringViewModel @Inject constructor(
-    private val recurringRepository: RecurringRepository
+    private val recurringRepository: RecurringRepository,
+    private val scheduler: RecurringTransactionScheduler
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RecurringUiState())
@@ -47,6 +49,8 @@ class RecurringViewModel @Inject constructor(
 
     init {
         loadRecurringTransactions()
+        // Ensure recurring transaction scheduler is running
+        scheduler.scheduleRecurringTransactionChecks()
     }
 
     private fun loadRecurringTransactions() {
@@ -70,13 +74,41 @@ class RecurringViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Toggle the active state of a recurring transaction
+     *
+     * When toggling a recurring transaction on/off, we also trigger
+     * an immediate check to ensure any due transactions are processed.
+     */
     fun toggleRecurringActive(id: Long) {
         viewModelScope.launch {
             try {
                 recurringRepository.toggleActive(id)
+                // Trigger immediate check after toggling
+                scheduler.scheduleImmediateCheck()
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     error = e.message ?: "Failed to toggle recurring transaction"
+                )
+            }
+        }
+    }
+
+    /**
+     * Set the active state of a recurring transaction
+     *
+     * @param id Recurring transaction ID
+     * @param isActive New active state
+     */
+    fun setRecurringActive(id: Long, isActive: Boolean) {
+        viewModelScope.launch {
+            try {
+                recurringRepository.setActive(id, isActive)
+                // Trigger immediate check after changing state
+                scheduler.scheduleImmediateCheck()
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = e.message ?: "Failed to update recurring transaction"
                 )
             }
         }
