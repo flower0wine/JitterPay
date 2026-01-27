@@ -50,9 +50,9 @@ data class RecurringEntity(
                 "BIWEEKLY" -> 2L     // 每两周一次
                 "MONTHLY" -> 1L      // 每月一次
                 "YEARLY" -> amountCents / 12  // 每年一次，约为1/12月（这里直接返回计算结果）
-                else -> amountCents
+                else -> 1L           // 未知频率，假设每月一次
             }
-            
+
             // 对于 YEARLY，multiplier 已经是计算结果，不需要再乘
             // 对于其他频率，需要将 amountCents 乘以 multiplier
             return if (frequency.uppercase() == "YEARLY") multiplier else amountCents * multiplier
@@ -97,7 +97,19 @@ data class RecurringEntity(
      */
     fun getFormattedAmount(): String {
         val amount = amountCents.toDouble() / 100.0
-        val sign = if (type == "INCOME") "+" else ""
-        return "$sign$${String.format("%.2f", amount)}"
+        val sign = when (type) {
+            "INCOME" -> "+"
+            "EXPENSE" -> "-"
+            else -> ""
+        }
+        val wholePart = kotlin.math.abs((amountCents / 100).toInt())
+        val decimalPart = kotlin.math.abs(amountCents % 100)
+        // Use US locale for comma separators
+        val usLocale = java.util.Locale.US
+        val numberFormat = java.text.NumberFormat.getIntegerInstance(usLocale)
+        numberFormat.isGroupingUsed = true
+        val formattedWholePart = numberFormat.format(wholePart)
+        val decimalStr = decimalPart.toString().padStart(2, '0')
+        return "$sign\$$formattedWholePart.$decimalStr"
     }
 }

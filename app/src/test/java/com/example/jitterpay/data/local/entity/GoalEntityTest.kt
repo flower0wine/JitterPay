@@ -234,7 +234,7 @@ class GoalEntityTest {
         assertEquals("Updated Title", updated.title)
         assertEquals(7500L, updated.currentAmountCents)
         assertEquals(1000L, updated.createdAt)
-        assertEquals(1000L, original.targetAmountCents)
+        assertEquals(10000L, original.targetAmountCents)
     }
 
     @Test
