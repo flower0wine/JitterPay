@@ -2,6 +2,8 @@ package com.example.jitterpay.ui.recurring
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.jitterpay.data.local.entity.RecurringEntity
+import com.example.jitterpay.data.repository.RecurringRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +24,7 @@ data class AddRecurringUiState(
 
 @HiltViewModel
 class AddRecurringViewModel @Inject constructor(
-    // TODO: Inject repository when implemented
+    private val recurringRepository: RecurringRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddRecurringUiState())
@@ -55,20 +57,31 @@ class AddRecurringViewModel @Inject constructor(
     fun saveRecurring() {
         viewModelScope.launch {
             val state = _uiState.value
-            
+
             if (state.title.isBlank()) {
                 _uiState.value = state.copy(error = "Please enter a title")
                 return@launch
             }
 
-            val amountValue = state.amount.toDoubleOrNull()
-            if (amountValue == null || amountValue <= 0) {
+            val amountCents = RecurringEntity.parseAmountToCents(state.amount)
+            if (amountCents <= 0) {
                 _uiState.value = state.copy(error = "Please enter a valid amount")
                 return@launch
             }
 
-            // TODO: Save to repository
-            _uiState.value = state.copy(saveSuccess = true)
+            try {
+                recurringRepository.addRecurring(
+                    title = state.title,
+                    amountCents = amountCents,
+                    type = state.type,
+                    category = state.category,
+                    frequency = state.frequency.name,
+                    startDateMillis = state.startDate
+                )
+                _uiState.value = state.copy(saveSuccess = true, error = null)
+            } catch (e: Exception) {
+                _uiState.value = state.copy(error = e.message ?: "Failed to save recurring transaction")
+            }
         }
     }
 

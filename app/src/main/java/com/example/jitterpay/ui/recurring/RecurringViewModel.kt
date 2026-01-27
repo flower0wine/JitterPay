@@ -2,10 +2,12 @@ package com.example.jitterpay.ui.recurring
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.jitterpay.data.repository.RecurringRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,7 +39,7 @@ data class RecurringUiState(
 
 @HiltViewModel
 class RecurringViewModel @Inject constructor(
-    // TODO: Inject repository when implemented
+    private val recurringRepository: RecurringRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RecurringUiState())
@@ -50,73 +52,49 @@ class RecurringViewModel @Inject constructor(
     private fun loadRecurringTransactions() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            
-            // TODO: Load from repository
-            // For now, using mock data
-            val mockData = listOf(
-                RecurringTransaction(
-                    id = 1,
-                    title = "Morning Commute",
-                    category = "Transport",
-                    amount = 350, // $3.50
-                    frequency = RecurringFrequency.DAILY,
-                    nextExecutionDate = System.currentTimeMillis(),
-                    isActive = true,
-                    type = "EXPENSE",
-                    estimatedMonthlyAmount = 10500 // $105
-                ),
-                RecurringTransaction(
-                    id = 2,
-                    title = "Netflix Subscription",
-                    category = "Entertainment",
-                    amount = 1599, // $15.99
-                    frequency = RecurringFrequency.MONTHLY,
-                    nextExecutionDate = System.currentTimeMillis() + 86400000L * 5,
-                    isActive = true,
-                    type = "EXPENSE",
-                    estimatedMonthlyAmount = 1599
-                ),
-                RecurringTransaction(
-                    id = 3,
-                    title = "Salary",
-                    category = "Income",
-                    amount = 500000, // $5000
-                    frequency = RecurringFrequency.MONTHLY,
-                    nextExecutionDate = System.currentTimeMillis() + 86400000L * 15,
-                    isActive = true,
-                    type = "INCOME",
-                    estimatedMonthlyAmount = 500000
-                )
-            )
-            
-            _uiState.value = _uiState.value.copy(
-                recurringTransactions = mockData,
-                isLoading = false
-            )
+
+            recurringRepository.getAllRecurring()
+                .catch { e ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = e.message ?: "Failed to load recurring transactions"
+                    )
+                }
+                .collect { transactions ->
+                    _uiState.value = _uiState.value.copy(
+                        recurringTransactions = transactions,
+                        isLoading = false,
+                        error = null
+                    )
+                }
         }
     }
 
     fun toggleRecurringActive(id: Long) {
         viewModelScope.launch {
-            val updated = _uiState.value.recurringTransactions.map { recurring ->
-                if (recurring.id == id) {
-                    recurring.copy(isActive = !recurring.isActive)
-                } else {
-                    recurring
-                }
+            try {
+                recurringRepository.toggleActive(id)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = e.message ?: "Failed to toggle recurring transaction"
+                )
             }
-            _uiState.value = _uiState.value.copy(recurringTransactions = updated)
-            
-            // TODO: Update in repository
         }
     }
 
     fun deleteRecurring(id: Long) {
         viewModelScope.launch {
-            val updated = _uiState.value.recurringTransactions.filter { it.id != id }
-            _uiState.value = _uiState.value.copy(recurringTransactions = updated)
-            
-            // TODO: Delete from repository
+            try {
+                recurringRepository.deleteById(id)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = e.message ?: "Failed to delete recurring transaction"
+                )
+            }
         }
+    }
+
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(error = null)
     }
 }

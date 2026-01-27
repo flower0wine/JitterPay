@@ -4,9 +4,11 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.example.jitterpay.data.local.dao.GoalDao
 import com.example.jitterpay.data.local.dao.GoalTransactionDao
+import com.example.jitterpay.data.local.dao.RecurringDao
 import com.example.jitterpay.data.local.dao.TransactionDao
 import com.example.jitterpay.data.local.entity.GoalEntity
 import com.example.jitterpay.data.local.entity.GoalTransactionEntity
+import com.example.jitterpay.data.local.entity.RecurringEntity
 import com.example.jitterpay.data.local.entity.TransactionEntity
 
 /**
@@ -16,7 +18,8 @@ import com.example.jitterpay.data.local.entity.TransactionEntity
     entities = [
         TransactionEntity::class,
         GoalEntity::class,
-        GoalTransactionEntity::class
+        GoalTransactionEntity::class,
+        RecurringEntity::class
     ],
     version = 1,
     exportSchema = false
@@ -37,6 +40,11 @@ abstract class JitterPayDatabase : RoomDatabase() {
      * 获取目标交易数据访问对象
      */
     abstract fun goalTransactionDao(): GoalTransactionDao
+
+    /**
+     * 获取定时记账数据访问对象
+     */
+    abstract fun recurringDao(): RecurringDao
 
     companion object {
         const val DATABASE_NAME = "jitterpay_database"

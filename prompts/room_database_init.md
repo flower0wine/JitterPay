@@ -2,7 +2,7 @@
 
 # 任务
 
-- 目前你需要确保添加目标和目标的展示功能正常，添加目标功能位于 app\src\main\java\com\example\jitterpay\ui\goals\AddGoalScreen.kt，目标展示在 app\src\main\java\com\example\jitterpay\ui\goals\GoalsScreen.kt 和 app\src\main\java\com\example\jitterpay\ui\goals\GoalDetailScreen.kt 都有。
+- 目前你需要确保添加定时记账和其展示功能正常，添加目标功能位于 app\src\main\java\com\example\jitterpay\ui\recurring\AddRecurringScreen.kt，定时记账展示在 app\src\main\java\com\example\jitterpay\ui\recurring\RecurringScreen.kt 。
 - 使用 room 这个依赖来实现记账数据的持久化，模块功能实现之后需要编写测试确保其功能正确，同时也要避免测试代码文件内容过长，需要做好分类，但是不要拆得过于散乱。
 
 # 要求
@@ -17,6 +17,7 @@
 - 目前应用程序的数据都是固定的，现在项目已经安装了 room 用来支持本地数据持久化，你需要阅读有关的项目确定核心业务，规划合适的数据存储结构，同时考虑适配未来的数据迁移。
 - 规划数据库存储结构你需要多次检查数据库定义是否合理，不合理立即修改，避免后续返工，每个字段要有清晰的使用描述，每个字段所包含的含义都是非常精炼的，均有其存在的价值，每张表都是非常专业的，不会有冗余的字段和数据表。
 - 数据表字段规范整洁，你需要深刻理解业务场景，数据表字段类型与业务使用场景相匹配。
+- 目前处于开发模式，不要实现版本迁移，使用 version 1 就可以了。
 
 # 注意事项
 

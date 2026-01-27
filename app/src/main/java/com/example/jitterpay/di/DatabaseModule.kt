@@ -6,6 +6,7 @@ import com.example.jitterpay.data.local.JitterPayDatabase
 import com.example.jitterpay.data.local.UserPreferencesDataSource
 import com.example.jitterpay.data.local.dao.GoalDao
 import com.example.jitterpay.data.local.dao.GoalTransactionDao
+import com.example.jitterpay.data.local.dao.RecurringDao
 import com.example.jitterpay.data.local.dao.TransactionDao
 import dagger.Module
 import dagger.Provides
@@ -77,33 +78,49 @@ object DatabaseModule {
         return database.goalDao()
     }
 
-    /**
-     * 提供GoalTransactionDao实例
-     *
-     * 从数据库实例中获取GoalTransactionDao，用于目标交易数据访问操作。
-     *
-     * @param database JitterPayDatabase实例
-     * @return GoalTransactionDao实例
-     */
-    @Provides
-    @Singleton
-    fun provideGoalTransactionDao(
-        database: JitterPayDatabase
-    ): GoalTransactionDao {
-        return database.goalTransactionDao()
-    }
+/**
+ * 提供GoalTransactionDao实例
+ *
+ * 从数据库实例中获取GoalTransactionDao，用于目标交易数据访问操作。
+ *
+ * @param database JitterPayDatabase实例
+ * @return GoalTransactionDao实例
+ */
+@Provides
+@Singleton
+fun provideGoalTransactionDao(
+    database: JitterPayDatabase
+): GoalTransactionDao {
+    return database.goalTransactionDao()
+}
 
-    /**
-     * 提供UserPreferencesDataSource实例
-     *
-     * @param context 应用上下文
-     * @return UserPreferencesDataSource实例
-     */
-    @Provides
-    @Singleton
-    fun provideUserPreferencesDataSource(
-        @ApplicationContext context: Context
-    ): UserPreferencesDataSource {
-        return UserPreferencesDataSource(context)
-    }
+/**
+ * 提供RecurringDao实例
+ *
+ * 从数据库实例中获取RecurringDao，用于定时记账数据访问操作。
+ *
+ * @param database JitterPayDatabase实例
+ * @return RecurringDao实例
+ */
+@Provides
+@Singleton
+fun provideRecurringDao(
+    database: JitterPayDatabase
+): RecurringDao {
+    return database.recurringDao()
+}
+
+/**
+ * 提供UserPreferencesDataSource实例
+ *
+ * @param context 应用上下文
+ * @return UserPreferencesDataSource实例
+ */
+@Provides
+@Singleton
+fun provideUserPreferencesDataSource(
+    @ApplicationContext context: Context
+): UserPreferencesDataSource {
+    return UserPreferencesDataSource(context)
+}
 }
