@@ -13,6 +13,8 @@ import com.example.jitterpay.R
 
 class NotificationHelper(private val context: Context) {
 
+    private var channelCreated = false
+
     companion object {
         private const val CHANNEL_ID_RECURRING_REMINDER = "recurring_reminder"
         private const val CHANNEL_NAME_RECURRING_REMINDER = "Recurring Transaction Reminders"
@@ -22,7 +24,23 @@ class NotificationHelper(private val context: Context) {
     }
 
     init {
-        createNotificationChannels()
+        // Removed channel creation from init block to avoid blocking startup
+        // Channels will be created lazily when first needed
+    }
+
+    private fun ensureNotificationChannels() {
+        if (channelCreated) return
+
+        synchronized(this) {
+            if (channelCreated) return
+
+            try {
+                createNotificationChannels()
+                channelCreated = true
+            } catch (e: Exception) {
+                android.util.Log.e("NotificationHelper", "Failed to create notification channels", e)
+            }
+        }
     }
 
     private fun createNotificationChannels() {
@@ -49,6 +67,9 @@ class NotificationHelper(private val context: Context) {
         daysBefore: Int,
         nextExecutionDate: Long
     ) {
+        // Ensure notification channels are created before showing notifications
+        ensureNotificationChannels()
+
         val notificationManager = NotificationManagerCompat.from(context)
         if (!notificationManager.areNotificationsEnabled()) {
             return

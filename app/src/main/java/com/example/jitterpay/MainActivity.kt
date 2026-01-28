@@ -1,6 +1,8 @@
 package com.example.jitterpay
 
 import android.os.Bundle
+import android.util.Log
+import android.content.res.Resources
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -46,7 +48,16 @@ import com.example.jitterpay.ui.recurring.RecurringDetailScreen
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        // Enable edge-to-edge display with error handling
+        try {
+            enableEdgeToEdge()
+        } catch (e: Resources.NotFoundException) {
+            Log.e("MainActivity", "Resource not found for EdgeToEdge", e)
+            // Continue without edge-to-edge if resources are missing
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Failed to enable edge-to-edge", e)
+            // Continue without edge-to-edge for stability
+        }
         setContent {
             JitterPayTheme {
                 val navController = rememberNavController()
