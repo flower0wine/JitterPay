@@ -17,15 +17,16 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.jitterpay.ui.components.recurring.addrecurring.*
+import com.example.jitterpay.navigation.LocalNavController
 import com.example.jitterpay.ui.components.recurring.detail.RecurringDetailHeader
 import com.example.jitterpay.ui.components.recurring.detail.RecurringReminderSelector
 import com.example.jitterpay.ui.theme.ErrorRed
 
 @Composable
 fun RecurringDetailScreen(
-    navController: NavController,
     viewModel: RecurringDetailViewModel = hiltViewModel()
 ) {
+    val navController = LocalNavController.current
     val uiState by viewModel.uiState.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
 

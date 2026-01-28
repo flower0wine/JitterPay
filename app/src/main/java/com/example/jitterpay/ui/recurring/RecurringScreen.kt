@@ -20,15 +20,16 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.jitterpay.ui.components.recurring.RecurringCard
+import com.example.jitterpay.navigation.LocalNavController
 import com.example.jitterpay.ui.components.recurring.RecurringHeader
 import com.example.jitterpay.ui.components.recurring.RecurringSummaryCard
 
 @Composable
 fun RecurringScreen(
     modifier: Modifier = Modifier,
-    navController: NavController,
     viewModel: RecurringViewModel = hiltViewModel(),
 ) {
+    val navController = LocalNavController.current
     val uiState by viewModel.uiState.collectAsState()
 
     val hasRecurring = uiState.recurringTransactions.isNotEmpty()

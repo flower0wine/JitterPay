@@ -94,220 +94,218 @@ fun JitterPayApp(
                 )
             }
         }
-    ) { paddingValues ->
-        NavHost(
-            navController = navController,
-            startDestination = NavigationRoutes.HOME,
-            modifier = Modifier.padding(paddingValues)
-        ) {
-            composable(
-                route = NavigationRoutes.HOME,
-                enterTransition = { with(this) { getBottomNavEnterTransition() } },
-                exitTransition = { with(this) { getBottomNavExitTransition() } },
-                popEnterTransition = { with(this) { getBottomNavPopEnterTransition() } },
-                popExitTransition = { with(this) { getBottomNavPopExitTransition() } }
+        ) { paddingValues ->
+        ProvideNavController(navController) { modifier ->
+            NavHost(
+                navController = navController,
+                startDestination = NavigationRoutes.HOME,
+                modifier = modifier.padding(paddingValues)
             ) {
-                HomeScreen(navController = navController)
-            }
+                composable(
+                    route = NavigationRoutes.HOME,
+                    enterTransition = { with(this) { getBottomNavEnterTransition() } },
+                    exitTransition = { with(this) { getBottomNavExitTransition() } },
+                    popEnterTransition = { with(this) { getBottomNavPopEnterTransition() } },
+                    popExitTransition = { with(this) { getBottomNavPopExitTransition() } }
+                ) {
+                    HomeScreen()
+                }
 
-            composable(
-                route = NavigationRoutes.STATS,
-                enterTransition = { with(this) { getBottomNavEnterTransition() } },
-                exitTransition = { with(this) { getBottomNavExitTransition() } },
-                popEnterTransition = { with(this) { getBottomNavPopEnterTransition() } },
-                popExitTransition = { with(this) { getBottomNavPopExitTransition() } }
-            ) {
-                StatisticsScreen()
-            }
+                composable(
+                    route = NavigationRoutes.STATS,
+                    enterTransition = { with(this) { getBottomNavEnterTransition() } },
+                    exitTransition = { with(this) { getBottomNavExitTransition() } },
+                    popEnterTransition = { with(this) { getBottomNavPopEnterTransition() } },
+                    popExitTransition = { with(this) { getBottomNavPopExitTransition() } }
+                ) {
+                    StatisticsScreen()
+                }
 
-            composable(
-                route = NavigationRoutes.GOALS,
-                enterTransition = { with(this) { getBottomNavEnterTransition() } },
-                exitTransition = { with(this) { getBottomNavExitTransition() } },
-                popEnterTransition = { with(this) { getBottomNavPopEnterTransition() } },
-                popExitTransition = { with(this) { getBottomNavPopExitTransition() } }
-            ) {
-                GoalsScreen(navController = navController)
-            }
+                composable(
+                    route = NavigationRoutes.GOALS,
+                    enterTransition = { with(this) { getBottomNavEnterTransition() } },
+                    exitTransition = { with(this) { getBottomNavExitTransition() } },
+                    popEnterTransition = { with(this) { getBottomNavPopEnterTransition() } },
+                    popExitTransition = { with(this) { getBottomNavPopExitTransition() } }
+                ) {
+                    GoalsScreen()
+                }
 
-            composable(
-                route = NavigationRoutes.PROFILE,
-                enterTransition = { with(this) { getBottomNavEnterTransition() } },
-                exitTransition = { with(this) { getBottomNavExitTransition() } },
-                popEnterTransition = { with(this) { getBottomNavPopEnterTransition() } },
-                popExitTransition = { with(this) { getBottomNavPopExitTransition() } }
-            ) {
-                ProfileScreen(navController = navController)
-            }
+                composable(
+                    route = NavigationRoutes.PROFILE,
+                    enterTransition = { with(this) { getBottomNavEnterTransition() } },
+                    exitTransition = { with(this) { getBottomNavExitTransition() } },
+                    popEnterTransition = { with(this) { getBottomNavPopEnterTransition() } },
+                    popExitTransition = { with(this) { getBottomNavPopExitTransition() } }
+                ) {
+                    ProfileScreen()
+                }
 
-            composable(
-                route = NavigationRoutes.ADD_TRANSACTION,
-                enterTransition = { SlideTransitions.slideInRight() },
-                exitTransition = { SlideTransitions.slideOutRight() },
-                popEnterTransition = { SlideTransitions.slideInRight() },
-                popExitTransition = { SlideTransitions.slideOutRight() }
-            ) {
-                AddTransactionScreen(
-                    onClose = {
-                        navController.popBackStack()
-                    }
-                )
-            }
+                composable(
+                    route = NavigationRoutes.ADD_TRANSACTION,
+                    enterTransition = { SlideTransitions.slideInRight() },
+                    exitTransition = { SlideTransitions.slideOutRight() },
+                    popEnterTransition = { SlideTransitions.slideInRight() },
+                    popExitTransition = { SlideTransitions.slideOutRight() }
+                ) {
+                    AddTransactionScreen(
+                        onClose = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
 
-            composable(
-                route = NavigationRoutes.EDIT_TRANSACTION,
-                arguments = listOf(
-                    navArgument("transactionId") { type = NavType.LongType }
-                ),
-                enterTransition = { SlideTransitions.slideInRight() },
-                exitTransition = { SlideTransitions.slideOutRight() },
-                popEnterTransition = { SlideTransitions.slideInRight() },
-                popExitTransition = { SlideTransitions.slideOutRight() }
-            ) {
-                EditTransactionScreen(
-                    onClose = {
-                        navController.popBackStack()
-                    }
-                )
-            }
+                composable(
+                    route = NavigationRoutes.EDIT_TRANSACTION,
+                    arguments = listOf(
+                        navArgument("transactionId") { type = NavType.LongType }
+                    ),
+                    enterTransition = { SlideTransitions.slideInRight() },
+                    exitTransition = { SlideTransitions.slideOutRight() },
+                    popEnterTransition = { SlideTransitions.slideInRight() },
+                    popExitTransition = { SlideTransitions.slideOutRight() }
+                ) {
+                    EditTransactionScreen(
+                        onClose = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
 
-            composable(
-                route = NavigationRoutes.SEARCH,
-                enterTransition = { SlideTransitions.slideInRight() },
-                exitTransition = { SlideTransitions.slideOutRight() },
-                popEnterTransition = { SlideTransitions.slideInRight() },
-                popExitTransition = { SlideTransitions.slideOutRight() }
-            ) {
-                SearchScreen(
-                    onNavigateBack = {
-                        navController.popBackStack()
-                    }
-                )
-            }
+                composable(
+                    route = NavigationRoutes.SEARCH,
+                    enterTransition = { SlideTransitions.slideInRight() },
+                    exitTransition = { SlideTransitions.slideOutRight() },
+                    popEnterTransition = { SlideTransitions.slideInRight() },
+                    popExitTransition = { SlideTransitions.slideOutRight() }
+                ) {
+                    SearchScreen(
+                        onNavigateBack = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
 
-            composable(
-                route = NavigationRoutes.AVATAR_SELECTION,
-                enterTransition = { SlideTransitions.slideInRight() },
-                exitTransition = { SlideTransitions.slideOutRight() },
-                popEnterTransition = { SlideTransitions.slideInRight() },
-                popExitTransition = { SlideTransitions.slideOutRight() }
-            ) {
-                AvatarSelectionScreen(navController = navController)
-            }
+                composable(
+                    route = NavigationRoutes.AVATAR_SELECTION,
+                    enterTransition = { SlideTransitions.slideInRight() },
+                    exitTransition = { SlideTransitions.slideOutRight() },
+                    popEnterTransition = { SlideTransitions.slideInRight() },
+                    popExitTransition = { SlideTransitions.slideOutRight() }
+                ) {
+                    AvatarSelectionScreen()
+                }
 
-            composable(
-                route = NavigationRoutes.ADD_GOAL,
-                enterTransition = { SlideTransitions.slideInRight() },
-                exitTransition = { SlideTransitions.slideOutRight() },
-                popEnterTransition = { SlideTransitions.slideInRight() },
-                popExitTransition = { SlideTransitions.slideOutRight() }
-            ) {
-                CreateGoalScreen(navController = navController)
-            }
+                composable(
+                    route = NavigationRoutes.ADD_GOAL,
+                    enterTransition = { SlideTransitions.slideInRight() },
+                    exitTransition = { SlideTransitions.slideOutRight() },
+                    popEnterTransition = { SlideTransitions.slideInRight() },
+                    popExitTransition = { SlideTransitions.slideOutRight() }
+                ) {
+                    CreateGoalScreen()
+                }
 
-            composable(
-                route = NavigationRoutes.GOAL_DETAIL,
-                arguments = listOf(
-                    navArgument("goalId") { type = NavType.LongType }
-                ),
-                enterTransition = { SlideTransitions.slideInRight() },
-                exitTransition = { SlideTransitions.slideOutRight() },
-                popEnterTransition = { SlideTransitions.slideInRight() },
-                popExitTransition = { SlideTransitions.slideOutRight() }
-            ) { backStackEntry ->
-                val goalId = backStackEntry.arguments?.getLong("goalId") ?: 0L
-                GoalDetailScreen(
-                    goalId = goalId,
-                    navController = navController
-                )
-            }
+                composable(
+                    route = NavigationRoutes.GOAL_DETAIL,
+                    arguments = listOf(
+                        navArgument("goalId") { type = NavType.LongType }
+                    ),
+                    enterTransition = { SlideTransitions.slideInRight() },
+                    exitTransition = { SlideTransitions.slideOutRight() },
+                    popEnterTransition = { SlideTransitions.slideInRight() },
+                    popExitTransition = { SlideTransitions.slideOutRight() }
+                ) { backStackEntry ->
+                    val goalId = backStackEntry.arguments?.getLong("goalId") ?: 0L
+                    GoalDetailScreen(
+                        goalId = goalId
+                    )
+                }
 
-            composable(
-                route = NavigationRoutes.ADD_FUNDS,
-                arguments = listOf(
-                    navArgument("goalId") { type = NavType.LongType }
-                ),
-                enterTransition = { SlideTransitions.slideInRight() },
-                exitTransition = { SlideTransitions.slideOutRight() },
-                popEnterTransition = { SlideTransitions.slideInRight() },
-                popExitTransition = { SlideTransitions.slideOutRight() }
-            ) { backStackEntry ->
-                val goalId = backStackEntry.arguments?.getLong("goalId") ?: 0L
-                AddFundsScreen(
-                    goalId = goalId,
-                    navController = navController
-                )
-            }
+                composable(
+                    route = NavigationRoutes.ADD_FUNDS,
+                    arguments = listOf(
+                        navArgument("goalId") { type = NavType.LongType }
+                    ),
+                    enterTransition = { SlideTransitions.slideInRight() },
+                    exitTransition = { SlideTransitions.slideOutRight() },
+                    popEnterTransition = { SlideTransitions.slideInRight() },
+                    popExitTransition = { SlideTransitions.slideOutRight() }
+                ) { backStackEntry ->
+                    val goalId = backStackEntry.arguments?.getLong("goalId") ?: 0L
+                    AddFundsScreen(
+                        goalId = goalId
+                    )
+                }
 
-            composable(
-                route = NavigationRoutes.WITHDRAW_FUNDS,
-                arguments = listOf(
-                    navArgument("goalId") { type = NavType.LongType }
-                ),
-                enterTransition = { SlideTransitions.slideInRight() },
-                exitTransition = { SlideTransitions.slideOutRight() },
-                popEnterTransition = { SlideTransitions.slideInRight() },
-                popExitTransition = { SlideTransitions.slideOutRight() }
-            ) { backStackEntry ->
-                val goalId = backStackEntry.arguments?.getLong("goalId") ?: 0L
-                WithdrawFundsScreen(
-                    goalId = goalId,
-                    navController = navController
-                )
-            }
+                composable(
+                    route = NavigationRoutes.WITHDRAW_FUNDS,
+                    arguments = listOf(
+                        navArgument("goalId") { type = NavType.LongType }
+                    ),
+                    enterTransition = { SlideTransitions.slideInRight() },
+                    exitTransition = { SlideTransitions.slideOutRight() },
+                    popEnterTransition = { SlideTransitions.slideInRight() },
+                    popExitTransition = { SlideTransitions.slideOutRight() }
+                ) { backStackEntry ->
+                    val goalId = backStackEntry.arguments?.getLong("goalId") ?: 0L
+                    WithdrawFundsScreen(
+                        goalId = goalId
+                    )
+                }
 
-            composable(
-                route = NavigationRoutes.EDIT_GOAL,
-                arguments = listOf(
-                    navArgument("goalId") { type = NavType.LongType }
-                ),
-                enterTransition = { SlideTransitions.slideInRight() },
-                exitTransition = { SlideTransitions.slideOutRight() },
-                popEnterTransition = { SlideTransitions.slideInRight() },
-                popExitTransition = { SlideTransitions.slideOutRight() }
-            ) { backStackEntry ->
-                val goalId = backStackEntry.arguments?.getLong("goalId") ?: 0L
-                EditGoalScreen(
-                    goalId = goalId,
-                    navController = navController
-                )
-            }
+                composable(
+                    route = NavigationRoutes.EDIT_GOAL,
+                    arguments = listOf(
+                        navArgument("goalId") { type = NavType.LongType }
+                    ),
+                    enterTransition = { SlideTransitions.slideInRight() },
+                    exitTransition = { SlideTransitions.slideOutRight() },
+                    popEnterTransition = { SlideTransitions.slideInRight() },
+                    popExitTransition = { SlideTransitions.slideOutRight() }
+                ) { backStackEntry ->
+                    val goalId = backStackEntry.arguments?.getLong("goalId") ?: 0L
+                    EditGoalScreen(
+                        goalId = goalId
+                    )
+                }
 
-            composable(
-                route = NavigationRoutes.RECURRING,
-                enterTransition = { SlideTransitions.slideInRight() },
-                exitTransition = { SlideTransitions.slideOutRight() },
-                popEnterTransition = { SlideTransitions.slideInRight() },
-                popExitTransition = { SlideTransitions.slideOutRight() }
-            ) {
-                RecurringScreen(navController = navController)
-            }
+                composable(
+                    route = NavigationRoutes.RECURRING,
+                    enterTransition = { SlideTransitions.slideInRight() },
+                    exitTransition = { SlideTransitions.slideOutRight() },
+                    popEnterTransition = { SlideTransitions.slideInRight() },
+                    popExitTransition = { SlideTransitions.slideOutRight() }
+                ) {
+                    RecurringScreen()
+                }
 
-            composable(
-                route = NavigationRoutes.ADD_RECURRING,
-                enterTransition = { SlideTransitions.slideInRight() },
-                exitTransition = { SlideTransitions.slideOutRight() },
-                popEnterTransition = { SlideTransitions.slideInRight() },
-                popExitTransition = { SlideTransitions.slideOutRight() }
-            ) {
-                AddRecurringScreen(
-                    onClose = {
-                        navController.popBackStack()
-                    }
-                )
-            }
+                composable(
+                    route = NavigationRoutes.ADD_RECURRING,
+                    enterTransition = { SlideTransitions.slideInRight() },
+                    exitTransition = { SlideTransitions.slideOutRight() },
+                    popEnterTransition = { SlideTransitions.slideInRight() },
+                    popExitTransition = { SlideTransitions.slideOutRight() }
+                ) {
+                    AddRecurringScreen(
+                        onClose = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
 
-            composable(
-                route = NavigationRoutes.RECURRING_DETAIL,
-                arguments = listOf(
-                    navArgument("recurringId") { type = NavType.LongType }
-                ),
-                enterTransition = { SlideTransitions.slideInRight() },
-                exitTransition = { SlideTransitions.slideOutRight() },
-                popEnterTransition = { SlideTransitions.slideInRight() },
-                popExitTransition = { SlideTransitions.slideOutRight() }
-            ) {
-                RecurringDetailScreen(navController = navController)
+                composable(
+                    route = NavigationRoutes.RECURRING_DETAIL,
+                    arguments = listOf(
+                        navArgument("recurringId") { type = NavType.LongType }
+                    ),
+                    enterTransition = { SlideTransitions.slideInRight() },
+                    exitTransition = { SlideTransitions.slideOutRight() },
+                    popEnterTransition = { SlideTransitions.slideInRight() },
+                    popExitTransition = { SlideTransitions.slideOutRight() }
+                ) {
+                    RecurringDetailScreen()
+                }
             }
         }
     }

@@ -31,10 +31,10 @@ import java.util.concurrent.TimeUnit
  */
 @Composable
 fun TransactionHistory(
+    modifier: Modifier = Modifier,
     transactions: List<TransactionEntity> = emptyList(),
     onDeleteTransaction: (TransactionEntity) -> Unit = {},
     onEditTransaction: (Long) -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.padding(horizontal = 20.dp)) {
         Row(

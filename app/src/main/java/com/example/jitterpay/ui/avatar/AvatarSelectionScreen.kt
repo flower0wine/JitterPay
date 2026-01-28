@@ -17,15 +17,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.jitterpay.R
 import com.example.jitterpay.ui.components.avatar.AvatarGrid
+import com.example.jitterpay.navigation.LocalNavController
 import com.example.jitterpay.ui.theme.NeonLime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AvatarSelectionScreen(
-    navController: NavController,
     viewModel: AvatarSelectionViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
+    val navController = LocalNavController.current
     val selectedAvatarId by viewModel.selectedAvatarId.collectAsState()
     val isSaving by viewModel.isSaving.collectAsState()
 

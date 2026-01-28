@@ -18,15 +18,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.jitterpay.constants.NavigationRoutes
 import com.example.jitterpay.ui.components.goals.detail.*
+import com.example.jitterpay.navigation.LocalNavController
 import com.example.jitterpay.ui.theme.ErrorRed
 
 @Composable
 fun GoalDetailScreen(
     modifier: Modifier = Modifier,
     goalId: Long,
-    navController: NavController,
     viewModel: GoalDetailViewModel = hiltViewModel(),
 ) {
+    val navController = LocalNavController.current
     LaunchedEffect(goalId) {
         viewModel.loadGoal(goalId)
     }

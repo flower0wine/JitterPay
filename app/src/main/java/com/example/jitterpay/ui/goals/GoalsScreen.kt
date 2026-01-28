@@ -20,15 +20,16 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.jitterpay.ui.components.goals.GoalCard
+import com.example.jitterpay.navigation.LocalNavController
 import com.example.jitterpay.ui.components.goals.GoalsHeader
 import com.example.jitterpay.ui.components.goals.TotalProgressCard
 
 @Composable
 fun GoalsScreen(
     modifier: Modifier = Modifier,
-    navController: NavController,
     viewModel: GoalsViewModel = hiltViewModel(),
 ) {
+    val navController = LocalNavController.current
     val uiState by viewModel.uiState.collectAsState()
     val quickAddAmount by viewModel.quickAddAmount.collectAsState()
 

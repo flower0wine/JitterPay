@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.jitterpay.constants.NavigationRoutes
+import com.example.jitterpay.navigation.LocalNavController
 import com.example.jitterpay.data.local.entity.TransactionType
 import com.example.jitterpay.ui.components.home.BalanceCard
 import com.example.jitterpay.ui.components.home.QuickActions
@@ -22,10 +23,10 @@ import java.util.Locale
 
 @Composable
 fun HomeScreen(
-    navController: NavController,
     viewModel: HomeViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
+    val navController = LocalNavController.current
     val uiState by viewModel.uiState.collectAsState()
     val avatarId by profileViewModel.avatarId.collectAsState()
 

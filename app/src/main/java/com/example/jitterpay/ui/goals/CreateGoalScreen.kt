@@ -11,13 +11,14 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.jitterpay.ui.components.goals.addgoal.*
+import com.example.jitterpay.navigation.LocalNavController
 
 @Composable
 fun CreateGoalScreen(
     modifier: Modifier = Modifier,
-    navController: NavController,
     viewModel: GoalsViewModel = hiltViewModel(),
 ) {
+    val navController = LocalNavController.current
     var goalTitle by remember { mutableStateOf("") }
     var targetAmount by remember { mutableStateOf("") }
     var selectedIcon by remember { mutableStateOf<GoalIconType?>(GoalIconType.SHIELD) }

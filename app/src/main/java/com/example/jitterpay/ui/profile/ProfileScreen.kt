@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.jitterpay.autotracking.AutoTrackingViewModel
+import com.example.jitterpay.navigation.LocalNavController
 import com.example.jitterpay.constants.NavigationRoutes
 import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.components.profile.*
@@ -32,10 +33,10 @@ import com.example.jitterpay.ui.components.profile.*
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
-    navController: NavController? = null,
     viewModel: AutoTrackingViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
+    val navController = LocalNavController.current
     val uiState by viewModel.uiState.collectAsState()
     val avatarId by profileViewModel.avatarId.collectAsState()
     val context = LocalContext.current
@@ -72,7 +73,7 @@ fun ProfileScreen(
                     avatarId = avatarId,
                     isPro = true,
                     onAvatarClick = {
-                        navController?.navigate(NavigationRoutes.AVATAR_SELECTION)
+                        navController.navigate(NavigationRoutes.AVATAR_SELECTION)
                     }
                 )
 

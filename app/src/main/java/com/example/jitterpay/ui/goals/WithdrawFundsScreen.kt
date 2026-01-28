@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.jitterpay.domain.model.Money
+import com.example.jitterpay.navigation.LocalNavController
 import com.example.jitterpay.domain.usecase.AmountCalculator
 import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.components.addtransaction.AmountDisplay
@@ -29,9 +30,9 @@ import java.text.DecimalFormat
 fun WithdrawFundsScreen(
     modifier: Modifier = Modifier,
     goalId: Long,
-    navController: NavController,
     viewModel: GoalDetailViewModel = hiltViewModel(),
 ) {
+    val navController = LocalNavController.current
     val uiState by viewModel.uiState.collectAsState()
     val goal = uiState.goalDetail?.goal
     
