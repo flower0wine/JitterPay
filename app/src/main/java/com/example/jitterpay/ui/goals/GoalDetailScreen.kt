@@ -1,7 +1,9 @@
 package com.example.jitterpay.ui.goals
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -9,11 +11,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.jitterpay.constants.NavigationRoutes
 import com.example.jitterpay.ui.components.goals.detail.*
+import com.example.jitterpay.ui.theme.ErrorRed
 
 @Composable
 fun GoalDetailScreen(
@@ -31,6 +36,41 @@ fun GoalDetailScreen(
 
     val goal = uiState.goalDetail?.goal
     val milestones = goal?.let { calculateMilestones(it) } ?: emptyList()
+
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.goalDeleted) {
+        if (uiState.goalDeleted) {
+            navController.popBackStack()
+        }
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Goal?", color = Color.White) },
+            text = { 
+                Text(
+                    "This will permanently delete this goal and all its transaction history. This action cannot be undone.",
+                    color = Color.Gray
+                ) 
+            },
+            containerColor = MaterialTheme.colorScheme.background,
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.deleteGoal()
+                    showDeleteDialog = false
+                }) {
+                    Text("Delete", color = ErrorRed)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel", color = Color.White)
+                }
+            }
+        )
+    }
 
     Scaffold(
         containerColor = Color.Black,
@@ -86,6 +126,27 @@ fun GoalDetailScreen(
                     goalId = goalId,
                     transactions = uiState.goalDetail?.transactions ?: emptyList()
                 )
+
+                Spacer(modifier = Modifier.height(40.dp))
+
+                OutlinedButton(
+                    onClick = { showDeleteDialog = true },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = ErrorRed
+                    ),
+                    border = BorderStroke(1.dp, ErrorRed),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = "Delete Goal",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = ErrorRed
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(100.dp))
@@ -99,7 +160,14 @@ private fun GoalDetailTopBar(
     onNavigateBack: () -> Unit
 ) {
     TopAppBar(
-        title = { },
+        title = { 
+            Text(
+                text = "Goal Details",
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+        },
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
                 Icon(
