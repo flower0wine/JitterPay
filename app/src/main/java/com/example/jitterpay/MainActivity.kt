@@ -23,6 +23,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.jitterpay.ui.addtransaction.AddTransactionScreen
 import com.example.jitterpay.ui.avatar.AvatarSelectionScreen
+import com.example.jitterpay.ui.edittransaction.EditTransactionScreen
 import com.example.jitterpay.ui.goals.AddFundsScreen
 import com.example.jitterpay.ui.goals.CreateGoalScreen
 import com.example.jitterpay.ui.goals.EditGoalScreen
@@ -136,6 +137,23 @@ fun JitterPayApp(
                 popExitTransition = { SlideTransitions.slideOutRight() }
             ) {
                 AddTransactionScreen(
+                    onClose = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(
+                route = NavigationRoutes.EDIT_TRANSACTION,
+                arguments = listOf(
+                    navArgument("transactionId") { type = NavType.LongType }
+                ),
+                enterTransition = { SlideTransitions.slideInRight() },
+                exitTransition = { SlideTransitions.slideOutRight() },
+                popEnterTransition = { SlideTransitions.slideInRight() },
+                popExitTransition = { SlideTransitions.slideOutRight() }
+            ) {
+                EditTransactionScreen(
                     onClose = {
                         navController.popBackStack()
                     }

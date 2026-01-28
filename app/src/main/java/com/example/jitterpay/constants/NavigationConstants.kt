@@ -30,12 +30,14 @@ object NavigationRoutes {
     const val RECURRING = "recurring"
     const val ADD_RECURRING = "add_recurring"
     const val RECURRING_DETAIL = "recurring_detail/{recurringId}"
+    const val EDIT_TRANSACTION = "edit_transaction/{transactionId}"
     
     fun goalDetail(goalId: Long): String = "goal_detail/$goalId"
     fun addFunds(goalId: Long): String = "add_funds/$goalId"
     fun withdrawFunds(goalId: Long): String = "withdraw_funds/$goalId"
     fun editGoal(goalId: Long): String = "edit_goal/$goalId"
     fun recurringDetail(recurringId: Long): String = "recurring_detail/$recurringId"
+    fun editTransaction(transactionId: Long): String = "edit_transaction/$transactionId"
 }
 
 /**

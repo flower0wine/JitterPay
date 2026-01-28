@@ -2,6 +2,7 @@ package com.example.jitterpay.ui.components.home
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeUnit
 fun TransactionHistory(
     transactions: List<TransactionEntity> = emptyList(),
     onDeleteTransaction: (TransactionEntity) -> Unit = {},
+    onEditTransaction: (Long) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.padding(horizontal = 20.dp)) {
@@ -103,7 +105,8 @@ fun TransactionHistory(
                     ) {
                         TransactionItem(
                             transaction = transaction,
-                            onDelete = { onDeleteTransaction(transaction) }
+                            onDelete = { onDeleteTransaction(transaction) },
+                            onClick = { onEditTransaction(transaction.id) }
                         )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
@@ -173,12 +176,15 @@ private fun EmptyTransactionState() {
 @Composable
 fun TransactionItem(
     transaction: TransactionEntity,
-    onDelete: () -> Unit = {}
+    onDelete: () -> Unit = {},
+    onClick: () -> Unit = {}
 ) {
     val isIncome = transaction.type == TransactionType.INCOME.name
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Surface(

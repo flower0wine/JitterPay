@@ -83,7 +83,10 @@ fun HomeScreen(
             // 传递真实交易数据到TransactionHistory
             TransactionHistory(
                 transactions = uiState.transactions,
-                onDeleteTransaction = { viewModel.deleteTransaction(it) }
+                onDeleteTransaction = { viewModel.deleteTransaction(it) },
+                onEditTransaction = { transactionId ->
+                    navController.navigate(NavigationRoutes.editTransaction(transactionId))
+                }
             )
 
             // Add extra space at the bottom to ensure content isn't covered by bottom nav

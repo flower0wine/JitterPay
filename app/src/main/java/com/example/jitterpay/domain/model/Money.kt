@@ -73,6 +73,24 @@ value class Money private constructor(private val cents: Long) {
     }
 
     /**
+     * 格式化为简化的显示字符串，移除不必要的尾随零
+     * 例如：
+     * - 2200 cents -> "22" (而不是 "22.00")
+     * - 550 cents -> "5.5" (而不是 "5.50")
+     * - 2245 cents -> "22.45" (保持两位小数)
+     */
+    fun formatSimplified(): String {
+        val wholePart = kotlin.math.abs(cents / 100)
+        val decimalPart = kotlin.math.abs(cents % 100)
+        
+        return when {
+            decimalPart == 0L -> wholePart.toString()
+            decimalPart % 10 == 0L -> "$wholePart.${decimalPart / 10}"
+            else -> "$wholePart.${decimalPart.toString().padStart(2, '0')}"
+        }
+    }
+
+    /**
      * 格式化为货币字符串 (如 "$123.45")
      */
     fun formatCurrency(): String = "$${format()}"
