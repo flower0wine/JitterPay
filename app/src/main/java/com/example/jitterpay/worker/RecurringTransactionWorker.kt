@@ -9,6 +9,7 @@ import com.example.jitterpay.data.local.entity.TransactionEntity
 import com.example.jitterpay.data.local.entity.TransactionType
 import com.example.jitterpay.data.repository.RecurringRepository
 import com.example.jitterpay.data.repository.TransactionRepository
+import com.example.jitterpay.notification.NotificationHelper
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -18,13 +19,17 @@ import dagger.assisted.AssistedInject
  * This worker runs periodically to check for recurring transactions whose
  * nextExecutionDateMillis has passed. For each due transaction, it creates
  * an actual TransactionEntity record and advances the next execution date.
+ *
+ * Additionally, this worker cancels old reminder notifications when
+ * the transaction executes and the next execution date advances.
  */
 @HiltWorker
 class RecurringTransactionWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
     private val recurringRepository: RecurringRepository,
-    private val transactionRepository: TransactionRepository
+    private val transactionRepository: TransactionRepository,
+    private val notificationHelper: NotificationHelper
 ) : CoroutineWorker(context, workerParams) {
 
     companion object {
@@ -63,6 +68,12 @@ class RecurringTransactionWorker @AssistedInject constructor(
                     )
 
                     Log.d(TAG, "Created transaction for recurring ID: ${recurring.id}")
+
+                    // Cancel old reminder notification since transaction has executed
+                    if (recurring.reminderEnabled) {
+                        notificationHelper.cancelRecurringReminder(recurring.id)
+                        Log.d(TAG, "Cancelled reminder notification for recurring ID: ${recurring.id}")
+                    }
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to create transaction for recurring ID: ${recurring.id}", e)
                     // Continue processing other transactions even if one fails

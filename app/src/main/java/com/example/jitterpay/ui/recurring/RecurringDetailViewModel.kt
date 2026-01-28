@@ -1,10 +1,12 @@
 package com.example.jitterpay.ui.recurring
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.jitterpay.data.local.entity.RecurringEntity
 import com.example.jitterpay.data.repository.RecurringRepository
+import com.example.jitterpay.scheduler.RecurringReminderScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +19,7 @@ data class RecurringDetailUiState(
     val error: String? = null,
     val saveSuccess: Boolean = false,
     val deleteSuccess: Boolean = false,
-    
+
     // Editable fields
     val id: Long = 0,
     val title: String = "",
@@ -27,7 +29,7 @@ data class RecurringDetailUiState(
     val frequency: RecurringFrequency = RecurringFrequency.MONTHLY,
     val startDate: Long = System.currentTimeMillis(),
     val isActive: Boolean = true,
-    
+
     // Reminder (Local state only for now)
     val reminderEnabled: Boolean = false,
     val reminderDaysBefore: Int = 1
@@ -36,11 +38,12 @@ data class RecurringDetailUiState(
 @HiltViewModel
 class RecurringDetailViewModel @Inject constructor(
     private val recurringRepository: RecurringRepository,
+    private val recurringReminderScheduler: RecurringReminderScheduler,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val recurringId: Long? = savedStateHandle["recurringId"] // Key matching the route argument
-    
+
     private val _uiState = MutableStateFlow(RecurringDetailUiState())
     val uiState: StateFlow<RecurringDetailUiState> = _uiState.asStateFlow()
 
@@ -109,7 +112,7 @@ class RecurringDetailViewModel @Inject constructor(
     fun setStartDate(date: Long) {
         _uiState.value = _uiState.value.copy(startDate = date)
     }
-    
+
     fun setReminder(enabled: Boolean, daysBefore: Int) {
         _uiState.value = _uiState.value.copy(
             reminderEnabled = enabled,
@@ -127,7 +130,7 @@ class RecurringDetailViewModel @Inject constructor(
     fun saveRecurring() {
         viewModelScope.launch {
             val state = _uiState.value
-            
+
             if (state.title.isBlank()) {
                 _uiState.value = state.copy(error = "Please enter a title")
                 return@launch
@@ -151,17 +154,32 @@ class RecurringDetailViewModel @Inject constructor(
                     reminderEnabled = state.reminderEnabled,
                     reminderDaysBefore = state.reminderDaysBefore
                 )
-                
+
                 // Update active state if changed
                 recurringRepository.setActive(state.id, state.isActive)
-                
+
                 _uiState.value = state.copy(saveSuccess = true, error = null)
+
+                // If reminders are enabled, trigger immediate check
+                // to ensure reminder is scheduled without waiting for next periodic check
+                if (state.reminderEnabled && state.reminderDaysBefore > 0) {
+                    try {
+                        recurringReminderScheduler.scheduleImmediateCheck()
+                    } catch (e: Exception) {
+                        // Log error but don't fail save operation
+                        Log.e(
+                            "RecurringDetailVM",
+                            "Failed to schedule immediate reminder check",
+                            e
+                        )
+                    }
+                }
             } catch (e: Exception) {
                 _uiState.value = state.copy(error = e.message ?: "Failed to update transaction")
             }
         }
     }
-    
+
     fun deleteRecurring() {
         viewModelScope.launch {
             try {

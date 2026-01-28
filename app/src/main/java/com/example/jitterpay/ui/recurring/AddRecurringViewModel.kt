@@ -1,9 +1,11 @@
 package com.example.jitterpay.ui.recurring
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.jitterpay.data.local.entity.RecurringEntity
 import com.example.jitterpay.data.repository.RecurringRepository
+import com.example.jitterpay.scheduler.RecurringReminderScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +28,8 @@ data class AddRecurringUiState(
 
 @HiltViewModel
 class AddRecurringViewModel @Inject constructor(
-    private val recurringRepository: RecurringRepository
+    private val recurringRepository: RecurringRepository,
+    private val recurringReminderScheduler: RecurringReminderScheduler
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddRecurringUiState())
@@ -90,6 +93,21 @@ class AddRecurringViewModel @Inject constructor(
                     reminderDaysBefore = state.reminderDaysBefore
                 )
                 _uiState.value = state.copy(saveSuccess = true, error = null)
+
+                // If reminders are enabled, trigger immediate check
+                // to ensure reminder is scheduled without waiting for next periodic check
+                if (state.reminderEnabled && state.reminderDaysBefore > 0) {
+                    try {
+                        recurringReminderScheduler.scheduleImmediateCheck()
+                    } catch (e: Exception) {
+                        // Log error but don't fail save operation
+                        Log.e(
+                            "AddRecurringVM",
+                            "Failed to schedule immediate reminder check",
+                            e
+                        )
+                    }
+                }
             } catch (e: Exception) {
                 _uiState.value = state.copy(error = e.message ?: "Failed to save recurring transaction")
             }

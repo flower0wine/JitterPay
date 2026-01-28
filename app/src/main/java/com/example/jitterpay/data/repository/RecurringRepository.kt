@@ -263,6 +263,38 @@ class RecurringRepository @Inject constructor(
     }
 
     /**
+     * 获取需要提醒的定时记账记录
+     *
+     * @param currentTimeMillis 当前时间（毫秒）
+     * @return 需要发送提醒的定时记账实体列表
+     */
+    suspend fun getRecurringTransactionsNeedingReminder(
+        currentTimeMillis: Long
+    ): List<RecurringEntity> {
+        return recurringDao.getRecurringTransactionsNeedingReminder(currentTimeMillis)
+    }
+
+    /**
+     * 更新提醒设置
+     *
+     * @param id 记录ID
+     * @param reminderEnabled 是否启用提醒
+     * @param reminderDaysBefore 提前几天提醒
+     */
+    suspend fun updateReminderSettings(
+        id: Long,
+        reminderEnabled: Boolean,
+        reminderDaysBefore: Int
+    ) {
+        recurringDao.updateReminderSettings(
+            id,
+            reminderEnabled,
+            reminderDaysBefore,
+            System.currentTimeMillis()
+        )
+    }
+
+    /**
      * 将Entity转换为UI层使用的RecurringTransaction
      */
     private fun RecurringEntity.toUiModel(): RecurringTransaction {

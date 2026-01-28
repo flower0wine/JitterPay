@@ -178,4 +178,48 @@ interface RecurringDao {
      */
     @Query("DELETE FROM recurring_transactions")
     suspend fun deleteAll()
+
+    /**
+     * 获取需要提醒的定时记账记录
+     *
+     * 查询条件：
+     * - 交易已激活 (isActive = 1)
+     * - 已启用提醒 (reminderEnabled = 1)
+     * - 当前时间 >= 预计执行日期 - 提醒天数
+     * - reminderDaysBefore > 0 (避免负数或0的情况)
+     *
+     * @param currentTimeMillis 当前时间（毫秒）
+     * @return 需要发送提醒的定时记账实体列表
+     */
+    @Query("""
+        SELECT * FROM recurring_transactions
+        WHERE isActive = 1
+          AND reminderEnabled = 1
+          AND reminderDaysBefore > 0
+          AND (nextExecutionDateMillis - (reminderDaysBefore * 24 * 60 * 60 * 1000)) <= :currentTimeMillis
+        ORDER BY nextExecutionDateMillis ASC
+    """)
+    suspend fun getRecurringTransactionsNeedingReminder(currentTimeMillis: Long): List<RecurringEntity>
+
+    /**
+     * 更新提醒设置
+     *
+     * @param id 记录ID
+     * @param reminderEnabled 是否启用提醒
+     * @param reminderDaysBefore 提前几天提醒
+     * @param updatedAt 更新时间戳
+     */
+    @Query("""
+        UPDATE recurring_transactions
+        SET reminderEnabled = :reminderEnabled,
+            reminderDaysBefore = :reminderDaysBefore,
+            updatedAt = :updatedAt
+        WHERE id = :id
+    """)
+    suspend fun updateReminderSettings(
+        id: Long,
+        reminderEnabled: Boolean,
+        reminderDaysBefore: Int,
+        updatedAt: Long
+    )
 }

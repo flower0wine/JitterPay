@@ -522,4 +522,109 @@ class RecurringRepositoryTest {
         assertEquals(1, result.size)
         assertEquals("Due Task", result[0].title)
     }
+
+    // ==================== 提醒相关测试 ====================
+
+    @Test
+    fun `getRecurringTransactionsNeedingReminder returns items with reminders due`() = runTest {
+        // Given
+        val currentTime = System.currentTimeMillis()
+        val tomorrow = currentTime + 86400000L
+        val reminderList = listOf(
+            RecurringEntity(
+                id = 1,
+                title = "Netflix Subscription",
+                amountCents = 1599L,
+                type = "EXPENSE",
+                category = "Entertainment",
+                frequency = "MONTHLY",
+                startDateMillis = currentTime - 86400000L * 30,
+                nextExecutionDateMillis = tomorrow,
+                isActive = true,
+                estimatedMonthlyAmount = 1599L,
+                reminderEnabled = true,
+                reminderDaysBefore = 1
+            )
+        )
+        coEvery {
+            recurringDao.getRecurringTransactionsNeedingReminder(
+                eq(currentTime)
+            )
+        } returns reminderList
+
+        // When
+        val result = repository.getRecurringTransactionsNeedingReminder(currentTime)
+
+        // Then
+        assertEquals(1, result.size)
+        assertEquals("Netflix Subscription", result[0].title)
+        assertTrue(result[0].reminderEnabled)
+        assertEquals(1, result[0].reminderDaysBefore)
+    }
+
+    @Test
+    fun `getRecurringTransactionsNeedingReminder excludes disabled reminders`() = runTest {
+        // Given
+        val currentTime = System.currentTimeMillis()
+        val reminderList = emptyList<com.example.jitterpay.data.local.entity.RecurringEntity>()
+        coEvery {
+            recurringDao.getRecurringTransactionsNeedingReminder(
+                eq(currentTime)
+            )
+        } returns reminderList
+
+        // When
+        val result = repository.getRecurringTransactionsNeedingReminder(currentTime)
+
+        // Then
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun `updateReminderSettings calls dao with correct parameters`() = runTest {
+        // Given
+        val currentTime = System.currentTimeMillis()
+        coEvery {
+            recurringDao.updateReminderSettings(
+                any(), any(), any(), eq(currentTime)
+            )
+        } just(Unit)
+
+        // When
+        repository.updateReminderSettings(
+            id = 1L,
+            reminderEnabled = true,
+            reminderDaysBefore = 3
+        )
+
+        // Then
+        coVerify {
+            recurringDao.updateReminderSettings(
+                id = 1L,
+                reminderEnabled = true,
+                reminderDaysBefore = 3,
+                updatedAt = currentTime
+            )
+        }
+    }
+
+    @Test
+    fun `updateReminderSettings allows disabling reminders`() = runTest {
+        // When
+        repository.updateReminderSettings(
+            id = 1L,
+            reminderEnabled = false,
+            reminderDaysBefore = 0
+        )
+
+        // Then
+        coVerify {
+            recurringDao.updateReminderSettings(
+                id = 1L,
+                reminderEnabled = false,
+                reminderDaysBefore = 0,
+                updatedAt = any()
+            )
+        }
+    }
 }
