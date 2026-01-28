@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.example.jitterpay.data.local.JitterPayDatabase
 import com.example.jitterpay.data.local.UserPreferencesDataSource
+import com.example.jitterpay.data.local.dao.BudgetDao
 import com.example.jitterpay.data.local.dao.GoalDao
 import com.example.jitterpay.data.local.dao.GoalTransactionDao
 import com.example.jitterpay.data.local.dao.RecurringDao
@@ -108,6 +109,22 @@ fun provideRecurringDao(
     database: JitterPayDatabase
 ): RecurringDao {
     return database.recurringDao()
+}
+
+/**
+ * 提供BudgetDao实例
+ *
+ * 从数据库实例中获取BudgetDao，用于预算数据访问操作。
+ *
+ * @param database JitterPayDatabase实例
+ * @return BudgetDao实例
+ */
+@Provides
+@Singleton
+fun provideBudgetDao(
+    database: JitterPayDatabase
+): BudgetDao {
+    return database.budgetDao()
 }
 
 /**

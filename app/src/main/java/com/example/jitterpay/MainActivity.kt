@@ -25,6 +25,9 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.jitterpay.ui.addtransaction.AddTransactionScreen
 import com.example.jitterpay.ui.avatar.AvatarSelectionScreen
+import com.example.jitterpay.ui.budget.AddBudgetScreen
+import com.example.jitterpay.ui.budget.BudgetScreen
+import com.example.jitterpay.ui.budget.EditBudgetScreen
 import com.example.jitterpay.ui.edittransaction.EditTransactionScreen
 import com.example.jitterpay.ui.goals.AddFundsScreen
 import com.example.jitterpay.ui.goals.CreateGoalScreen
@@ -305,6 +308,44 @@ fun JitterPayApp(
                     popExitTransition = { SlideTransitions.slideOutRight() }
                 ) {
                     RecurringDetailScreen()
+                }
+
+                composable(
+                    route = NavigationRoutes.BUDGET,
+                    enterTransition = { SlideTransitions.slideInRight() },
+                    exitTransition = { SlideTransitions.slideOutRight() },
+                    popEnterTransition = { SlideTransitions.slideInRight() },
+                    popExitTransition = { SlideTransitions.slideOutRight() }
+                ) {
+                    BudgetScreen()
+                }
+
+                composable(
+                    route = NavigationRoutes.ADD_BUDGET,
+                    enterTransition = { SlideTransitions.slideInRight() },
+                    exitTransition = { SlideTransitions.slideOutRight() },
+                    popEnterTransition = { SlideTransitions.slideInRight() },
+                    popExitTransition = { SlideTransitions.slideOutRight() }
+                ) {
+                    AddBudgetScreen(
+                        onClose = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+
+                composable(
+                    route = NavigationRoutes.EDIT_BUDGET,
+                    arguments = listOf(
+                        navArgument("budgetId") { type = NavType.LongType }
+                    ),
+                    enterTransition = { SlideTransitions.slideInRight() },
+                    exitTransition = { SlideTransitions.slideOutRight() },
+                    popEnterTransition = { SlideTransitions.slideInRight() },
+                    popExitTransition = { SlideTransitions.slideOutRight() }
+                ) { backStackEntry ->
+                    val budgetId = backStackEntry.arguments?.getLong("budgetId") ?: 0L
+                    EditBudgetScreen(budgetId = budgetId)
                 }
             }
         }

@@ -14,7 +14,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.jitterpay.constants.NavigationRoutes
 import com.example.jitterpay.data.local.entity.TransactionEntity
+import com.example.jitterpay.navigation.LocalNavController
 import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.components.home.TransactionItem
 
@@ -26,6 +28,8 @@ fun SearchResults(
     selectedDateRange: String?,
     modifier: Modifier = Modifier
 ) {
+    val navController = LocalNavController.current
+
     Column(modifier = modifier) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -87,7 +91,8 @@ fun SearchResults(
                     ) {
                         TransactionItem(
                             transaction = transaction,
-                            onDelete = { /* TODO: Implement delete */ }
+                            onDelete = { /* TODO: Implement delete */ },
+                            onClick = { navController.navigate(NavigationRoutes.editTransaction(transaction.id)) }
                         )
                     }
                     Spacer(modifier = Modifier.height(16.dp))

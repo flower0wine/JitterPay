@@ -24,6 +24,7 @@ fun QuickActions(
     modifier: Modifier = Modifier,
     onGoalsClick: () -> Unit = {},
     onRecurringClick: () -> Unit = {},
+    onBudgetClick: () -> Unit = {}
 ) {
     var isVisible by remember { mutableStateOf(false) }
 
@@ -38,11 +39,11 @@ fun QuickActions(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         QuickActionButton(
-            icon = Icons.Default.Send,
-            label = "SEND",
+            icon = Icons.Default.AccountBalanceWallet,
+            label = "BUDGET",
             isVisible = isVisible,
             delayMillis = AnimationConstants.Stagger.QUICK_ACTIONS[0],
-            onClick = {}
+            onClick = onBudgetClick
         )
         QuickActionButton(
             icon = Icons.Default.TrackChanges,
@@ -114,7 +115,7 @@ fun QuickActionButton(
                     Icon(
                         imageVector = icon,
                         contentDescription = label,
-                        tint = if (label == "SEND" || label == "GOALS" || label == "RECURRING") 
+                        tint = if (label == "BUDGET" || label == "GOALS" || label == "RECURRING") 
                             MaterialTheme.colorScheme.primary 
                         else 
                             Color.White,

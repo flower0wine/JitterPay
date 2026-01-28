@@ -78,6 +78,9 @@ fun HomeScreen(
                 },
                 onRecurringClick = {
                     navController.navigate(NavigationRoutes.RECURRING)
+                },
+                onBudgetClick = {
+                    navController.navigate(NavigationRoutes.BUDGET)
                 }
             )
 
