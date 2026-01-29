@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -34,13 +35,33 @@ fun EditBudgetScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     val budget = uiState.budgets.find { it.id == budgetId }
+    val isLoading = uiState.isLoading
 
-    var title by remember { mutableStateOf(budget?.title ?: "") }
-    var amount by remember { mutableStateOf(budget?.amount?.toString() ?: "") }
-    var selectedPeriod by remember { mutableStateOf(budget?.periodType ?: BudgetPeriodType.MONTHLY) }
-    var notifyAt80 by remember { mutableStateOf(budget?.notifyAt80 ?: true) }
-    var notifyAt90 by remember { mutableStateOf(budget?.notifyAt90 ?: true) }
-    var notifyAt100 by remember { mutableStateOf(budget?.notifyAt100 ?: true) }
+    // Show loading indicator while data is being loaded
+    if (isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        }
+        return
+    }
+
+    // If budget not found after loading, go back
+    if (budget == null) {
+        LaunchedEffect(Unit) {
+            navController.popBackStack()
+        }
+        return
+    }
+
+    var title by remember { mutableStateOf(budget.title) }
+    var amount by remember { mutableStateOf(budget.amount.toString()) }
+    var selectedPeriod by remember { mutableStateOf(budget.periodType) }
+    var notifyAt80 by remember { mutableStateOf(budget.notifyAt80) }
+    var notifyAt90 by remember { mutableStateOf(budget.notifyAt90) }
+    var notifyAt100 by remember { mutableStateOf(budget.notifyAt100) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var isVisible by remember { mutableStateOf(false) }
 
@@ -49,13 +70,6 @@ fun EditBudgetScreen(
     }
 
     val isValid = title.isNotBlank() && amount.isNotBlank() && amount.toDoubleOrNull() != null
-
-    if (budget == null) {
-        LaunchedEffect(Unit) {
-            navController.popBackStack()
-        }
-        return
-    }
 
     Scaffold(
         containerColor = Color.Black,

@@ -24,8 +24,7 @@ class BudgetViewModel @Inject constructor(
     val uiState: StateFlow<BudgetUiState> = _uiState.asStateFlow()
 
     init {
-        // Don't auto-load in tests - loadBudgets() will be called when needed
-        // In production, this will be called via navigation or when the screen is shown
+        loadBudgets()
     }
 
     fun reloadBudgets() {
