@@ -17,7 +17,7 @@ permissions:
 jobs:
   build:
     name: Build Release APKs
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout code
@@ -29,6 +29,17 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
           cache: 'gradle'
+
+      # Cache Gradle build cache for faster incremental builds
+      - name: Cache Gradle Build Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches/build-cache-1
+            ~/.gradle/daemon
+          key: gradle-build-cache-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/libs.versions.toml') }}
+          restore-keys: |
+            gradle-build-cache-${{ runner.os }}-
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -42,7 +53,21 @@ jobs:
           echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV
 
       - name: Build Release APKs (all ABIs)
-        run: ./gradlew assembleRelease
+        run: |
+          ./gradlew assembleRelease \
+            --no-daemon \
+            --parallel \
+            --max-workers=4 \
+            --build-cache \
+            --configure-on-demand \
+            --profile
+
+      - name: Upload Build Profile
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-profile
+          path: build/reports/profile/
+          retention-days: 7
 
       - name: Find all APKs
         id: find-apks
@@ -112,7 +137,7 @@ jobs:
   release:
     name: Create GitHub Release
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Download all APK artifacts
