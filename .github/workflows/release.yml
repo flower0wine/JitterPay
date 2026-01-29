@@ -64,6 +64,52 @@ jobs:
           echo "Built APKs:"
           ls -lh artifacts/
 
+      - name: Configure AWS Credentials for R2
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          aws-region: auto
+
+      - name: Upload APKs to Cloudflare R2
+        run: |
+          VERSION=${{ github.event.inputs.release_tag || github.ref_name }}
+
+          for apk in artifacts/*.apk; do
+            if [ -f "$apk" ]; then
+              aws s3 cp "$apk" "s3://${{ secrets.R2_BUCKET_NAME }}/$VERSION/" \
+                --endpoint-url "https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com"
+              echo "✅ Uploaded: $(basename $apk)"
+            fi
+          done
+
+      - name: Generate and Upload Version Manifest
+        run: |
+          VERSION=${{ github.event.inputs.release_tag || github.ref_name }}
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          # Get universal APK size
+          UNIVERSAL_APK=$(ls artifacts/*-universal-*.apk 2>/dev/null | head -1)
+          APK_SIZE=0
+          if [ -n "$UNIVERSAL_APK" ] && [ -f "$UNIVERSAL_APK" ]; then
+            APK_SIZE=$(stat -c%s "$UNIVERSAL_APK")
+          fi
+
+          # Generate version.json
+          cat > version.json << EOF
+          {
+            "latest_version": "$VERSION",
+            "release_date": "$TIMESTAMP",
+            "cdn_base_url": "${{ secrets.CDN_BASE_URL }}",
+            "apk_size": $APK_SIZE
+          }
+          EOF
+
+          # Upload to R2
+          aws s3 cp version.json "s3://${{ secrets.R2_BUCKET_NAME }}/" \
+            --endpoint-url "https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com"
+          echo "✅ Uploaded version.json"
+
   release:
     name: Create GitHub Release
     needs: build

@@ -18,6 +18,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "com.example.jitterpay.HiltTestRunner"
+
+        // BuildConfig field for update feature CDN URL
+        buildConfigField("String", "CDN_BASE_URL", "\"https://store.flowerwine.dpdns.org\"")
     }
 
     signingConfigs {
@@ -66,6 +69,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     lint {
@@ -116,6 +120,9 @@ dependencies {
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.hilt.work)
+
+    // OkHttp for update checks
+    implementation(libs.okhttp)
 
     implementation(libs.annotations)
 

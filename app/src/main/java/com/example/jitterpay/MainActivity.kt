@@ -1,7 +1,6 @@
 package com.example.jitterpay
 
 import android.os.Bundle
-import android.util.Log
 import android.content.res.Resources
 
 import androidx.activity.ComponentActivity
@@ -46,21 +45,19 @@ import com.example.jitterpay.ui.theme.JitterPayTheme
 import com.example.jitterpay.ui.animation.SlideTransitions
 import com.example.jitterpay.navigation.*
 import com.example.jitterpay.ui.recurring.RecurringDetailScreen
+import com.example.jitterpay.ui.update.UpdateScreen
+import com.example.jitterpay.util.UpdateManager
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var updateManager: UpdateManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Enable edge-to-edge display with error handling
-        try {
-            enableEdgeToEdge()
-        } catch (e: Resources.NotFoundException) {
-            Log.e("MainActivity", "Resource not found for EdgeToEdge", e)
-            // Continue without edge-to-edge if resources are missing
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Failed to enable edge-to-edge", e)
-            // Continue without edge-to-edge for stability
-        }
+
         setContent {
             JitterPayTheme {
                 val navController = rememberNavController()
@@ -73,6 +70,13 @@ class MainActivity : ComponentActivity() {
                     NavigationRoutes.STATS,
                     NavigationRoutes.GOALS,
                     NavigationRoutes.PROFILE
+                )
+
+                // 更新检查（延迟执行，不阻塞 UI）
+                UpdateScreen(
+                    updateManager = updateManager,
+                    checkOnLaunch = true,
+                    onCheckComplete = { }
                 )
 
                 JitterPayApp(
@@ -97,7 +101,7 @@ fun JitterPayApp(
                 )
             }
         }
-        ) { paddingValues ->
+    ) { paddingValues ->
         ProvideNavController(navController) { modifier ->
             NavHost(
                 navController = navController,
