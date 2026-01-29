@@ -65,33 +65,23 @@ class RecurringReminderWorker @AssistedInject constructor(
             // Send notifications for each transaction
             transactionsNeedingReminder.forEach { recurring ->
                 try {
-                    // Calculate when the reminder time window started
-                    val reminderTimeWindowStart =
-                        recurring.nextExecutionDateMillis - (recurring.reminderDaysBefore * TimeUnit.DAYS.toMillis(
-                            1
-                        ))
+                    val amountFormatted = recurring.getFormattedAmount()
 
-                    // Only send reminder if we're in the reminder time window
-                    // and haven't sent one for this cycle yet
-                    if (currentTime >= reminderTimeWindowStart) {
-                        val amountFormatted = recurring.getFormattedAmount()
+                    // Show notification
+                    notificationHelper.showRecurringReminder(
+                        recurringId = recurring.id,
+                        title = recurring.title,
+                        amount = amountFormatted,
+                        daysBefore = recurring.reminderDaysBefore,
+                        nextExecutionDate = recurring.nextExecutionDateMillis
+                    )
 
-                        // Show notification
-                        notificationHelper.showRecurringReminder(
-                            recurringId = recurring.id,
-                            title = recurring.title,
-                            amount = amountFormatted,
-                            daysBefore = recurring.reminderDaysBefore,
-                            nextExecutionDate = recurring.nextExecutionDateMillis
-                        )
+                    // Mark that reminder was sent (store in data or using WorkManager's output data)
+                    // For simplicity, we'll rely on the periodic nature of this worker
+                    // The notification will only show once per cycle because we update nextExecutionDate
+                    // when the transaction executes
 
-                        // Mark that reminder was sent (store in data or using WorkManager's output data)
-                        // For simplicity, we'll rely on the periodic nature of this worker
-                        // The notification will only show once per cycle because we update nextExecutionDate
-                        // when the transaction executes
-
-                        Log.d(TAG, "Sent reminder for recurring ID: ${recurring.id}")
-                    }
+                    Log.d(TAG, "Sent reminder for recurring ID: ${recurring.id}")
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to send reminder for recurring ID: ${recurring.id}", e)
                     // Continue processing other transactions

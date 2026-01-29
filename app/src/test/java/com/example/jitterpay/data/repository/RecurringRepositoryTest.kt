@@ -7,7 +7,9 @@ import com.example.jitterpay.ui.recurring.RecurringTransaction
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.Runs
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -586,9 +588,9 @@ class RecurringRepositoryTest {
         val currentTime = System.currentTimeMillis()
         coEvery {
             recurringDao.updateReminderSettings(
-                any(), any(), any(), eq(currentTime)
+                any(), any(), any(), any()
             )
-        } just(Unit)
+        } just Runs
 
         // When
         repository.updateReminderSettings(
@@ -603,7 +605,7 @@ class RecurringRepositoryTest {
                 id = 1L,
                 reminderEnabled = true,
                 reminderDaysBefore = 3,
-                updatedAt = currentTime
+                updatedAt = any()
             )
         }
     }

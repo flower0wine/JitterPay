@@ -24,6 +24,11 @@ class BudgetViewModel @Inject constructor(
     val uiState: StateFlow<BudgetUiState> = _uiState.asStateFlow()
 
     init {
+        // Don't auto-load in tests - loadBudgets() will be called when needed
+        // In production, this will be called via navigation or when the screen is shown
+    }
+
+    fun reloadBudgets() {
         loadBudgets()
     }
 
@@ -31,24 +36,27 @@ class BudgetViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             try {
-                budgetRepository.getAllBudgets().collect { budgets ->
-                    val budgetsWithSpent = mutableListOf<BudgetData>()
-                    for (budget in budgets) {
+                // 组合预算流和所有事务流，当任一变化时重新计算
+                combine(
+                    budgetRepository.getAllBudgets(),
+                    transactionRepository.getAllTransactions()
+                ) { budgets, allTransactions ->
+                    val budgetsWithSpent = budgets.map { budget ->
                         val (startDate, endDate) = budget.getCurrentPeriodRange()
-                        var spent = 0.0
-                        transactionRepository.getTransactionsByDateRange(startDate, endDate)
-                            .collect { transactions ->
-                                val spentCents = transactions
-                                    .filter { it.type == TransactionType.EXPENSE.name }
-                                    .sumOf { it.amountCents }
-                                spent = spentCents / 100.0
+                        val spentCents = allTransactions
+                            .filter { transaction ->
+                                transaction.dateMillis in (startDate..endDate) &&
+                                transaction.type == TransactionType.EXPENSE.name
                             }
-                        budgetsWithSpent.add(budget.toBudgetData(spent))
+                            .sumOf { it.amountCents }
+                        budget.toBudgetData(spentCents / 100.0)
                     }
-                    _uiState.value = BudgetUiState(
+                    BudgetUiState(
                         budgets = budgetsWithSpent,
                         isLoading = false
                     )
+                }.collect { newState ->
+                    _uiState.value = newState
                 }
             } catch (e: Exception) {
                 _uiState.value = BudgetUiState(

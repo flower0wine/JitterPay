@@ -18,7 +18,7 @@ class NotificationHelper(private val context: Context) {
     companion object {
         private const val CHANNEL_ID_RECURRING_REMINDER = "recurring_reminder"
         private const val CHANNEL_NAME_RECURRING_REMINDER = "Recurring Transaction Reminders"
-        private const val NOTIFICATION_ID_BASE = 1000
+        internal const val NOTIFICATION_ID_BASE = 1000
         private const val CHANNEL_DESC_RECURRING_REMINDER =
             "Notifications for upcoming recurring transactions"
     }

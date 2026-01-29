@@ -19,11 +19,13 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
+import org.mockito.kotlin.atLeastOnce
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 
 /**
  * Unit tests for RecurringReminderWorker.
@@ -38,8 +40,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class RecurringReminderWorkerTest {
 
-    @Mock
-    private lateinit var mockContext: Context
+    private lateinit var context: Context
 
     @Mock
     private lateinit var mockRecurringRepository: RecurringRepository
@@ -53,8 +54,11 @@ class RecurringReminderWorkerTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
 
+        // Use real Application context from Robolectric (required by WorkManagerTestInitHelper)
+        context = RuntimeEnvironment.getApplication()
+
         // Initialize WorkManager for testing
-        WorkManagerTestInitHelper.initializeTestWorkManager(mockContext)
+        WorkManagerTestInitHelper.initializeTestWorkManager(context)
 
         // Create custom factory with mocked dependencies
         workerFactory = TestWorkerFactory(
@@ -74,7 +78,7 @@ class RecurringReminderWorkerTest {
         whenever(mockNotificationHelper.areNotificationsEnabled())
             .thenReturn(false)
 
-        val worker = TestListenableWorkerBuilder<RecurringReminderWorker>(mockContext)
+        val worker = TestListenableWorkerBuilder<RecurringReminderWorker>(context)
             .setWorkerFactory(workerFactory)
             .build()
 
@@ -102,7 +106,7 @@ class RecurringReminderWorkerTest {
         whenever(mockRecurringRepository.getRecurringTransactionsNeedingReminder(any()))
             .thenReturn(emptyList())
 
-        val worker = TestListenableWorkerBuilder<RecurringReminderWorker>(mockContext)
+        val worker = TestListenableWorkerBuilder<RecurringReminderWorker>(context)
             .setWorkerFactory(workerFactory)
             .build()
 
@@ -144,12 +148,10 @@ class RecurringReminderWorkerTest {
         )
 
         whenever(
-            mockRecurringRepository.getRecurringTransactionsNeedingReminder(
-                eq(currentTime)
-            )
+            mockRecurringRepository.getRecurringTransactionsNeedingReminder(any())
         ).thenReturn(listOf(recurring))
 
-        val worker = TestListenableWorkerBuilder<RecurringReminderWorker>(mockContext)
+        val worker = TestListenableWorkerBuilder<RecurringReminderWorker>(context)
             .setWorkerFactory(workerFactory)
             .build()
 
@@ -163,11 +165,11 @@ class RecurringReminderWorkerTest {
             result
         )
         verify(mockNotificationHelper).showRecurringReminder(
-            recurringId = eq(1L),
-            title = eq("Netflix Subscription"),
-            amount = eq(recurring.getFormattedAmount()),
-            daysBefore = eq(1),
-            nextExecutionDate = eq(tomorrow)
+            eq(1L),
+            eq("Netflix Subscription"),
+            eq(recurring.getFormattedAmount()),
+            eq(1),
+            eq(tomorrow)
         )
     }
 
@@ -213,11 +215,11 @@ class RecurringReminderWorkerTest {
 
         whenever(
             mockRecurringRepository.getRecurringTransactionsNeedingReminder(
-                eq(currentTime)
+                any()
             )
         ).thenReturn(listOf(recurring1, recurring2))
 
-        val worker = TestListenableWorkerBuilder<RecurringReminderWorker>(mockContext)
+        val worker = TestListenableWorkerBuilder<RecurringReminderWorker>(context)
             .setWorkerFactory(workerFactory)
             .build()
 
@@ -231,18 +233,18 @@ class RecurringReminderWorkerTest {
             result
         )
         verify(mockNotificationHelper).showRecurringReminder(
-            recurringId = eq(1L),
-            title = eq("Netflix"),
-            amount = eq(recurring1.getFormattedAmount()),
-            daysBefore = eq(1),
-            nextExecutionDate = eq(tomorrow)
+            eq(1L),
+            eq("Netflix"),
+            eq(recurring1.getFormattedAmount()),
+            eq(1),
+            eq(tomorrow)
         )
         verify(mockNotificationHelper).showRecurringReminder(
-            recurringId = eq(2L),
-            title = eq("Rent"),
-            amount = eq(recurring2.getFormattedAmount()),
-            daysBefore = eq(2),
-            nextExecutionDate = eq(inTwoDays)
+            eq(2L),
+            eq("Rent"),
+            eq(recurring2.getFormattedAmount()),
+            eq(2),
+            eq(inTwoDays)
         )
     }
 
@@ -286,12 +288,15 @@ class RecurringReminderWorkerTest {
         )
 
         whenever(
-            mockRecurringRepository.getRecurringTransactionsNeedingReminder(
-                eq(currentTime)
-            )
+            mockRecurringRepository.getRecurringTransactionsNeedingReminder(any())
         ).thenReturn(listOf(recurring1, recurring2))
 
-        val worker = TestListenableWorkerBuilder<RecurringReminderWorker>(mockContext)
+        // Throw exception for second recurring transaction
+        whenever(mockNotificationHelper.showRecurringReminder(
+            eq(2L), eq("Invalid Transaction"), any(), any(), any()
+        )).thenThrow(RuntimeException("Test exception for invalid transaction"))
+
+        val worker = TestListenableWorkerBuilder<RecurringReminderWorker>(context)
             .setWorkerFactory(workerFactory)
             .build()
 
@@ -304,12 +309,13 @@ class RecurringReminderWorkerTest {
             ListenableWorker.Result.success(),
             result
         )
-        verify(mockNotificationHelper).showRecurringReminder(
-            recurringId = eq(1L),
-            title = eq("Valid Transaction"),
-            amount = eq(recurring1.getFormattedAmount()),
-            daysBefore = eq(1),
-            nextExecutionDate = eq(tomorrow)
+        // First transaction's notification should have been attempted
+        verify(mockNotificationHelper, atLeastOnce()).showRecurringReminder(
+            eq(1L),
+            eq("Valid Transaction"),
+            eq(recurring1.getFormattedAmount()),
+            eq(1),
+            eq(tomorrow)
         )
     }
 

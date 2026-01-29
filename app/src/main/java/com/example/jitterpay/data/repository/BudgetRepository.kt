@@ -108,6 +108,7 @@ class BudgetRepository @Inject constructor(
     fun getSpentAmountForPeriodFlow(startDate: Long, endDate: Long): Flow<Long> {
         return transactionDao.getTransactionsByDateRange(startDate, endDate).map { transactions ->
             transactions
+                .filter { it.dateMillis >= startDate && it.dateMillis <= endDate }
                 .filter { it.type == TransactionType.EXPENSE.name }
                 .sumOf { it.amountCents }
         }

@@ -124,7 +124,9 @@ class RecurringReminderScheduler @Inject constructor(
         val workInfos = workManager.getWorkInfosByTag(RecurringReminderWorker.UNIQUE_WORK_NAME)
 
         return try {
-            workInfos.get().any { !it.state.isFinished }
+            // Check if any work with this tag exists
+            // For periodic work, this indicates the recurring reminder is set up
+            workInfos.get().isNotEmpty()
         } catch (e: Exception) {
             Log.e(TAG, "Error checking if reminder work is scheduled", e)
             false

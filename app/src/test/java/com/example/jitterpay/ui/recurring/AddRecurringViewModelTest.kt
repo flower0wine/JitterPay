@@ -1,6 +1,7 @@
 package com.example.jitterpay.ui.recurring
 
 import com.example.jitterpay.data.repository.RecurringRepository
+import com.example.jitterpay.scheduler.RecurringReminderScheduler
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -26,13 +27,15 @@ class AddRecurringViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var repository: RecurringRepository
+    private lateinit var reminderScheduler: RecurringReminderScheduler
     private lateinit var viewModel: AddRecurringViewModel
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         repository = mockk(relaxed = true)
-        viewModel = AddRecurringViewModel(repository)
+        reminderScheduler = mockk(relaxed = true)
+        viewModel = AddRecurringViewModel(repository, reminderScheduler)
     }
 
     @After

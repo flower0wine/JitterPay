@@ -2,9 +2,10 @@
 <resources>
 
     <style name="Theme.JitterPay" parent="android:Theme.Material.Light.NoActionBar">
-        <!-- Edge-to-edge configuration -->
+        <!-- Edge-to-edge configuration (API 27+) -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
     </style>
