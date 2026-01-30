@@ -1,7 +1,6 @@
 package com.example.jitterpay
 
 import android.os.Bundle
-import android.content.res.Resources
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
+import com.airbnb.lottie.LottieComposition
 import dagger.hilt.android.AndroidEntryPoint
 
 import com.example.jitterpay.constants.NavigationRoutes
@@ -45,6 +45,7 @@ import com.example.jitterpay.ui.theme.JitterPayTheme
 import com.example.jitterpay.ui.animation.SlideTransitions
 import com.example.jitterpay.navigation.*
 import com.example.jitterpay.ui.recurring.RecurringDetailScreen
+import com.example.jitterpay.ui.splash.SplashScreen
 import com.example.jitterpay.ui.update.UpdateScreen
 import com.example.jitterpay.util.UpdateManager
 import javax.inject.Inject
@@ -58,34 +59,59 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // 从 Application 获取预加载的 composition
+        val preloadedComposition = JitterPayApplication.getPreloadedSplashComposition()
+
         setContent {
             JitterPayTheme {
-                val navController = rememberNavController()
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentRoute = navBackStackEntry?.destination?.route
+                // Use mutableStateOf outside of remember to ensure proper state management
+                var showSplash by remember { mutableStateOf(true) }
 
-                // Determine if we should show the bottom nav bar
-                val showBottomNav = currentRoute in listOf(
-                    NavigationRoutes.HOME,
-                    NavigationRoutes.STATS,
-                    NavigationRoutes.GOALS,
-                    NavigationRoutes.PROFILE
-                )
-
-                // 更新检查（延迟执行，不阻塞 UI）
-                UpdateScreen(
-                    updateManager = updateManager,
-                    checkOnLaunch = true,
-                    onCheckComplete = { }
-                )
-
-                JitterPayApp(
-                    navController = navController,
-                    showBottomNav = showBottomNav
-                )
+                if (showSplash) {
+                    SplashScreen(
+                        preloadedComposition = preloadedComposition,
+                        timeoutMillis = 2000L,
+                        onAnimationComplete = {
+                            showSplash = false
+                        }
+                    )
+                } else {
+                    MainAppContent(
+                        updateManager = updateManager
+                    )
+                }
             }
         }
     }
+}
+
+@Composable
+private fun MainAppContent(
+    updateManager: UpdateManager
+) {
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    // Determine if we should show the bottom nav bar
+    val showBottomNav = currentRoute in listOf(
+        NavigationRoutes.HOME,
+        NavigationRoutes.STATS,
+        NavigationRoutes.GOALS,
+        NavigationRoutes.PROFILE
+    )
+
+    // 更新检查（延迟执行，不阻塞 UI）
+    UpdateScreen(
+        updateManager = updateManager,
+        checkOnLaunch = true,
+        onCheckComplete = { }
+    )
+
+    JitterPayApp(
+        navController = navController,
+        showBottomNav = showBottomNav
+    )
 }
 
 @Composable

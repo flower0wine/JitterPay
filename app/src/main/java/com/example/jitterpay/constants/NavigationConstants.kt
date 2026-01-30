@@ -50,3 +50,11 @@ object NavigationRoutes {
 object ContentDescriptions {
     const val ADD_BUTTON = "Add"
 }
+
+/**
+ * Splash screen constants
+ */
+object SplashConstants {
+    const val ANIMATION_FILE_NAME = "splash_animation"
+    const val TIMEOUT_MILLIS: Long = 2000L // 2 seconds as requested
+}

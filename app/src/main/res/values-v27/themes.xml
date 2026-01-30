@@ -2,6 +2,8 @@
 <resources>
 
     <style name="Theme.JitterPay" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Splash screen background - black for dark theme -->
+        <item name="android:windowBackground">@android:color/black</item>
         <!-- Edge-to-edge configuration (API 27+) -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>

@@ -138,6 +138,9 @@ dependencies {
     // OkHttp for update checks
     implementation(libs.okhttp)
 
+    // Lottie for splash animation
+    implementation(libs.lottie.compose)
+
     implementation(libs.annotations)
 
     // Testing

@@ -3,6 +3,8 @@ package com.example.jitterpay
 import android.app.Application
 import android.util.Log
 import androidx.work.Configuration
+import com.airbnb.lottie.LottieComposition
+import com.airbnb.lottie.LottieCompositionFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,6 +32,13 @@ class JitterPayApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var recurringReminderScheduler: dagger.Lazy<RecurringReminderScheduler>
 
+    companion object {
+        @Volatile
+        private var preloadedSplashComposition: LottieComposition? = null
+
+        fun getPreloadedSplashComposition(): LottieComposition? = preloadedSplashComposition
+    }
+
     /**
      * Provide WorkManager configuration
      *
@@ -40,6 +49,11 @@ class JitterPayApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Preload Lottie splash animation for faster splash screen display
+        preloadedSplashComposition = LottieCompositionFactory
+            .fromRawResSync(this, R.raw.splash_animation)
+            .value
 
         // WorkManager is automatically initialized by Configuration.Provider interface
         // No need to call WorkManager.initialize() manually
