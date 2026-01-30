@@ -40,14 +40,26 @@ data class UpdateInfo(
 class UpdateManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-
     private val currentVersion: String
         get() = context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.0"
 
-    private val httpClient = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .build()
+    private lateinit var httpClient: OkHttpClient
+
+    constructor(
+        context: Context,
+        okHttpClient: OkHttpClient
+    ) : this(context) {
+        this.httpClient = okHttpClient
+    }
+
+    init {
+        if (!::httpClient.isInitialized) {
+            httpClient = OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .build()
+        }
+    }
 
     companion object {
         private const val TAG = "UpdateManager"
@@ -56,10 +68,19 @@ class UpdateManager @Inject constructor(
     /**
      * Check if a new version is available
      */
-    suspend fun checkForUpdates(): Result<UpdateInfo?> = withContext(Dispatchers.IO) {
+    suspend fun checkForUpdates(): Result<UpdateInfo?> =
+        checkForUpdates(BuildConfig.CDN_BASE_URL)
+
+    /**
+     * Check if a new version is available against a custom server URL.
+     * This method is primarily used for testing with MockWebServer.
+     *
+     * @param serverBaseUrl The base URL of the update server (without version.json)
+     */
+    suspend fun checkForUpdates(serverBaseUrl: String): Result<UpdateInfo?> = withContext(Dispatchers.IO) {
         try {
             val request = Request.Builder()
-                .url("${BuildConfig.CDN_BASE_URL}/version.json")
+                .url("$serverBaseUrl/version.json")
                 .get()
                 .build()
 

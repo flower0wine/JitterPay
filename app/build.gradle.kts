@@ -153,6 +153,7 @@ dependencies {
     testImplementation("androidx.test:core:1.5.0")
     testImplementation(libs.androidx.work.testing)
     testImplementation("androidx.arch.core:core-testing:2.2.0")
+    testImplementation(libs.mockwebserver)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
