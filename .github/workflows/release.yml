@@ -73,9 +73,9 @@ jobs:
           echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
           echo "Building version: $VERSION_NAME (code: $VERSION_CODE)"
 
-      - name: Build Release APKs (all ABIs)
+      - name: Build Production Release APK (prod flavor only)
         run: |
-          ./gradlew assembleRelease \
+          ./gradlew assembleProdRelease \
             --no-daemon \
             --parallel \
             --max-workers=4 \
