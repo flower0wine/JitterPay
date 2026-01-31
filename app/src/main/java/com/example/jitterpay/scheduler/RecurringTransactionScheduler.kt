@@ -66,7 +66,6 @@ class RecurringTransactionScheduler @Inject constructor(
             workRequest
         )
 
-        Log.d(TAG, "Scheduled recurring transaction checks every ${RecurringTransactionWorker.REPEAT_INTERVAL_MINUTES} minutes")
     }
 
     /**
@@ -81,7 +80,6 @@ class RecurringTransactionScheduler @Inject constructor(
         // Cancel all work by unique name
         workManager.cancelUniqueWork(RecurringTransactionWorker.UNIQUE_WORK_NAME)
 
-        Log.d(TAG, "Stopped recurring transaction checks")
     }
 
     /**
@@ -108,7 +106,6 @@ class RecurringTransactionScheduler @Inject constructor(
 
         workManager.enqueue(workRequest)
 
-        Log.d(TAG, "Scheduled immediate recurring transaction check")
     }
 
     /**

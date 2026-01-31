@@ -69,7 +69,6 @@ class RecurringReminderScheduler @Inject constructor(
             workRequest
         )
 
-        Log.d(TAG, "Scheduled recurring reminder checks every ${RecurringReminderWorker.REPEAT_INTERVAL_HOURS} hour(s)")
     }
 
     /**
@@ -84,7 +83,6 @@ class RecurringReminderScheduler @Inject constructor(
         // Cancel all work by unique name
         workManager.cancelUniqueWork(RecurringReminderWorker.UNIQUE_WORK_NAME)
 
-        Log.d(TAG, "Stopped recurring reminder checks")
     }
 
     /**
@@ -111,7 +109,6 @@ class RecurringReminderScheduler @Inject constructor(
 
         workManager.enqueue(workRequest)
 
-        Log.d(TAG, "Scheduled immediate recurring reminder check")
     }
 
     /**

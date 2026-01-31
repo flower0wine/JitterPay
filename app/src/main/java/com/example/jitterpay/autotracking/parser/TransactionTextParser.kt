@@ -268,6 +268,7 @@ class TransactionTextParser {
             NodeType.BUTTON -> "android.widget.Button"
             NodeType.IMAGE_VIEW -> "android.widget.ImageView"
             NodeType.VIEW_GROUP -> "android.view.ViewGroup"
+            NodeType.FRAME_LAYOUT -> "android.widget.FrameLayout"
             NodeType.ANY -> null
         }
 
@@ -307,6 +308,7 @@ class TransactionTextParser {
                     NodeType.BUTTON -> "android.widget.Button"
                     NodeType.IMAGE_VIEW -> "android.widget.ImageView"
                     NodeType.VIEW_GROUP -> "android.view.ViewGroup"
+                    NodeType.FRAME_LAYOUT -> "android.widget.FrameLayout"
                     NodeType.ANY -> null
                 }
 

@@ -62,6 +62,7 @@ enum class NodeType {
     BUTTON,             // android.widget.Button
     IMAGE_VIEW,         // android.widget.ImageView
     VIEW_GROUP,         // android.view.ViewGroup
+    FRAME_LAYOUT,       // android.widget.FrameLayout
     ANY                 // Any node type
 }
 
@@ -170,11 +171,11 @@ object DefaultWhitelists {
         appName = "Alipay",
         screenConfigs = listOf(
             ScreenConfig(
-                activityName = "com.alipay.mobile.payee.ui.PaymentResultActivity",
+                activityName = "com.alipay.android.msp.ui.views.MspContainerActivity",
                 screenName = "Payment Result",
                 textPatterns = listOf(
                     TextPattern(
-                        pattern = "支付成功|Payment Successful|[￥¥]\\s*([\\d,]+\\.\\d{2})",
+                        pattern = "[￥¥]\\s*([\\d,]+\\.\\d{2})",
                         type = PatternType.AMOUNT,
                         priority = 1
                     ),
@@ -188,11 +189,34 @@ object DefaultWhitelists {
                         type = PatternType.PAYMENT_STATUS
                     ),
                     TextPattern(
-                        pattern = "余额|花呗|银行卡",
+                        pattern = "余额宝|花呗|银行卡",
                         type = PatternType.PAYMENT_METHOD
+                    ),
+                    TextPattern(
+                        pattern = "平台商户|商家",
+                        type = PatternType.DESCRIPTION
                     )
                 ),
-                paymentMethod = "Alipay"
+                paymentMethod = "Alipay",
+
+                // 新版支付宝页面结构检测
+                // content-desc="支付成功￥1.67"
+                paymentSuccessIndicator = PaymentSuccessIndicator(
+                    nodeType = NodeType.FRAME_LAYOUT,
+                    textProperty = TextProperty.CONTENT_DESCRIPTION,
+                    textValue = "支付成功",
+                    fallbackPatterns = listOf("支付成功", "Payment Successful")
+                ),
+                amountExtraction = AmountExtraction(
+                    nodeType = NodeType.TEXT_VIEW,
+                    textProperty = TextProperty.TEXT,
+                    currencyPattern = "[￥¥]\\s*([\\d,]+\\.\\d{2})"
+                ),
+                descriptionExtraction = DescriptionExtraction(
+                    nodeType = NodeType.TEXT_VIEW,
+                    textProperty = TextProperty.TEXT,
+                    contextKeywords = listOf("商户", "平台")
+                )
             )
         )
     )

@@ -42,11 +42,9 @@ class RecurringReminderWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         return try {
-            Log.d(TAG, "Checking for due recurring transaction reminders")
 
             // Check if notifications are enabled
             if (!notificationHelper.areNotificationsEnabled()) {
-                Log.d(TAG, "Notifications are disabled by user, skipping")
                 return Result.success()
             }
 
@@ -56,11 +54,9 @@ class RecurringReminderWorker @AssistedInject constructor(
                 recurringRepository.getRecurringTransactionsNeedingReminder(currentTime)
 
             if (transactionsNeedingReminder.isEmpty()) {
-                Log.d(TAG, "No recurring transactions need reminders")
                 return Result.success()
             }
 
-            Log.d(TAG, "Found ${transactionsNeedingReminder.size} transactions needing reminders")
 
             // Send notifications for each transaction
             transactionsNeedingReminder.forEach { recurring ->
@@ -81,14 +77,12 @@ class RecurringReminderWorker @AssistedInject constructor(
                     // The notification will only show once per cycle because we update nextExecutionDate
                     // when the transaction executes
 
-                    Log.d(TAG, "Sent reminder for recurring ID: ${recurring.id}")
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to send reminder for recurring ID: ${recurring.id}", e)
                     // Continue processing other transactions
                 }
             }
 
-            Log.d(TAG, "Successfully processed ${transactionsNeedingReminder.size} recurring reminders")
             Result.success()
         } catch (e: Exception) {
             Log.e(TAG, "Error processing recurring reminders", e)

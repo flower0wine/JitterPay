@@ -8,6 +8,7 @@ import android.view.accessibility.AccessibilityEvent
 import com.example.jitterpay.autotracking.model.DefaultWhitelists
 import com.example.jitterpay.autotracking.model.TransactionInfo
 import com.example.jitterpay.autotracking.parser.TransactionTextParser
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -41,6 +42,9 @@ class AutoTrackingAccessibilityService : AccessibilityService() {
     // Timestamp tracking
     private var detectionTime: Long = 0
 
+    // 记录服务状态
+    private var isRunning = false
+
     companion object {
         const val ACTION_SHOW_CATEGORY_DRAWER =
             "com.example.jitterpay.autotracking.SHOW_CATEGORY_DRAWER"
@@ -64,6 +68,8 @@ class AutoTrackingAccessibilityService : AccessibilityService() {
         // Get current package name
         val packageName = event.packageName?.toString() ?: return
 
+        Log.d("AutoTracking", "[onAccessibilityEvent] package=$packageName, type=$eventType")
+
         // Skip if it's our own app
         if (packageName == this.packageName) {
             return
@@ -71,9 +77,11 @@ class AutoTrackingAccessibilityService : AccessibilityService() {
 
         // Check if package is in whitelist
         val whitelist = DefaultWhitelists.findByPackageName(packageName) ?: run {
+            Log.d("AutoTracking", "[onAccessibilityEvent] $packageName 不在白名单")
             return
         }
 
+        Log.d("AutoTracking", "[onAccessibilityEvent] 检测到白名单应用: ${whitelist.appName}")
 
         // Debounce: skip if processing too many events
         val currentTime = System.currentTimeMillis()
@@ -100,12 +108,15 @@ class AutoTrackingAccessibilityService : AccessibilityService() {
     ) {
         // Check if current activity matches any screen config
         val activityName = event.className?.toString() ?: return
+        Log.d("AutoTracking", "[processPaymentDetection] activityName=$activityName")
         val screenConfig = whitelist.screenConfigs.find {
             activityName.contains(it.activityName)
         } ?: run {
+            Log.d("AutoTracking", "[processPaymentDetection] 未找到匹配的 screenConfig")
             return
         }
 
+        Log.d("AutoTracking", "[processPaymentDetection] 找到匹配: ${screenConfig.screenName}")
 
         // Cancel any existing processing job
         processingJob?.cancel()
@@ -143,12 +154,15 @@ class AutoTrackingAccessibilityService : AccessibilityService() {
 
                     if (transactionInfo.isValid() && isPaymentSuccessful) {
                         detectionTime = System.currentTimeMillis()
+                        Log.d("AutoTracking", "[polling] 支付检测成功: amount=${transactionInfo.amount}")
                         // Show category drawer overlay
                         showCategoryDrawer(
                             transactionInfo,
                             whitelist.appName
                         )
                         break // Stop polling after successful detection
+                    } else {
+                        Log.d("AutoTracking", "[polling] 未检测到有效支付, isValid=${transactionInfo.isValid()}, isSuccess=$isPaymentSuccessful")
                     }
 
                     // Wait for next poll
@@ -192,9 +206,10 @@ class AutoTrackingAccessibilityService : AccessibilityService() {
                 action = CategoryDrawerOverlayService.ACTION_SHOW_DRAWER
             }
             val result = applicationContext.startService(serviceIntent)
+            Log.d("AutoTracking", "[showCategoryDrawer] startService result: $result")
 
             if (result == null) {
-                Log.e("AutoTracking", "[DRAWER] startService returned null - service may not have started!")
+                Log.e("AutoTracking", "[DRAWER] startService returned null!")
             }
         } catch (e: SecurityException) {
             Log.e("AutoTracking", "[DRAWER] SecurityException: ${e.message}", e)
@@ -206,16 +221,20 @@ class AutoTrackingAccessibilityService : AccessibilityService() {
     }
 
     override fun onInterrupt() {
-        // Called when service is interrupted
+        Log.d("AutoTracking", "[onInterrupt] 服务被中断")
+        isRunning = false
     }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        // Service is connected and ready to receive events
+        isRunning = true
+        Log.d("AutoTracking", "[onServiceConnected] 无障碍服务已连接")
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.d("AutoTracking", "[onDestroy] 服务销毁")
+        isRunning = false
         // Cancel any ongoing processing
         processingJob?.cancel()
     }

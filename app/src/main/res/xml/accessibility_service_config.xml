@@ -4,8 +4,8 @@
     android:description="@string/accessibility_service_description"
     android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
-    android:accessibilityFlags="flagDefault|flagReportViewIds|flagIncludeNotImportantViews"
+    android:accessibilityFlags="flagDefault|flagReportViewIds|flagIncludeNotImportantViews|flagRetrieveInteractiveWindows"
     android:canRetrieveWindowContent="true"
     android:notificationTimeout="100"
-    android:settingsActivity="com.example.jitterpay.ui.ProfileScreen">
+    android:settingsActivity="com.example.jitterpay.MainActivity">
 </accessibility-service>

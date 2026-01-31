@@ -103,6 +103,7 @@ class CategoryDrawerOverlayService : android.app.Service(), LifecycleOwner, View
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d("OverlayService", "[onStartCommand] 服务启动")
         serviceStartTime = System.currentTimeMillis()
 
         // Start foreground service to prevent immediate destruction
@@ -118,8 +119,10 @@ class CategoryDrawerOverlayService : android.app.Service(), LifecycleOwner, View
             return START_NOT_STICKY
         }
 
+        val action = intent.action
+        Log.d("OverlayService", "[onStartCommand] action = $action")
 
-        when (intent.action) {
+        when (action) {
             ACTION_SHOW_DRAWER -> {
                 val amount = intent.getStringExtra(EXTRA_TRANSACTION_AMOUNT) ?: run {
                     Log.e("OverlayService", "[START] Missing EXTRA_TRANSACTION_AMOUNT")
@@ -136,6 +139,7 @@ class CategoryDrawerOverlayService : android.app.Service(), LifecycleOwner, View
                         return START_NOT_STICKY
                     }
 
+                Log.d("OverlayService", "[showOverlay] amount=$amount, method=$paymentMethod, desc=$description")
                 showOverlay(amount, paymentMethod, description)
             }
             else -> {
@@ -150,6 +154,7 @@ class CategoryDrawerOverlayService : android.app.Service(), LifecycleOwner, View
      * Show the category drawer overlay
      */
     private fun showOverlay(amount: String, paymentMethod: String, description: String) {
+        Log.d("OverlayService", "[showOverlay] 开始显示悬浮窗")
         showOverlayTime = System.currentTimeMillis()
 
         // Update transaction data
@@ -208,17 +213,19 @@ class CategoryDrawerOverlayService : android.app.Service(), LifecycleOwner, View
         // Add container to window
         try {
             val layoutParams = getWindowLayoutParams()
+            Log.d("OverlayService", "[showOverlay] 准备添加视图到窗口")
 
             windowManager.addView(container, layoutParams)
             viewAddedTime = System.currentTimeMillis()
+            Log.d("OverlayService", "[showOverlay] 悬浮窗添加成功!")
 
             lifecycleRegistry.currentState = Lifecycle.State.RESUMED
         } catch (e: SecurityException) {
-            Log.e("OverlayService", "[OVERLAY] SecurityException: ${e.message}", e)
+            Log.e("OverlayService", "[OVERLAY] SecurityException: ${e.message}")
             Log.e("OverlayService", "[OVERLAY] This may be a permission issue - check SYSTEM_ALERT_WINDOW permission")
             overlayView = null
         } catch (e: Exception) {
-            Log.e("OverlayService", "[OVERLAY] Exception adding view: ${e.message}", e)
+            Log.e("OverlayService", "[OVERLAY] Exception: ${e.message}")
             e.printStackTrace()
             overlayView = null
         }

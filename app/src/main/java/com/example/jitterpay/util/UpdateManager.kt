@@ -121,7 +121,6 @@ class UpdateManager @Inject constructor(
                 Log.i(TAG, "New version available: $latestVersion")
                 Result.success(info)
             } else {
-                Log.d(TAG, "Current version is up to date: $currentVersion")
                 Result.success(null)
             }
         } catch (e: Exception) {
@@ -204,15 +203,11 @@ class UpdateManager @Inject constructor(
                 file.name.startsWith("jitterpay-") && file.name.endsWith(".apk")
             } ?: emptyList()
 
-            Log.d(TAG, "=== Cache files before cleanup ===")
             if (apkFiles.isEmpty()) {
-                Log.d(TAG, "No APK cache files found")
             } else {
                 apkFiles.forEach { file ->
-                    Log.d(TAG, "  ${file.name} (${file.length()} bytes, modified: ${file.lastModified()})")
                 }
             }
-            Log.d(TAG, "==================================")
 
             // 删除旧的缓存文件
             apkFiles.forEach { oldFile ->

@@ -133,7 +133,6 @@ class UpdatePreferences @Inject constructor(
         dataStore.edit { preferences ->
             preferences[SKIPPED_VERSION] = version
         }
-        Log.d(TAG, "Skipped version: $version")
     }
 
     /**
@@ -142,7 +141,6 @@ class UpdatePreferences @Inject constructor(
     suspend fun isVersionSkipped(version: String): Boolean {
         val preferences = dataStore.data.first()
         val skipped = preferences[SKIPPED_VERSION]
-        Log.d("", "$version, $SKIPPED_VERSION")
         return skipped == version
     }
 
@@ -153,7 +151,6 @@ class UpdatePreferences @Inject constructor(
         dataStore.edit { preferences ->
             preferences.remove(SKIPPED_VERSION)
         }
-        Log.d(TAG, "Cleared skipped version")
     }
 
     /**
@@ -201,7 +198,6 @@ class UpdatePreferences @Inject constructor(
             context.cacheDir.listFiles()?.filter { file ->
                 file.name.startsWith("jitterpay-") && file.name.endsWith(".apk")
             }?.forEach { oldFile ->
-                Log.d(TAG, "Cleaning up old cache file: ${oldFile.name}")
                 oldFile.delete()
             }
         } catch (e: Exception) {

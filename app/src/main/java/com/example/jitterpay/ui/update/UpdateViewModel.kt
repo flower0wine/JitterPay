@@ -62,7 +62,6 @@ class UpdateViewModel @Inject constructor(
                     pendingUpdate = pendingUpdate,
                     showInstallDialog = shouldShow
                 )
-                Log.d(TAG, "State updated: showDialog=$shouldShow, pendingUpdate=${pendingUpdate?.version}")
             }
         }
 
@@ -76,7 +75,6 @@ class UpdateViewModel @Inject constructor(
      * 执行更新检查（静默进行，不展示 UI）
      */
     private suspend fun performUpdateCheck() {
-        Log.d(TAG, "=== Starting update check ===")
 
         try {
             val result = updateManager.checkForUpdates()
@@ -86,7 +84,6 @@ class UpdateViewModel @Inject constructor(
                         is UpdateCheckResult.ShowInstallDialog -> {
                             // 缓存存在，显示安装对话框
                             // 注意：showInstallDialog 会由上面的 collect 自动更新
-                            Log.d(TAG, "Cached APK exists, pending update available")
                         }
                         is UpdateCheckResult.StartDownload -> {
                             // 开始后台下载
@@ -94,10 +91,8 @@ class UpdateViewModel @Inject constructor(
                         }
                         is UpdateCheckResult.SkippedVersion -> {
                             // 用户跳过了此版本，清理缓存
-                            Log.d(TAG, "User skipped version ${checkResult.version}")
                         }
                         UpdateCheckResult.AlreadyUpToDate -> {
-                            Log.d(TAG, "Already up to date")
                         }
                     }
                 },
@@ -133,7 +128,6 @@ class UpdateViewModel @Inject constructor(
         viewModelScope.launch {
             val pendingUpdate = _uiState.value.pendingUpdate
             if (pendingUpdate != null && pendingUpdate.isDownloaded) {
-                Log.d(TAG, "Starting installation: ${pendingUpdate.versionName}")
                 updateManager.installApk(pendingUpdate.apkFile)
 
                 // 安装启动后清理状态
@@ -162,12 +156,10 @@ class UpdateViewModel @Inject constructor(
 
             // 生产环境记住跳过的版本
             if (currentVersion != null && BuildConfig.REMEMBER_SKIPPED_VERSION) {
-                Log.d(TAG, "Saving skipped version: $currentVersion")
                 updatePreferences.skipCurrentVersion(currentVersion)
             }
 
             // 清理缓存
-            Log.d(TAG, "Cleaning up cache")
             updatePreferences.cleanupCache()
 
             _uiState.value = _uiState.value.copy(
@@ -185,7 +177,6 @@ class UpdateViewModel @Inject constructor(
         viewModelScope.launch {
             kotlinx.coroutines.delay(5000)
 
-            Log.d(TAG, "Cleaning up after installation")
             updatePreferences.clearPendingUpdate()
             updatePreferences.cleanupCache()
 

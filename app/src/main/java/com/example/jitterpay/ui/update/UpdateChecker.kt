@@ -46,7 +46,6 @@ class UpdateChecker @Inject constructor(
     suspend fun shouldShowInstallDialog(pendingUpdate: PendingUpdate?): Boolean {
         // 1. 检查是否有待安装更新且已下载
         if (pendingUpdate == null || !pendingUpdate.isDownloaded) {
-            Log.d(TAG, "No pending update or not downloaded, hide dialog")
             return false
         }
 
@@ -54,12 +53,10 @@ class UpdateChecker @Inject constructor(
         if (BuildConfig.REMEMBER_SKIPPED_VERSION) {
             val isSkipped = updatePreferences.isVersionSkipped(pendingUpdate.version)
             if (isSkipped) {
-                Log.d(TAG, "Version ${pendingUpdate.version} was skipped, hide dialog")
                 return false
             }
         }
 
-        Log.d(TAG, "Should show install dialog for version ${pendingUpdate.version}")
         return true
     }
 
@@ -80,7 +77,6 @@ class UpdateChecker @Inject constructor(
 
         // 无新版本
         if (updateInfo == null) {
-            Log.d(TAG, "Already up to date")
             return UpdateCheckResult.AlreadyUpToDate
         }
 
@@ -90,7 +86,6 @@ class UpdateChecker @Inject constructor(
         if (BuildConfig.REMEMBER_SKIPPED_VERSION) {
             val isSkipped = updatePreferences.isVersionSkipped(latestVersion)
             if (isSkipped) {
-                Log.d(TAG, "Version $latestVersion was previously skipped, skip download")
                 // 清理可能存在的旧缓存
                 cleanupStaleCache(latestVersion)
                 return UpdateCheckResult.SkippedVersion(latestVersion)
@@ -103,17 +98,14 @@ class UpdateChecker @Inject constructor(
 
         // 有缓存且 APK 存在，显示安装对话框
         if (cached != null && cached.version == latestVersion && cachedApkExists) {
-            Log.d(TAG, "Cached APK exists, show install dialog")
             return UpdateCheckResult.ShowInstallDialog(cached)
         }
 
         // 清理无效缓存并准备下载
         if (!cachedApkExists && cached != null) {
-            Log.d(TAG, "Cleaning invalid cache")
             updatePreferences.clearPendingUpdate()
         }
 
-        Log.d(TAG, "Starting download: ${updateInfo.latestVersion}")
         return UpdateCheckResult.StartDownload(updateInfo)
     }
 
@@ -126,7 +118,6 @@ class UpdateChecker @Inject constructor(
         try {
             val pending = updatePreferences.pendingUpdate.first()
             if (pending != null && pending.version != currentVersion) {
-                Log.d(TAG, "Cleaning stale cache for different version")
                 updatePreferences.cleanupCache()
             }
         } catch (e: Exception) {

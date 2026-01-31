@@ -40,17 +40,14 @@ class RecurringTransactionWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         return try {
-            Log.d(TAG, "Checking for due recurring transactions")
 
             // Get all recurring transactions that are due
             val dueTransactions = recurringRepository.getDueRecurring()
 
             if (dueTransactions.isEmpty()) {
-                Log.d(TAG, "No due recurring transactions found")
                 return Result.success()
             }
 
-            Log.d(TAG, "Found ${dueTransactions.size} due recurring transactions")
 
             // Create actual transaction records for each due recurring transaction
             dueTransactions.forEach { recurring ->
@@ -67,12 +64,10 @@ class RecurringTransactionWorker @AssistedInject constructor(
                         dateMillis = recurring.nextExecutionDateMillis
                     )
 
-                    Log.d(TAG, "Created transaction for recurring ID: ${recurring.id}")
 
                     // Cancel old reminder notification since transaction has executed
                     if (recurring.reminderEnabled) {
                         notificationHelper.cancelRecurringReminder(recurring.id)
-                        Log.d(TAG, "Cancelled reminder notification for recurring ID: ${recurring.id}")
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to create transaction for recurring ID: ${recurring.id}", e)
@@ -83,7 +78,6 @@ class RecurringTransactionWorker @AssistedInject constructor(
             // Update next execution dates for all processed transactions
             recurringRepository.executeAndAdvance(dueTransactions)
 
-            Log.d(TAG, "Successfully processed ${dueTransactions.size} recurring transactions")
             Result.success()
         } catch (e: Exception) {
             Log.e(TAG, "Error executing recurring transactions", e)
