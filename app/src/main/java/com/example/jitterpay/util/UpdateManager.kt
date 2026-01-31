@@ -118,8 +118,10 @@ class UpdateManager @Inject constructor(
                     cdnBaseUrl = json.optString("cdn_base_url", BuildConfig.CDN_BASE_URL),
                     apkSize = json.optLong("apk_size", 0)
                 )
+                Log.i(TAG, "New version available: $latestVersion")
                 Result.success(info)
             } else {
+                Log.d(TAG, "Current version is up to date: $currentVersion")
                 Result.success(null)
             }
         } catch (e: Exception) {
@@ -127,16 +129,6 @@ class UpdateManager @Inject constructor(
             Result.failure(e)
         }
     }
-
-    /**
-     * Download APK file with progress callback
-     */
-    suspend fun downloadApk(updateInfo: UpdateInfo, onProgress: (Int) -> Unit): Result<File> =
-        downloadApkToCache(
-            version = updateInfo.latestVersion,
-            downloadUrl = updateInfo.downloadUrl,
-            onProgress = onProgress
-        )
 
     /**
      * Download APK to cache directory

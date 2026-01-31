@@ -2,8 +2,6 @@ package com.example.jitterpay.ui.update
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -21,9 +19,11 @@ import kotlinx.coroutines.delay
  * 更新检查屏幕
  *
  * 功能:
- * - 应用启动时自动检查更新
- * - 有新版本时静默下载
+ * - 应用启动时自动检查更新（由 ViewModel init 触发）
+ * - 有新版本时静默下载（后台进行，不展示 UI）
  * - 下载完成后显示安装对话框
+ *
+ * 注意：checkForUpdates() 由 ViewModel init 块自动调用，无需外部触发
  */
 @Composable
 fun UpdateScreen(
@@ -34,16 +34,15 @@ fun UpdateScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // 启动时检查更新
+    // 启动完成回调（仅在 checkOnLaunch 为 true 时调用）
     LaunchedEffect(Unit) {
         if (checkOnLaunch) {
-            delay(500)  // 稍微延迟，让 UI 先完成加载
-            viewModel.checkForUpdates()
+            delay(500)
         }
         onCheckComplete()
     }
 
-    // 安装对话框
+    // 安装对话框（只有安装时才显示）
     if (uiState.showInstallDialog && uiState.pendingUpdate != null) {
         InstallUpdateDialog(
             pendingUpdate = uiState.pendingUpdate!!,
@@ -51,14 +50,6 @@ fun UpdateScreen(
             onInstall = { viewModel.installUpdate() },
             onDismiss = { viewModel.dismissInstallDialog() },
             onDelete = { viewModel.deleteCachedUpdate() }
-        )
-    }
-
-    // 错误对话框
-    uiState.error?.let { error ->
-        ErrorDialog(
-            message = error,
-            onDismiss = { viewModel.dismissError() }
         )
     }
 }
@@ -93,27 +84,6 @@ fun InstallUpdateDialog(
         dismissButton = {
             TextButton(onClick = onDelete) {
                 Text("稍后")
-            }
-        },
-        properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
-    )
-}
-
-/**
- * 错误对话框
- */
-@Composable
-fun ErrorDialog(
-    message: String,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("更新检查失败 😔") },
-        text = { Text(message) },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("确定")
             }
         },
         properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)

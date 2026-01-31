@@ -1,35 +1,35 @@
 {
-  "latest_version": "v99.0.0",
+  "latest_version": "v102.0.0",
   "release_date": "2026-01-31",
   "cdn_base_url": "http://10.0.2.2:8080",
   "apk_size": 22779374,
   "apks": [
     {
       "abi": "arm64-v8a",
-      "file_name": "jitterpay-arm64-v8a-99.0.0.apk",
+      "file_name": "jitterpay-arm64-v8a-102.0.0.apk",
       "size": 22533558
     },
     {
       "abi": "armeabi-v7a",
-      "file_name": "jitterpay-armeabi-v7a-99.0.0.apk",
+      "file_name": "jitterpay-armeabi-v7a-102.0.0.apk",
       "size": 22532670
     },
     {
       "abi": "universal",
-      "file_name": "jitterpay-universal-99.0.0.apk",
+      "file_name": "jitterpay-universal-102.0.0.apk",
       "size": 22779374
     },
     {
       "abi": "x86",
-      "file_name": "jitterpay-x86-99.0.0.apk",
+      "file_name": "jitterpay-x86-102.0.0.apk",
       "size": 22532094
     },
     {
       "abi": "x86_64",
-      "file_name": "jitterpay-x86_64-99.0.0.apk",
+      "file_name": "jitterpay-x86_64-102.0.0.apk",
       "size": 22533088
     }
   ],
-  "generated_at": "2026-01-31T04:42:36.625Z",
+  "generated_at": "2026-01-31T07:42:37.712Z",
   "build_type": "debug"
 }

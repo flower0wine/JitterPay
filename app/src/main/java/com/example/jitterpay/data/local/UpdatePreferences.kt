@@ -38,6 +38,7 @@ class UpdatePreferences @Inject constructor(
         private val PENDING_APK_SIZE = longPreferencesKey("pending_apk_size")
         private val PENDING_RELEASE_DATE = stringPreferencesKey("pending_release_date")
         private val LAST_CHECK_TIME = longPreferencesKey("last_check_time")
+        private val SKIPPED_VERSION = stringPreferencesKey("skipped_version")
     }
 
     /**
@@ -71,6 +72,13 @@ class UpdatePreferences @Inject constructor(
      */
     val lastCheckTime: Flow<Long> = dataStore.data.map { preferences ->
         preferences[LAST_CHECK_TIME] ?: 0L
+    }
+
+    /**
+     * 获取用户跳过的版本号
+     */
+    val skippedVersion: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[SKIPPED_VERSION]
     }
 
     /**
@@ -115,6 +123,37 @@ class UpdatePreferences @Inject constructor(
         dataStore.edit { preferences ->
             preferences[LAST_CHECK_TIME] = System.currentTimeMillis()
         }
+    }
+
+    /**
+     * 跳过当前版本（稍后安装）
+     * 保存用户选择跳过的版本号
+     */
+    suspend fun skipCurrentVersion(version: String) {
+        dataStore.edit { preferences ->
+            preferences[SKIPPED_VERSION] = version
+        }
+        Log.d(TAG, "Skipped version: $version")
+    }
+
+    /**
+     * 检查指定版本是否被跳过
+     */
+    suspend fun isVersionSkipped(version: String): Boolean {
+        val preferences = dataStore.data.first()
+        val skipped = preferences[SKIPPED_VERSION]
+        Log.d("", "$version, $SKIPPED_VERSION")
+        return skipped == version
+    }
+
+    /**
+     * 清除跳过的版本记录
+     */
+    suspend fun clearSkippedVersion() {
+        dataStore.edit { preferences ->
+            preferences.remove(SKIPPED_VERSION)
+        }
+        Log.d(TAG, "Cleared skipped version")
     }
 
     /**

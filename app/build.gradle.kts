@@ -101,6 +101,8 @@ android {
             applicationIdSuffix = ".dev"
             // 开发版本启用明文 HTTP 支持
             manifestPlaceholders["networkSecurityConfig"] = "@xml/network_security_config"
+            // 开发环境不记住跳过的版本（方便测试）
+            buildConfigField("boolean", "REMEMBER_SKIPPED_VERSION", "false")
         }
         create("prod") {
             dimension = "environment"
@@ -108,6 +110,8 @@ android {
             buildConfigField("String", "CDN_BASE_URL", "\"https://store.flowerwine.dpdns.org\"")
             // 生产版本使用默认网络安全配置（禁用明文 HTTP）
             manifestPlaceholders["networkSecurityConfig"] = "@xml/network_security_config_prod"
+            // 生产环境记住跳过的版本
+            buildConfigField("boolean", "REMEMBER_SKIPPED_VERSION", "true")
         }
     }
 
