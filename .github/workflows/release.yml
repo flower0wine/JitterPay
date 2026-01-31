@@ -171,27 +171,37 @@ jobs:
       - name: Generate and Upload Version Manifest
         run: |
           VERSION=${{ github.event.inputs.release_tag || github.ref_name }}
-          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-
-          # 提取纯版本号 (v1.0.0 -> 1.0.0)，与 APK 中的 versionName 一致
           VERSION_NAME=${VERSION#v}
+          RELEASE_DATE=$(date -u +"%Y-%m-%d")
+          GENERATED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-          # Get universal APK size
-          UNIVERSAL_APK=$(ls artifacts/*-universal-*.apk 2>/dev/null | head -1)
-          APK_SIZE=0
-          if [ -n "$UNIVERSAL_APK" ] && [ -f "$UNIVERSAL_APK" ]; then
-            APK_SIZE=$(stat -c%s "$UNIVERSAL_APK")
-          fi
+          # Build APK info array
+          APK_JSON="["
+          FIRST=true
+          for apk in artifacts/*.apk; do
+            if [ -f "$apk" ]; then
+              FILE_NAME=$(basename "$apk")
+              FILE_SIZE=$(stat -c%s "$apk")
+              ABI=$(echo "$FILE_NAME" | grep -oP '(?<=app-)[a-z0-9-]+(?=-release)' || echo "universal")
+              [ "$FIRST" = true ] && FIRST=false || APK_JSON+=","
+              APK_JSON+="{\"abi\":\"$ABI\",\"file_name\":\"$FILE_NAME\",\"size\":$FILE_SIZE}"
+            fi
+          done
+          APK_JSON+="]"
 
-          # Generate version.json
-          cat > version.json << EOF
-          {
-            "latest_version": "$VERSION_NAME",
-            "release_date": "$TIMESTAMP",
-            "cdn_base_url": "${{ secrets.CDN_BASE_URL }}",
-            "apk_size": $APK_SIZE
-          }
-          EOF
+          # Calculate total size
+          TOTAL_SIZE=0
+          for apk in artifacts/*.apk; do
+            [ -f "$apk" ] && TOTAL_SIZE=$((TOTAL_SIZE + $(stat -c%s "$apk")))
+          done
+
+          # Generate version.json using printf to avoid YAML parsing issues
+          printf '{"latest_version": "v%s", "release_date": "%s", "cdn_base_url": "%s", "apk_size": %s, "apks": %s, "generated_at": "%s", "build_type": "release"}' \
+            "$VERSION_NAME" "$RELEASE_DATE" "${{ secrets.CDN_BASE_URL }}" "$TOTAL_SIZE" "$APK_JSON" "$GENERATED_AT" \
+            > version.json
+
+          # Display generated version.json
+          cat version.json
 
           # Upload to R2
           aws s3 cp version.json "s3://${{ secrets.R2_BUCKET_NAME }}/" \

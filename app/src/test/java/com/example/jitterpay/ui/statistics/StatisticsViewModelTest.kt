@@ -118,7 +118,15 @@ class StatisticsViewModelTest {
 
     @Test
     fun `loads categories from repository`() = runTest {
-        // Given
+        // Given - use timestamp within current month to pass time filtering
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.DAY_OF_MONTH, 15) // Mid-month to ensure within range
+        calendar.set(Calendar.HOUR_OF_DAY, 12)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        val testTimeMillis = calendar.timeInMillis
+
         val transactions = listOf(
             TransactionEntity(
                 id = 1L,
@@ -126,7 +134,7 @@ class StatisticsViewModelTest {
                 amountCents = 50000L, // $500.00
                 category = "Dining",
                 description = "Lunch",
-                dateMillis = System.currentTimeMillis()
+                dateMillis = testTimeMillis
             ),
             TransactionEntity(
                 id = 2L,
@@ -134,7 +142,7 @@ class StatisticsViewModelTest {
                 amountCents = 30000L, // $300.00
                 category = "Transport",
                 description = "Bus",
-                dateMillis = System.currentTimeMillis()
+                dateMillis = testTimeMillis
             )
         )
         every { repository.getAllTransactions() } returns flowOf(transactions)
