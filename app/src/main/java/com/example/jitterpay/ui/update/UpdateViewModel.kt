@@ -1,5 +1,7 @@
 package com.example.jitterpay.ui.update
 
+import android.nfc.Tag
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.jitterpay.data.local.PendingUpdate
@@ -13,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
@@ -39,10 +42,12 @@ class UpdateViewModel @Inject constructor(
     init {
         // 监听状态变化
         viewModelScope.launch {
-            // 监听待安装更新
+            // 监听待安装更新 - 下载完成后自动显示安装对话框
             updatePreferences.pendingUpdate.collect { pendingUpdate ->
+                val isDownloaded = pendingUpdate?.isDownloaded == true
                 _uiState.value = _uiState.value.copy(
-                    pendingUpdate = pendingUpdate
+                    pendingUpdate = pendingUpdate,
+                    showInstallDialog = isDownloaded && !_uiState.value.showInstallDialog
                 )
             }
         }
@@ -68,19 +73,16 @@ class UpdateViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
 
-            // 先检查是否有已下载的待安装更新
-            val pendingUpdate = updatePreferences.pendingUpdate
-            pendingUpdate.collect { cached ->
-                if (cached != null) {
-                    // 有已下载的更新，显示安装对话框
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        showInstallDialog = true,
-                        pendingUpdate = cached
-                    )
-                    return@collect
-                }
-
+            // 先检查是否有已下载的待安装更新（只检查一次，避免重复调用）
+            val cached: PendingUpdate? = updatePreferences.pendingUpdate.first()
+            if (cached != null) {
+                // 有已下载的更新，显示安装对话框
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    showInstallDialog = true,
+                    pendingUpdate = cached
+                )
+            } else {
                 // 没有缓存，检查远程更新
                 updateManager.checkForUpdates().fold(
                     onSuccess = { updateInfo ->
@@ -109,7 +111,6 @@ class UpdateViewModel @Inject constructor(
                         )
                     }
                 )
-                return@collect
             }
         }
     }
@@ -137,7 +138,8 @@ class UpdateViewModel @Inject constructor(
             val pendingUpdate = _uiState.value.pendingUpdate
             if (pendingUpdate != null && pendingUpdate.isDownloaded) {
                 updateManager.installApk(pendingUpdate.apkFile)
-                // 安装完成后清理
+
+                // 安装开始后清理状态（安装流程已启动，APK 可被系统处理）
                 cleanupAfterInstall()
             }
         }
@@ -171,10 +173,18 @@ class UpdateViewModel @Inject constructor(
 
     /**
      * 安装完成后清理
+     * 注意：安装是异步的，需要延迟删除以确保系统安装器已读取 APK
      */
     private fun cleanupAfterInstall() {
         viewModelScope.launch {
+            // 延迟 5 秒删除缓存（给系统安装器足够时间读取 APK）
+            kotlinx.coroutines.delay(5000)
+
+            // 清理 DataStore 中的待安装状态
+            updatePreferences.clearPendingUpdate()
+            // 清理缓存的 APK 文件
             updatePreferences.cleanupCache()
+
             _uiState.value = _uiState.value.copy(
                 showInstallDialog = false,
                 pendingUpdate = null,

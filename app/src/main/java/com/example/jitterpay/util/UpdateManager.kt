@@ -55,8 +55,11 @@ class UpdateManager @Inject constructor(
     init {
         if (!::httpClient.isInitialized) {
             httpClient = OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
+                .connectTimeout(60, TimeUnit.SECONDS)      // 连接超时 60秒
+                .readTimeout(10 * 60, TimeUnit.SECONDS)    // 读取超时 10分钟（APK下载需要）
+                .writeTimeout(10 * 60, TimeUnit.SECONDS)   // 写入超时 10分钟
+                // 禁用缓存，确保每次都获取最新版本
+                .cache(null)
                 .build()
         }
     }
@@ -82,6 +85,9 @@ class UpdateManager @Inject constructor(
             val request = Request.Builder()
                 .url("$serverBaseUrl/version.json")
                 .get()
+                // 添加缓存控制头，确保不缓存 version.json
+                .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                .header("Pragma", "no-cache")
                 .build()
 
             val response = httpClient.newCall(request).execute()
@@ -112,10 +118,8 @@ class UpdateManager @Inject constructor(
                     cdnBaseUrl = json.optString("cdn_base_url", BuildConfig.CDN_BASE_URL),
                     apkSize = json.optLong("apk_size", 0)
                 )
-                Log.i(TAG, "New version available: $latestVersion")
                 Result.success(info)
             } else {
-                Log.d(TAG, "Current version is up to date: $currentVersion")
                 Result.success(null)
             }
         } catch (e: Exception) {
@@ -148,11 +152,15 @@ class UpdateManager @Inject constructor(
         onProgress: (Int) -> Unit = {}
     ): Result<File> = withContext(Dispatchers.IO) {
         try {
-            Log.i(TAG, "Starting download: $downloadUrl")
+            // 清理旧 APK 文件（确保每次下载都是最新的）
+            cleanupCacheFiles()
 
             val request = Request.Builder()
                 .url(downloadUrl)
                 .get()
+                // 添加缓存控制头，确保下载最新 APK
+                .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                .header("Pragma", "no-cache")
                 .build()
 
             val response = httpClient.newCall(request).execute()
@@ -165,10 +173,9 @@ class UpdateManager @Inject constructor(
             val body = response.body ?: return@withContext Result.failure(Exception("Empty response body"))
             val contentLength = body.contentLength()
 
-            // Clean old APK files in cache
-            cleanupCacheFiles()
-
-            val apkFile = File(context.cacheDir, "jitterpay-$version.apk")
+            // 使用包含 ABI 的文件名，与服务器保持一致
+            val abi = getAbi()
+            val apkFile = File(context.cacheDir, "jitterpay-$abi-$version.apk")
 
             FileOutputStream(apkFile).use { output ->
                 body.byteStream().use { input ->
@@ -188,7 +195,6 @@ class UpdateManager @Inject constructor(
                 }
             }
 
-            Log.i(TAG, "Download complete: ${apkFile.absolutePath}")
             Result.success(apkFile)
         } catch (e: Exception) {
             Log.e(TAG, "Error downloading APK", e)
@@ -201,10 +207,23 @@ class UpdateManager @Inject constructor(
      */
     private fun cleanupCacheFiles() {
         try {
-            context.cacheDir.listFiles()?.filter { file ->
+            // 列出所有缓存的 APK 文件
+            val apkFiles = context.cacheDir.listFiles()?.filter { file ->
                 file.name.startsWith("jitterpay-") && file.name.endsWith(".apk")
-            }?.forEach { oldFile ->
-                Log.d(TAG, "Cleaning up old cache file: ${oldFile.name}")
+            } ?: emptyList()
+
+            Log.d(TAG, "=== Cache files before cleanup ===")
+            if (apkFiles.isEmpty()) {
+                Log.d(TAG, "No APK cache files found")
+            } else {
+                apkFiles.forEach { file ->
+                    Log.d(TAG, "  ${file.name} (${file.length()} bytes, modified: ${file.lastModified()})")
+                }
+            }
+            Log.d(TAG, "==================================")
+
+            // 删除旧的缓存文件
+            apkFiles.forEach { oldFile ->
                 oldFile.delete()
             }
         } catch (e: Exception) {
@@ -213,18 +232,63 @@ class UpdateManager @Inject constructor(
     }
 
     /**
-     * Install APK
+     * 获取当前设备的 ABI
+     */
+    private fun getAbi(): String {
+        return when {
+            Build.SUPPORTED_ABIS.contains("arm64-v8a") -> "arm64-v8a"
+            Build.SUPPORTED_ABIS.contains("armeabi-v7a") -> "armeabi-v7a"
+            Build.SUPPORTED_ABIS.contains("x86_64") -> "x86_64"
+            Build.SUPPORTED_ABIS.contains("x86") -> "x86"
+            else -> "universal"
+        }
+    }
+
+    /**
+     * Install APK using FileProvider (Android 7.0+ compatible)
      */
     fun installApk(apkFile: File) {
         try {
+            // 确保文件存在
+            if (!apkFile.exists()) {
+                throw Exception("APK file does not exist: ${apkFile.absolutePath}")
+            }
+
+            // Get URI from FileProvider (for Android 7.0+)
+            val apkUri = androidx.core.content.FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                apkFile
+            )
+
+            Log.i(TAG, "URI from FileProvider: $apkUri")
+
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(
-                    Uri.fromFile(apkFile),
+                    apkUri,
                     "application/vnd.android.package-archive"
                 )
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                addCategory(Intent.CATEGORY_DEFAULT)
             }
-            context.startActivity(intent)
+
+            // Check if there's an app to handle the intent
+            val resolver = intent.resolveActivity(context.packageManager)
+            Log.i(TAG, "resolveActivity result: $resolver")
+
+            if (resolver != null) {
+                // 使用 createChooser 确保有 UI 反馈
+                val chooserIntent = Intent.createChooser(intent, "Install APK")
+                chooserIntent.addCategory(Intent.CATEGORY_DEFAULT)
+                chooserIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+
+                Log.i(TAG, "Starting installation activity...")
+                context.startActivity(chooserIntent)
+                Log.i(TAG, "startActivity() called successfully")
+            } else {
+                Log.e(TAG, "No app found to install APK")
+                throw Exception("No app found to install APK")
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Error installing APK", e)
             throw e
@@ -235,8 +299,12 @@ class UpdateManager @Inject constructor(
      * Version comparison
      */
     private fun isVersionNewer(newVersion: String, currentVersion: String): Boolean {
-        val newParts = newVersion.removePrefix("v").split(".").map { it.toIntOrNull() ?: 0 }
-        val currentParts = currentVersion.removePrefix("v").split(".").map { it.toIntOrNull() ?: 0 }
+        // 移除 v 前缀和 -dev 后缀进行版本比较
+        val cleanNewVersion = newVersion.removePrefix("v").substringBefore("-dev")
+        val cleanCurrentVersion = currentVersion.removePrefix("v").substringBefore("-dev")
+
+        val newParts = cleanNewVersion.split(".").map { it.toIntOrNull() ?: 0 }
+        val currentParts = cleanCurrentVersion.split(".").map { it.toIntOrNull() ?: 0 }
 
         for (i in 0 until maxOf(newParts.size, currentParts.size)) {
             val newVal = newParts.getOrElse(i) { 0 }

@@ -6,6 +6,74 @@ plugins {
     alias(libs.plugins.kotlin.android)
 }
 
+/**
+ * 版本号获取工具函数
+ * 优先级: CI环境变量 > 命令行参数 > gradle.properties > 报错
+ */
+fun getVersionName(): String {
+    // 1. CI 环境变量: ORG_GRADLE_PROJECT_VERSION_NAME
+    val envValue = System.getenv("ORG_GRADLE_PROJECT_VERSION_NAME")
+    if (!envValue.isNullOrEmpty()) return envValue
+
+    // 2. 命令行参数: -PVERSION_NAME
+    if (project.hasProperty("VERSION_NAME")) {
+        return project.property("VERSION_NAME") as String
+    }
+
+    // 3. gradle.properties
+    val propsFile = file("gradle.properties")
+    if (propsFile.exists()) {
+        val props = propsFile.readLines()
+            .mapNotNull { line ->
+                val parts = line.split("=", limit = 2)
+                if (parts.size == 2 && parts[0].trim() == "VERSION_NAME") {
+                    parts[1].trim()
+                } else null
+            }
+        if (props.isNotEmpty()) return props.first()
+    }
+
+    throw IllegalStateException(
+        "VERSION_NAME not set. Set it via:\n" +
+        "1. Environment variable: ORG_GRADLE_PROJECT_VERSION_NAME\n" +
+        "2. Command line: -PVERSION_NAME=1.0.0\n" +
+        "3. gradle.properties: VERSION_NAME=1.0.0"
+    )
+}
+
+fun getVersionCode(): Int {
+    // 1. CI 环境变量: ORG_GRADLE_PROJECT_VERSION_CODE
+    val envValue = System.getenv("ORG_GRADLE_PROJECT_VERSION_CODE")
+    if (!envValue.isNullOrEmpty()) return envValue.toIntOrNull()
+        ?: throw IllegalStateException("VERSION_CODE must be a valid integer")
+
+    // 2. 命令行参数: -PVERSION_CODE
+    if (project.hasProperty("VERSION_CODE")) {
+        return (project.property("VERSION_CODE") as String).toIntOrNull()
+            ?: throw IllegalStateException("VERSION_CODE must be a valid integer")
+    }
+
+    // 3. gradle.properties
+    val propsFile = file("gradle.properties")
+    if (propsFile.exists()) {
+        val props = propsFile.readLines()
+            .mapNotNull { line ->
+                val parts = line.split("=", limit = 2)
+                if (parts.size == 2 && parts[0].trim() == "VERSION_CODE") {
+                    parts[1].trim().toIntOrNull()
+                } else null
+            }
+        if (props.isNotEmpty()) return props.first()
+    }
+
+    throw IllegalStateException(
+        "VERSION_CODE not set. Set it via:\n" +
+        "1. Environment variable: ORG_GRADLE_PROJECT_VERSION_CODE\n" +
+        "2. Command line: -PVERSION_CODE=123\n" +
+        "3. gradle.properties: VERSION_CODE=123"
+    )
+}
+
 android {
     namespace = "com.example.jitterpay"
     compileSdk = 36
@@ -14,13 +82,33 @@ android {
         applicationId = "com.example.jitterpay"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        // 版本号从环境变量/命令行/gradle.properties获取
+        versionName = getVersionName()
+        versionCode = getVersionCode()
 
         testInstrumentationRunner = "com.example.jitterpay.HiltTestRunner"
+    }
 
-        // BuildConfig field for update feature CDN URL
-        buildConfigField("String", "CDN_BASE_URL", "\"https://store.flowerwine.dpdns.org\"")
+    // Product flavors for environment-specific configuration
+    flavorDimensions += "environment"
+
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            // 开发环境使用本地服务器
+            buildConfigField("String", "CDN_BASE_URL", "\"http://10.0.2.2:8080\"")
+            // 保留包名后缀以区分 dev/prod 版本
+            applicationIdSuffix = ".dev"
+            // 开发版本启用明文 HTTP 支持
+            manifestPlaceholders["networkSecurityConfig"] = "@xml/network_security_config"
+        }
+        create("prod") {
+            dimension = "environment"
+            // 生产环境使用生产服务器
+            buildConfigField("String", "CDN_BASE_URL", "\"https://store.flowerwine.dpdns.org\"")
+            // 生产版本使用默认网络安全配置（禁用明文 HTTP）
+            manifestPlaceholders["networkSecurityConfig"] = "@xml/network_security_config_prod"
+        }
     }
 
     signingConfigs {
@@ -98,6 +186,11 @@ android {
         warningsAsErrors = false
         checkReleaseBuilds = false
     }
+}
+
+// KSP configuration for Hilt
+ksp {
+    arg("hilt.enableAggregatingTask", "true")
 }
 
 dependencies {

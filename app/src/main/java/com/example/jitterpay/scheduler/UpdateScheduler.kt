@@ -2,13 +2,17 @@ package com.example.jitterpay.scheduler
 
 import android.content.Context
 import android.util.Log
+import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.example.jitterpay.worker.ApkDownloadWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,6 +30,7 @@ class UpdateScheduler @Inject constructor(
     }
 
     private val workManager = WorkManager.getInstance(context)
+    private val executor = Executors.newSingleThreadExecutor()
 
     /**
      * 调度后台下载更新
@@ -43,13 +48,10 @@ class UpdateScheduler @Inject constructor(
         apkSize: Long,
         releaseDate: String
     ) {
-        Log.i(TAG, "Scheduling download for version: $versionName")
+        Log.i(TAG, "Scheduling download: $versionName ($version)")
 
-        // 创建约束条件：需要网络连接
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .setRequiresBatteryNotLow(false)  // 低电量也下载
-            .build()
+        // 取消现有的下载任务（如果有新版本，需要重新下载）
+        workManager.cancelUniqueWork(ApkDownloadWorker.WORK_NAME)
 
         // 创建输入数据
         val inputData = ApkDownloadWorker.createInputData(
@@ -60,11 +62,15 @@ class UpdateScheduler @Inject constructor(
             releaseDate = releaseDate
         )
 
-        // 创建一次性工作请求
+        // 创建一次性工作请求（不设置网络约束，由 Worker 内部检查网络）
         val workRequest = OneTimeWorkRequestBuilder<ApkDownloadWorker>()
-            .setConstraints(constraints)
             .setInputData(inputData)
             .addTag(ApkDownloadWorker.WORK_NAME)
+            .setBackoffCriteria(
+                BackoffPolicy.EXPONENTIAL,
+                30_000,
+                TimeUnit.MILLISECONDS
+            )
             .build()
 
         // 调度工作，替换已有的下载任务
@@ -74,7 +80,7 @@ class UpdateScheduler @Inject constructor(
             workRequest
         )
 
-        Log.i(TAG, "Download scheduled successfully")
+        Log.i(TAG, "Download scheduled: workId=${workRequest.id}")
     }
 
     /**
@@ -90,10 +96,10 @@ class UpdateScheduler @Inject constructor(
      */
     suspend fun isDownloading(): Boolean {
         return try {
-            val workInfos = workManager.getWorkInfosForUniqueWork(ApkDownloadWorker.WORK_NAME)
-            workInfos.get().any { workInfo ->
-                workInfo.state == androidx.work.WorkInfo.State.RUNNING ||
-                workInfo.state == androidx.work.WorkInfo.State.ENQUEUED
+            val workInfos = workManager.getWorkInfosForUniqueWork(ApkDownloadWorker.WORK_NAME).get()
+            workInfos.any { workInfo ->
+                workInfo.state == WorkInfo.State.RUNNING ||
+                workInfo.state == WorkInfo.State.ENQUEUED
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error checking download status", e)
@@ -106,16 +112,16 @@ class UpdateScheduler @Inject constructor(
      */
     suspend fun getDownloadState(): DownloadState {
         return try {
-            val workInfos = workManager.getWorkInfosForUniqueWork(ApkDownloadWorker.WORK_NAME)
-            val workInfo = workInfos.get().firstOrNull()
+            val workInfos = workManager.getWorkInfosForUniqueWork(ApkDownloadWorker.WORK_NAME).get()
+            val workInfo = workInfos.firstOrNull()
 
             when (workInfo?.state) {
-                androidx.work.WorkInfo.State.RUNNING -> DownloadState.DOWNLOADING
-                androidx.work.WorkInfo.State.SUCCEEDED -> DownloadState.SUCCEEDED
-                androidx.work.WorkInfo.State.FAILED -> DownloadState.FAILED
-                androidx.work.WorkInfo.State.CANCELLED -> DownloadState.CANCELLED
-                androidx.work.WorkInfo.State.ENQUEUED -> DownloadState.ENQUEUED
-                androidx.work.WorkInfo.State.BLOCKED -> DownloadState.BLOCKED
+                WorkInfo.State.RUNNING -> DownloadState.DOWNLOADING
+                WorkInfo.State.SUCCEEDED -> DownloadState.SUCCEEDED
+                WorkInfo.State.FAILED -> DownloadState.FAILED
+                WorkInfo.State.CANCELLED -> DownloadState.CANCELLED
+                WorkInfo.State.ENQUEUED -> DownloadState.ENQUEUED
+                WorkInfo.State.BLOCKED -> DownloadState.BLOCKED
                 null -> DownloadState.IDLE
             }
         } catch (e: Exception) {

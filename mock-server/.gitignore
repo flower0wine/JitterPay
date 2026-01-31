@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+apks/
+!apks/.gitkeep
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo

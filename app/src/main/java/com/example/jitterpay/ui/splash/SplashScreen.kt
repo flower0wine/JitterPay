@@ -37,8 +37,6 @@ fun SplashScreen(
     // 使用预加载的 composition
     val composition = preloadedComposition
 
-    Log.d(TAG, "Displaying animation with composition: ${composition != null}")
-
     // 跟踪动画进度
     val progress by animateLottieCompositionAsState(
         composition = composition,
@@ -48,7 +46,6 @@ fun SplashScreen(
     // 完成时回调
     LaunchedEffect(progress, hasTimedOut) {
         if ((progress >= 1f) || hasTimedOut) {
-            Log.d(TAG, "Animation complete or timeout, hiding splash")
             onAnimationComplete()
         }
     }
@@ -56,7 +53,6 @@ fun SplashScreen(
     // 超时处理
     LaunchedEffect(Unit) {
         delay(timeoutMillis)
-        Log.d(TAG, "Timeout reached, hiding splash")
         hasTimedOut = true
     }
 

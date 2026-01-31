@@ -92,6 +92,27 @@ jobs:
           echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> $GITHUB_ENV
           echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV
 
+      - name: Set Version Environment Variables
+        id: version
+        run: |
+          # 从 GitHub ref 获取版本号
+          VERSION=${{ github.event.inputs.release_tag || github.ref_name }}
+
+          if [ -z "$VERSION" ]; then
+            echo "❌ Error: No version tag found. Please use a tag like v1.0.0 or provide release_tag input."
+            exit 1
+          fi
+
+          # 提取纯版本号 (v1.0.0 -> 1.0.0)
+          VERSION_NAME=${VERSION#v}
+
+          # 使用时间戳作为 versionCode，确保唯一且递增
+          VERSION_CODE=$(date +%s)
+
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+          echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
+          echo "Building version: $VERSION_NAME (code: $VERSION_CODE)"
+
       - name: Build Release APKs (all ABIs)
         run: |
           ./gradlew assembleRelease \
@@ -152,6 +173,9 @@ jobs:
           VERSION=${{ github.event.inputs.release_tag || github.ref_name }}
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
+          # 提取纯版本号 (v1.0.0 -> 1.0.0)，与 APK 中的 versionName 一致
+          VERSION_NAME=${VERSION#v}
+
           # Get universal APK size
           UNIVERSAL_APK=$(ls artifacts/*-universal-*.apk 2>/dev/null | head -1)
           APK_SIZE=0
@@ -162,7 +186,7 @@ jobs:
           # Generate version.json
           cat > version.json << EOF
           {
-            "latest_version": "$VERSION",
+            "latest_version": "$VERSION_NAME",
             "release_date": "$TIMESTAMP",
             "cdn_base_url": "${{ secrets.CDN_BASE_URL }}",
             "apk_size": $APK_SIZE
