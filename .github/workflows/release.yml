@@ -94,7 +94,8 @@ jobs:
         id: find-apks
         run: |
           mkdir -p artifacts
-          find app/build/outputs/apk/release -name "*.apk" -exec cp {} artifacts/ \;
+          # 只查找生产环境的 release APK
+          find app/build/outputs/apk/prod/release -name "*.apk" -exec cp {} artifacts/ \;
           ls -la artifacts/
           echo "apk_count=$(ls -1 artifacts/*.apk | wc -l)" >> $GITHUB_OUTPUT
 
