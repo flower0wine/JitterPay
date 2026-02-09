@@ -48,9 +48,13 @@ class SelectBudgetViewModel @Inject constructor(
                                 .sumOf { it.amountCents }
                             budget.toBudgetData(spentCents / 100.0)
                         }
-                    
+
+                    // 有预算时默认选中第一个，否则为 null（"不关联预算"）
+                    val defaultSelectedBudgetId = activeBudgets.firstOrNull()?.id
+
                     SelectBudgetUiState(
                         budgets = activeBudgets,
+                        selectedBudgetId = defaultSelectedBudgetId,
                         isLoading = false
                     )
                 }.collect { newState ->
@@ -59,6 +63,7 @@ class SelectBudgetViewModel @Inject constructor(
             } catch (e: Exception) {
                 _uiState.value = SelectBudgetUiState(
                     budgets = emptyList(),
+                    selectedBudgetId = null,
                     isLoading = false,
                     error = e.message
                 )

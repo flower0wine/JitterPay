@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.components.selectbudget.BudgetSelectionCard
+import com.example.jitterpay.ui.components.selectbudget.EmptyBudgetState
 import com.example.jitterpay.ui.components.selectbudget.SelectBudgetHeader
 
 @Composable
@@ -212,27 +213,17 @@ fun SelectBudgetScreen(
                                 delayMillis = 200,
                                 easing = AnimationConstants.Easing.Entrance
                             )
+                        ) + scaleIn(
+                            initialScale = 0.9f,
+                            animationSpec = tween(
+                                durationMillis = AnimationConstants.Duration.MEDIUM,
+                                delayMillis = 200,
+                                easing = AnimationConstants.Easing.Entrance
+                            )
                         ),
                         label = "emptyState"
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "No Active Budgets",
-                                color = Color.Gray,
-                                fontSize = 14.sp
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Create a budget to start tracking your spending",
-                                color = Color.Gray.copy(alpha = 0.7f),
-                                fontSize = 12.sp
-                            )
-                        }
+                        EmptyBudgetState()
                     }
                 }
 
