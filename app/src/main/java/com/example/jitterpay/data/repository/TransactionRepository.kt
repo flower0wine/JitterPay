@@ -73,6 +73,13 @@ class TransactionRepository @Inject constructor(
     }
 
     /**
+     * 更新交易的预算ID
+     */
+    suspend fun updateTransactionBudgetId(transactionId: Long, budgetId: Long?) {
+        transactionDao.updateTransactionBudgetId(transactionId, budgetId)
+    }
+
+    /**
      * 删除交易记录
      */
     suspend fun deleteTransaction(transaction: TransactionEntity) {

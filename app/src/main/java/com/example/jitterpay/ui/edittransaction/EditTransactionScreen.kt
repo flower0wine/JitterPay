@@ -15,6 +15,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.jitterpay.data.local.entity.TransactionType
 import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.components.addtransaction.AmountDisplay
 import com.example.jitterpay.ui.components.addtransaction.CategoryGrid
@@ -27,8 +31,11 @@ import java.util.*
 
 @Composable
 fun EditTransactionScreen(
+    transactionId: Long,
     onClose: () -> Unit,
-    viewModel: EditTransactionViewModel = hiltViewModel()
+    onNavigateToBudgetSelection: (transactionId: Long) -> Unit,
+    viewModel: EditTransactionViewModel = hiltViewModel(),
+    navController: NavController = rememberNavController()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -49,7 +56,13 @@ fun EditTransactionScreen(
     // 处理保存成功
     LaunchedEffect(uiState.saveSuccess) {
         if (uiState.saveSuccess) {
-            onClose()
+            if (uiState.needsBudgetSelection) {
+                // 需要选择预算，跳转到预算选择页面
+                onNavigateToBudgetSelection(transactionId)
+            } else {
+                // 不需要选择预算，直接关闭
+                onClose()
+            }
         }
     }
 

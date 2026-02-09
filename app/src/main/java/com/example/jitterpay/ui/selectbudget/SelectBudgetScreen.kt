@@ -24,15 +24,24 @@ import com.example.jitterpay.ui.components.selectbudget.SelectBudgetHeader
 
 @Composable
 fun SelectBudgetScreen(
+    transactionId: Long? = null,
     onBack: () -> Unit,
-    onBudgetSelected: (Long?) -> Unit,
+    onComplete: () -> Unit,
     viewModel: SelectBudgetViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var isVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        viewModel.loadBudgets(transactionId)
         isVisible = true
+    }
+
+    // 处理完成事件
+    LaunchedEffect(uiState.saveSuccess) {
+        if (uiState.saveSuccess) {
+            onComplete()
+        }
     }
 
     Column(
@@ -59,7 +68,7 @@ fun SelectBudgetScreen(
             SelectBudgetHeader(
                 onBack = onBack,
                 onConfirm = {
-                    onBudgetSelected(uiState.selectedBudgetId)
+                    viewModel.confirmSelection()
                 }
             )
         }

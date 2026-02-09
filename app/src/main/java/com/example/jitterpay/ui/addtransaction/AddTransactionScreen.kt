@@ -1,5 +1,6 @@
 package com.example.jitterpay.ui.addtransaction
 
+import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -14,6 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.jitterpay.ui.animation.AnimationConstants
 import com.example.jitterpay.ui.components.addtransaction.AddTransactionHeader
 import com.example.jitterpay.ui.components.addtransaction.AmountDisplay
@@ -27,8 +30,9 @@ import java.util.*
 @Composable
 fun AddTransactionScreen(
     onClose: () -> Unit,
-    onNavigateToBudgetSelection: () -> Unit,
-    viewModel: AddTransactionViewModel = hiltViewModel()
+    onNavigateToBudgetSelection: (transactionId: Long) -> Unit,
+    viewModel: AddTransactionViewModel = hiltViewModel(),
+    navController: NavController = rememberNavController()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -36,13 +40,6 @@ fun AddTransactionScreen(
 
     LaunchedEffect(Unit) {
         isVisible = true
-    }
-
-    // 处理预算选择导航
-    LaunchedEffect(uiState.needsBudgetSelection) {
-        if (uiState.needsBudgetSelection) {
-            onNavigateToBudgetSelection()
-        }
     }
 
     // 处理错误提示
@@ -56,7 +53,14 @@ fun AddTransactionScreen(
     // 处理保存成功
     LaunchedEffect(uiState.saveSuccess) {
         if (uiState.saveSuccess) {
-            onClose()
+            Log.d("", uiState.needsBudgetSelection.toString())
+            if (uiState.needsBudgetSelection && uiState.savedTransactionId != null) {
+                // 需要选择预算，跳转到预算选择页面
+                onNavigateToBudgetSelection(uiState.savedTransactionId!!)
+            } else {
+                // 不需要选择预算，直接关闭
+                onClose()
+            }
         }
     }
 

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.jitterpay.data.local.entity.TransactionEntity
 import com.example.jitterpay.data.local.entity.TransactionType
+import com.example.jitterpay.data.repository.BudgetRepository
 import com.example.jitterpay.data.repository.TransactionRepository
 import com.example.jitterpay.domain.model.Money
 import com.example.jitterpay.domain.usecase.AmountCalculator
@@ -28,6 +29,7 @@ import javax.inject.Inject
 @HiltViewModel
 class EditTransactionViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
+    private val budgetRepository: BudgetRepository,
     private val amountCalculator: AmountCalculator,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -39,6 +41,17 @@ class EditTransactionViewModel @Inject constructor(
 
     init {
         loadTransaction()
+        checkBudgetsAvailable()
+    }
+
+    private fun checkBudgetsAvailable() {
+        viewModelScope.launch {
+            budgetRepository.getAllBudgets().collect { budgets ->
+                _uiState.value = _uiState.value.copy(
+                    hasBudgets = budgets.any { it.isActive }
+                )
+            }
+        }
     }
 
     /**
@@ -71,7 +84,8 @@ class EditTransactionViewModel @Inject constructor(
                         displayAmount = displayAmount,
                         selectedCategory = transaction.category,
                         selectedDateMillis = transaction.dateMillis,
-                        description = transaction.description
+                        description = transaction.description,
+                        selectedBudgetId = transaction.budgetId
                     )
                 } else {
                     _uiState.value = _uiState.value.copy(
@@ -102,6 +116,27 @@ class EditTransactionViewModel @Inject constructor(
 
     fun setDescription(description: String) {
         _uiState.value = _uiState.value.copy(description = description)
+    }
+
+    /**
+     * 请求跳转到预算选择页面
+     */
+    fun requestBudgetSelection() {
+        val state = _uiState.value
+        // 如果是支出且有预算，需要先选择预算
+        if (state.selectedType == TransactionType.EXPENSE && state.hasBudgets) {
+            _uiState.value = state.copy(needsBudgetSelection = true)
+        }
+    }
+
+    /**
+     * 设置选中的预算ID（从选择页面返回后调用）
+     */
+    fun setBudgetId(budgetId: Long?) {
+        _uiState.value = _uiState.value.copy(
+            selectedBudgetId = budgetId,
+            needsBudgetSelection = false
+        )
     }
 
     /**
@@ -169,12 +204,36 @@ class EditTransactionViewModel @Inject constructor(
                 val amountCents = TransactionEntity.parseAmountToCents(amount)
                 val dateMillis = state.selectedDateMillis
 
+                // 如果是支出且有预算且未关联预算，先更新（不关联预算），然后跳转到选择页面
+                if (state.selectedType == TransactionType.EXPENSE && state.hasBudgets && state.selectedBudgetId == null) {
+                    _uiState.value = _uiState.value.copy(
+                        needsBudgetSelection = true
+                    )
+
+                    val updatedTransaction = originalTransaction.copy(
+                        type = state.selectedType.name,
+                        amountCents = amountCents,
+                        category = state.selectedCategory,
+                        description = state.description,
+                        dateMillis = dateMillis,
+                        budgetId = null,
+                        updatedAt = System.currentTimeMillis()
+                    )
+
+                    transactionRepository.updateTransaction(updatedTransaction)
+
+                    _uiState.value = _uiState.value.copy(isSaving = false, saveSuccess = true)
+                    return@launch
+                }
+
+                // 非支出或已关联预算的情况，直接更新
                 val updatedTransaction = originalTransaction.copy(
                     type = state.selectedType.name,
                     amountCents = amountCents,
                     category = state.selectedCategory,
                     description = state.description,
                     dateMillis = dateMillis,
+                    budgetId = state.selectedBudgetId,
                     updatedAt = System.currentTimeMillis()
                 )
 
@@ -182,7 +241,7 @@ class EditTransactionViewModel @Inject constructor(
 
                 _uiState.value = state.copy(isSaving = false, saveSuccess = true)
             } catch (e: Exception) {
-                _uiState.value = state.copy(
+                _uiState.value = _uiState.value.copy(
                     isSaving = false,
                     error = e.message ?: "Failed to update transaction"
                 )
@@ -234,6 +293,9 @@ data class EditTransactionUiState(
     val selectedCategory: String = "",
     val selectedDateMillis: Long = System.currentTimeMillis(),
     val description: String = "",
+    val selectedBudgetId: Long? = null,    // 当前选择的预算ID
+    val hasBudgets: Boolean = false,       // 是否有激活的预算
+    val needsBudgetSelection: Boolean = false,  // 是否需要跳转到预算选择
     val isSaving: Boolean = false,
     val isDeleting: Boolean = false,
     val saveSuccess: Boolean = false,

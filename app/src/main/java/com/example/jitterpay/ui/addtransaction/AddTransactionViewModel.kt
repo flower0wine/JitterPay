@@ -2,21 +2,17 @@ package com.example.jitterpay.ui.addtransaction
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-
 import com.example.jitterpay.data.local.entity.TransactionEntity
 import com.example.jitterpay.data.local.entity.TransactionType
 import com.example.jitterpay.data.repository.BudgetRepository
 import com.example.jitterpay.data.repository.TransactionRepository
 import com.example.jitterpay.domain.model.Money
 import com.example.jitterpay.domain.usecase.AmountCalculator
-
 import dagger.hilt.android.lifecycle.HiltViewModel
-
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
 import javax.inject.Inject
 
 /**
@@ -131,16 +127,54 @@ class AddTransactionViewModel @Inject constructor(
             return
         }
 
-        // 如果是支出且有预算，需要先选择预算
-        if (state.selectedType == TransactionType.EXPENSE && 
-            state.hasBudgets && 
-            !state.budgetSelectionCompleted) {
-            _uiState.value = state.copy(needsBudgetSelection = true)
-            return
-        }
-
         viewModelScope.launch {
-            _uiState.value = state.copy(isSaving = true)
+            // 同步检查是否有激活的预算（如果 Flow 还没发出数据）
+            val hasBudgets = if (state.hasBudgets) {
+                true
+            } else {
+                budgetRepository.getActiveBudgetCount() > 0
+            }
+
+            // 更新 UI 状态中的 hasBudgets
+            _uiState.value = _uiState.value.copy(hasBudgets = hasBudgets)
+
+            // 如果是支出且有预算，先保存（不关联预算），然后跳转到选择页面
+            if (state.selectedType == TransactionType.EXPENSE && hasBudgets) {
+                _uiState.value = _uiState.value.copy(
+                    isSaving = true,
+                    needsBudgetSelection = true
+                )
+
+                try {
+                    val amountCents = TransactionEntity.parseAmountToCents(amount)
+                    val dateMillis = state.selectedDateMillis ?: System.currentTimeMillis()
+
+                    // 先保存，budgetId = null
+                    val newTransactionId = transactionRepository.addTransaction(
+                        type = state.selectedType,
+                        amountCents = amountCents,
+                        category = state.selectedCategory,
+                        description = state.description,
+                        dateMillis = dateMillis,
+                        budgetId = null
+                    )
+
+                    _uiState.value = _uiState.value.copy(
+                        isSaving = false,
+                        saveSuccess = true,
+                        savedTransactionId = newTransactionId
+                    )
+                } catch (e: Exception) {
+                    _uiState.value = _uiState.value.copy(
+                        isSaving = false,
+                        error = e.message ?: "Failed to save transaction"
+                    )
+                }
+                return@launch
+            }
+
+            // 非支出或有预算的情况，直接保存
+            _uiState.value = _uiState.value.copy(isSaving = true)
 
             try {
                 val amountCents = TransactionEntity.parseAmountToCents(amount)
@@ -149,27 +183,20 @@ class AddTransactionViewModel @Inject constructor(
                 transactionRepository.addTransaction(
                     type = state.selectedType,
                     amountCents = amountCents,
-                    category = state.selectedCategory!!,
+                    category = state.selectedCategory,
                     description = state.description,
                     dateMillis = dateMillis,
                     budgetId = state.selectedBudgetId
                 )
 
-                _uiState.value = state.copy(isSaving = false, saveSuccess = true)
+                _uiState.value = _uiState.value.copy(isSaving = false, saveSuccess = true)
             } catch (e: Exception) {
-                _uiState.value = state.copy(
+                _uiState.value = _uiState.value.copy(
                     isSaving = false,
                     error = e.message ?: "Failed to save transaction"
                 )
             }
         }
-    }
-
-    fun completeBudgetSelection() {
-        _uiState.value = _uiState.value.copy(
-            budgetSelectionCompleted = true,
-            needsBudgetSelection = false
-        )
     }
 
     fun clearError() {
@@ -190,8 +217,8 @@ data class AddTransactionUiState(
     val selectedBudgetId: Long? = null,
     val hasBudgets: Boolean = false,
     val needsBudgetSelection: Boolean = false,
-    val budgetSelectionCompleted: Boolean = false,
     val isSaving: Boolean = false,
     val saveSuccess: Boolean = false,
+    val savedTransactionId: Long? = null,  // 保存的交易ID
     val error: String? = null
 )

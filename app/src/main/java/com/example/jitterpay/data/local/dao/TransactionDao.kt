@@ -42,6 +42,14 @@ interface TransactionDao {
     suspend fun updateTransaction(transaction: TransactionEntity)
 
     /**
+     * 更新交易的预算ID
+     * @param transactionId 交易ID
+     * @param budgetId 预算ID（可为null表示不关联预算）
+     */
+    @Query("UPDATE transactions SET budgetId = :budgetId, updatedAt = :updatedAt WHERE id = :transactionId")
+    suspend fun updateTransactionBudgetId(transactionId: Long, budgetId: Long?, updatedAt: Long = System.currentTimeMillis())
+
+    /**
      * 删除交易记录
      * @param transaction 交易实体
      */

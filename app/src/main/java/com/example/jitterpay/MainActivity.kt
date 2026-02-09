@@ -1,5 +1,6 @@
 package com.example.jitterpay
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 
 import androidx.activity.ComponentActivity
@@ -120,6 +121,7 @@ private fun MainAppContent(
     )
 }
 
+@SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
 fun JitterPayApp(
     navController: NavHostController,
@@ -191,33 +193,36 @@ fun JitterPayApp(
                         onClose = {
                             navController.popBackStack()
                         },
-                        onNavigateToBudgetSelection = {
-                            navController.navigate(NavigationRoutes.SELECT_BUDGET)
+                        onNavigateToBudgetSelection = { transactionId ->
+                            navController.navigate("${NavigationRoutes.SELECT_BUDGET}?transactionId=$transactionId")
                         }
                     )
                 }
 
                 composable(
-                    route = NavigationRoutes.SELECT_BUDGET,
+                    route = NavigationRoutes.SELECT_BUDGET + "?transactionId={transactionId}",
+                    arguments = listOf(
+                        navArgument("transactionId") {
+                            type = NavType.LongType
+                            defaultValue = -1L
+                        }
+                    ),
                     enterTransition = { SlideTransitions.slideInRight() },
                     exitTransition = { SlideTransitions.slideOutRight() },
                     popEnterTransition = { SlideTransitions.slideInRight() },
                     popExitTransition = { SlideTransitions.slideOutRight() }
-                ) {
-                    val parentEntry = remember(it) {
-                        navController.getBackStackEntry(NavigationRoutes.ADD_TRANSACTION)
-                    }
-                    val parentViewModel: AddTransactionViewModel = hiltViewModel(parentEntry)
-                    
+                ) { backStackEntry ->
+                    val transactionIdArg = backStackEntry.arguments?.getLong("transactionId")
+                    val transactionId = if (transactionIdArg == -1L) null else transactionIdArg
+
                     SelectBudgetScreen(
+                        transactionId = transactionId,
                         onBack = {
                             navController.popBackStack()
                         },
-                        onBudgetSelected = { budgetId ->
-                            parentViewModel.setBudgetId(budgetId)
-                            parentViewModel.completeBudgetSelection()
-                            navController.popBackStack()
-                            parentViewModel.saveTransaction()
+                        onComplete = {
+                            // 选择完成，关闭整个页面栈
+                            navController.popBackStack(NavigationRoutes.HOME, inclusive = false)
                         }
                     )
                 }
@@ -231,10 +236,16 @@ fun JitterPayApp(
                     exitTransition = { SlideTransitions.slideOutRight() },
                     popEnterTransition = { SlideTransitions.slideInRight() },
                     popExitTransition = { SlideTransitions.slideOutRight() }
-                ) {
+                ) { backStackEntry ->
+                    val transactionId = backStackEntry.arguments?.getLong("transactionId") ?: 0L
+
                     EditTransactionScreen(
+                        transactionId = transactionId,
                         onClose = {
                             navController.popBackStack()
+                        },
+                        onNavigateToBudgetSelection = { id ->
+                            navController.navigate("${NavigationRoutes.SELECT_BUDGET}?transactionId=$id")
                         }
                     )
                 }
