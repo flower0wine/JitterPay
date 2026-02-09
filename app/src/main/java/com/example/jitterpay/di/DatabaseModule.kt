@@ -42,7 +42,7 @@ object DatabaseModule {
             JitterPayDatabase::class.java,
             JitterPayDatabase.DATABASE_NAME
         )
-            // 不允许删除数据库
+            .addMigrations(JitterPayDatabase.MIGRATION_1_2)
             .fallbackToDestructiveMigration(false)
             .build()
     }

@@ -47,6 +47,7 @@ data class TransactionEntity(
     val description: String = "",
     val dateMillis: Long = System.currentTimeMillis(),
     val status: String = TransactionStatus.COMPLETED.name,
+    val budgetId: Long? = null,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 ) {

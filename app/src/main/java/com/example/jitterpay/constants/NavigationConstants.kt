@@ -34,6 +34,7 @@ object NavigationRoutes {
     const val BUDGET = "budget"
     const val ADD_BUDGET = "add_budget"
     const val EDIT_BUDGET = "edit_budget/{budgetId}"
+    const val SELECT_BUDGET = "select_budget"
     
     fun goalDetail(goalId: Long): String = "goal_detail/$goalId"
     fun addFunds(goalId: Long): String = "add_funds/$goalId"

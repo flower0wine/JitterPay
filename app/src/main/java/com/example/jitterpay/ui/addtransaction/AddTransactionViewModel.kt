@@ -2,34 +2,54 @@ package com.example.jitterpay.ui.addtransaction
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+
 import com.example.jitterpay.data.local.entity.TransactionEntity
 import com.example.jitterpay.data.local.entity.TransactionType
+import com.example.jitterpay.data.repository.BudgetRepository
 import com.example.jitterpay.data.repository.TransactionRepository
 import com.example.jitterpay.domain.model.Money
 import com.example.jitterpay.domain.usecase.AmountCalculator
+
 import dagger.hilt.android.lifecycle.HiltViewModel
+
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
 import javax.inject.Inject
 
 /**
  * 添加交易ViewModel - 管理添加交易表单状态
  *
  * 职责：
- * - 管理表单状态（类型、金额、分类、日期、描述）
+ * - 管理表单状态（类型、金额、分类、日期、描述、预算）
  * - 处理用户输入（委托给 AmountCalculator）
  * - 验证并保存交易
  */
 @HiltViewModel
 class AddTransactionViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
+    private val budgetRepository: BudgetRepository,
     private val amountCalculator: AmountCalculator
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddTransactionUiState())
     val uiState: StateFlow<AddTransactionUiState> = _uiState.asStateFlow()
+
+    init {
+        checkBudgetsAvailable()
+    }
+
+    private fun checkBudgetsAvailable() {
+        viewModelScope.launch {
+            budgetRepository.getAllBudgets().collect { budgets ->
+                _uiState.value = _uiState.value.copy(
+                    hasBudgets = budgets.any { it.isActive }
+                )
+            }
+        }
+    }
 
     fun setType(type: TransactionType) {
         _uiState.value = _uiState.value.copy(selectedType = type)
@@ -45,6 +65,10 @@ class AddTransactionViewModel @Inject constructor(
 
     fun setDescription(description: String) {
         _uiState.value = _uiState.value.copy(description = description)
+    }
+
+    fun setBudgetId(budgetId: Long?) {
+        _uiState.value = _uiState.value.copy(selectedBudgetId = budgetId)
     }
 
     /**
@@ -107,6 +131,14 @@ class AddTransactionViewModel @Inject constructor(
             return
         }
 
+        // 如果是支出且有预算，需要先选择预算
+        if (state.selectedType == TransactionType.EXPENSE && 
+            state.hasBudgets && 
+            !state.budgetSelectionCompleted) {
+            _uiState.value = state.copy(needsBudgetSelection = true)
+            return
+        }
+
         viewModelScope.launch {
             _uiState.value = state.copy(isSaving = true)
 
@@ -119,7 +151,8 @@ class AddTransactionViewModel @Inject constructor(
                     amountCents = amountCents,
                     category = state.selectedCategory!!,
                     description = state.description,
-                    dateMillis = dateMillis
+                    dateMillis = dateMillis,
+                    budgetId = state.selectedBudgetId
                 )
 
                 _uiState.value = state.copy(isSaving = false, saveSuccess = true)
@@ -130,6 +163,13 @@ class AddTransactionViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun completeBudgetSelection() {
+        _uiState.value = _uiState.value.copy(
+            budgetSelectionCompleted = true,
+            needsBudgetSelection = false
+        )
     }
 
     fun clearError() {
@@ -143,10 +183,14 @@ class AddTransactionViewModel @Inject constructor(
 data class AddTransactionUiState(
     val selectedType: TransactionType = TransactionType.EXPENSE,
     val amount: Money = Money.ZERO,
-    val displayAmount: String = "",  // 用于显示的原始输入
+    val displayAmount: String = "",
     val selectedCategory: String? = "Dining",
     val selectedDateMillis: Long? = null,
     val description: String = "",
+    val selectedBudgetId: Long? = null,
+    val hasBudgets: Boolean = false,
+    val needsBudgetSelection: Boolean = false,
+    val budgetSelectionCompleted: Boolean = false,
     val isSaving: Boolean = false,
     val saveSuccess: Boolean = false,
     val error: String? = null

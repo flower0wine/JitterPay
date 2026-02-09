@@ -10,19 +10,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
 
 import com.airbnb.lottie.LottieComposition
+
 import dagger.hilt.android.AndroidEntryPoint
 
 import com.example.jitterpay.constants.NavigationRoutes
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import com.example.jitterpay.ui.addtransaction.AddTransactionScreen
+import com.example.jitterpay.ui.addtransaction.AddTransactionViewModel
 import com.example.jitterpay.ui.avatar.AvatarSelectionScreen
 import com.example.jitterpay.ui.budget.AddBudgetScreen
 import com.example.jitterpay.ui.budget.BudgetScreen
@@ -38,16 +42,18 @@ import com.example.jitterpay.ui.home.HomeScreen
 import com.example.jitterpay.ui.profile.ProfileScreen
 import com.example.jitterpay.ui.recurring.AddRecurringScreen
 import com.example.jitterpay.ui.recurring.RecurringScreen
+import com.example.jitterpay.ui.recurring.RecurringDetailScreen
 import com.example.jitterpay.ui.search.SearchScreen
+import com.example.jitterpay.ui.selectbudget.SelectBudgetScreen
 import com.example.jitterpay.ui.statistics.StatisticsScreen
 import com.example.jitterpay.ui.components.BottomNavBar
 import com.example.jitterpay.ui.theme.JitterPayTheme
 import com.example.jitterpay.ui.animation.SlideTransitions
 import com.example.jitterpay.navigation.*
-import com.example.jitterpay.ui.recurring.RecurringDetailScreen
 import com.example.jitterpay.ui.splash.SplashScreen
 import com.example.jitterpay.ui.update.UpdateScreen
 import com.example.jitterpay.util.UpdateManager
+
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -184,6 +190,34 @@ fun JitterPayApp(
                     AddTransactionScreen(
                         onClose = {
                             navController.popBackStack()
+                        },
+                        onNavigateToBudgetSelection = {
+                            navController.navigate(NavigationRoutes.SELECT_BUDGET)
+                        }
+                    )
+                }
+
+                composable(
+                    route = NavigationRoutes.SELECT_BUDGET,
+                    enterTransition = { SlideTransitions.slideInRight() },
+                    exitTransition = { SlideTransitions.slideOutRight() },
+                    popEnterTransition = { SlideTransitions.slideInRight() },
+                    popExitTransition = { SlideTransitions.slideOutRight() }
+                ) {
+                    val parentEntry = remember(it) {
+                        navController.getBackStackEntry(NavigationRoutes.ADD_TRANSACTION)
+                    }
+                    val parentViewModel: AddTransactionViewModel = hiltViewModel(parentEntry)
+                    
+                    SelectBudgetScreen(
+                        onBack = {
+                            navController.popBackStack()
+                        },
+                        onBudgetSelected = { budgetId ->
+                            parentViewModel.setBudgetId(budgetId)
+                            parentViewModel.completeBudgetSelection()
+                            navController.popBackStack()
+                            parentViewModel.saveTransaction()
                         }
                     )
                 }

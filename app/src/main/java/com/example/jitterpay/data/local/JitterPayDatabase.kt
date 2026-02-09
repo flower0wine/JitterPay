@@ -2,6 +2,9 @@ package com.example.jitterpay.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+
 import com.example.jitterpay.data.local.dao.BudgetDao
 import com.example.jitterpay.data.local.dao.GoalDao
 import com.example.jitterpay.data.local.dao.GoalTransactionDao
@@ -24,7 +27,7 @@ import com.example.jitterpay.data.local.entity.TransactionEntity
         RecurringEntity::class,
         BudgetEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class JitterPayDatabase : RoomDatabase() {
@@ -56,5 +59,17 @@ abstract class JitterPayDatabase : RoomDatabase() {
 
     companion object {
         const val DATABASE_NAME = "jitterpay_database"
+
+        /**
+         * 数据库迁移：版本1到版本2
+         * 添加 budgetId 字段到 transactions 表
+         */
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    "ALTER TABLE transactions ADD COLUMN budgetId INTEGER DEFAULT NULL"
+                )
+            }
+        }
     }
 }

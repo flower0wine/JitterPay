@@ -27,6 +27,7 @@ import java.util.*
 @Composable
 fun AddTransactionScreen(
     onClose: () -> Unit,
+    onNavigateToBudgetSelection: () -> Unit,
     viewModel: AddTransactionViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -35,6 +36,13 @@ fun AddTransactionScreen(
 
     LaunchedEffect(Unit) {
         isVisible = true
+    }
+
+    // 处理预算选择导航
+    LaunchedEffect(uiState.needsBudgetSelection) {
+        if (uiState.needsBudgetSelection) {
+            onNavigateToBudgetSelection()
+        }
     }
 
     // 处理错误提示

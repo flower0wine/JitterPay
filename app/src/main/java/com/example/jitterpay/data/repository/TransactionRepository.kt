@@ -41,6 +41,7 @@ class TransactionRepository @Inject constructor(
      * @param category 分类
      * @param description 描述/备注
      * @param dateMillis 交易日期（毫秒）
+     * @param budgetId 关联的预算ID（可选）
      * @return 插入记录的ID
      */
     suspend fun addTransaction(
@@ -48,14 +49,16 @@ class TransactionRepository @Inject constructor(
         amountCents: Long,
         category: String,
         description: String = "",
-        dateMillis: Long
+        dateMillis: Long,
+        budgetId: Long? = null
     ): Long {
         val entity = TransactionEntity(
             type = type.name,
             amountCents = amountCents,
             category = category,
             description = description,
-            dateMillis = dateMillis
+            dateMillis = dateMillis,
+            budgetId = budgetId
         )
         return transactionDao.insertTransaction(entity)
     }
