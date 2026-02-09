@@ -20,8 +20,10 @@ import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
 import org.mockito.kotlin.atLeastOnce
+import org.mockito.kotlin.atLeast
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.never
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
@@ -316,6 +318,125 @@ class RecurringReminderWorkerTest {
             eq(recurring1.getFormattedAmount()),
             eq(1),
             eq(tomorrow)
+        )
+    }
+
+    @Test
+    fun `doWork sends notification only once per cycle`() = runTest {
+        // Given
+        whenever(mockNotificationHelper.areNotificationsEnabled())
+            .thenReturn(true)
+
+        val currentTime = System.currentTimeMillis()
+        val nextExecution = currentTime + 86400000L * 3 // 3 days from now
+        val recurring = RecurringEntity(
+            id = 1L,
+            title = "Test Transaction",
+            amountCents = 1000L,
+            type = "EXPENSE",
+            category = "Test",
+            frequency = "WEEKLY",
+            startDateMillis = currentTime,
+            nextExecutionDateMillis = nextExecution,
+            isActive = true,
+            estimatedMonthlyAmount = 1000L,
+            reminderEnabled = true,
+            reminderDaysBefore = 1
+        )
+
+        whenever(mockRecurringRepository.getRecurringTransactionsNeedingReminder(any()))
+            .thenReturn(listOf(recurring))
+
+        val worker = TestListenableWorkerBuilder<RecurringReminderWorker>(context)
+            .setWorkerFactory(workerFactory)
+            .build()
+
+        // When - First run
+        worker.startWork().get()
+
+        // Then - First notification should be sent
+        verify(mockNotificationHelper).showRecurringReminder(
+            eq(1L),
+            eq("Test Transaction"),
+            any(),
+            eq(1),
+            eq(nextExecution)
+        )
+
+        // When - Second run (same cycle)
+        worker.startWork().get()
+
+        // Then - Second notification should NOT be sent (already sent for this cycle)
+        verify(mockNotificationHelper, times(1)).showRecurringReminder(
+            org.mockito.kotlin.eq(1L),
+            org.mockito.kotlin.eq("Test Transaction"),
+            any(),
+            org.mockito.kotlin.eq(1),
+            org.mockito.kotlin.eq(nextExecution)
+        )
+    }
+
+    @Test
+    fun `doWork re-sends notification when next execution date advances`() = runTest {
+        // Given - notifications enabled
+        whenever(mockNotificationHelper.areNotificationsEnabled())
+            .thenReturn(true)
+
+        val currentTime = System.currentTimeMillis()
+        val nextExecution1 = currentTime + 86400000L * 3 // 3 days from now
+        val nextExecution2 = nextExecution1 + 604800000L // +7 days (next cycle)
+
+        // First recurring with nextExecutionDate1
+        val recurring1 = RecurringEntity(
+            id = 1L,
+            title = "Test Transaction",
+            amountCents = 1000L,
+            type = "EXPENSE",
+            category = "Test",
+            frequency = "WEEKLY",
+            startDateMillis = currentTime,
+            nextExecutionDateMillis = nextExecution1,
+            isActive = true,
+            estimatedMonthlyAmount = 1000L,
+            reminderEnabled = true,
+            reminderDaysBefore = 1
+        )
+
+        // Return different recurring on each call
+        whenever(mockRecurringRepository.getRecurringTransactionsNeedingReminder(any()))
+            .thenReturn(listOf(recurring1))
+
+        val worker = TestListenableWorkerBuilder<RecurringReminderWorker>(context)
+            .setWorkerFactory(workerFactory)
+            .build()
+
+        // When - First run (old cycle)
+        worker.startWork().get()
+
+        // Then - First notification should be sent
+        verify(mockNotificationHelper).showRecurringReminder(
+            org.mockito.kotlin.eq(1L),
+            org.mockito.kotlin.eq("Test Transaction"),
+            any(),
+            org.mockito.kotlin.eq(1),
+            org.mockito.kotlin.eq(nextExecution1)
+        )
+
+        // When - Next execution date advances (simulated by returning recurring with new date)
+        val recurring2 = recurring1.copy(nextExecutionDateMillis = nextExecution2)
+        whenever(mockRecurringRepository.getRecurringTransactionsNeedingReminder(any()))
+            .thenReturn(listOf(recurring2))
+
+        worker.startWork().get()
+
+        // Then - New notification should be sent for new cycle
+        // Verify at least 2 calls were made (one for each cycle)
+        verify(mockNotificationHelper, atLeast(2)).showRecurringReminder(
+            org.mockito.kotlin.eq(1L),
+            org.mockito.kotlin.eq("Test Transaction"),
+            any(),
+            org.mockito.kotlin.eq(1),
+            any()
         )
     }
 

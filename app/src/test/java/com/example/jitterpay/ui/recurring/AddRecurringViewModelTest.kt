@@ -1,5 +1,6 @@
 package com.example.jitterpay.ui.recurring
 
+import android.content.Context
 import com.example.jitterpay.data.repository.RecurringRepository
 import com.example.jitterpay.scheduler.RecurringReminderScheduler
 import io.mockk.coEvery
@@ -7,11 +8,19 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.*
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito.mock
 
 /**
  * AddRecurringViewModel 单元测试
@@ -29,13 +38,15 @@ class AddRecurringViewModelTest {
     private lateinit var repository: RecurringRepository
     private lateinit var reminderScheduler: RecurringReminderScheduler
     private lateinit var viewModel: AddRecurringViewModel
+    private lateinit var mockContext: Context
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         repository = mockk(relaxed = true)
         reminderScheduler = mockk(relaxed = true)
-        viewModel = AddRecurringViewModel(repository, reminderScheduler)
+        mockContext = mock(Context::class.java)
+        viewModel = AddRecurringViewModel(repository, reminderScheduler, mockContext)
     }
 
     @After

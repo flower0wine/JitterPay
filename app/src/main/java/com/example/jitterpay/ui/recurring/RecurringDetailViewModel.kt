@@ -1,5 +1,7 @@
 package com.example.jitterpay.ui.recurring
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -7,7 +9,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.jitterpay.data.local.entity.RecurringEntity
 import com.example.jitterpay.data.repository.RecurringRepository
 import com.example.jitterpay.scheduler.RecurringReminderScheduler
+import com.example.jitterpay.worker.RecurringReminderWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,10 +43,15 @@ data class RecurringDetailUiState(
 class RecurringDetailViewModel @Inject constructor(
     private val recurringRepository: RecurringRepository,
     private val recurringReminderScheduler: RecurringReminderScheduler,
+    @ApplicationContext private val context: Context,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val recurringId: Long? = savedStateHandle["recurringId"] // Key matching the route argument
+
+    private val prefs: SharedPreferences by lazy {
+        context.getSharedPreferences(RecurringReminderWorker.PREFS_NAME, Context.MODE_PRIVATE)
+    }
 
     private val _uiState = MutableStateFlow(RecurringDetailUiState())
     val uiState: StateFlow<RecurringDetailUiState> = _uiState.asStateFlow()
@@ -118,6 +127,19 @@ class RecurringDetailViewModel @Inject constructor(
             reminderEnabled = enabled,
             reminderDaysBefore = daysBefore
         )
+
+        // If enabling reminders, clear any existing reminder sent status
+        // This ensures the new reminder settings take effect immediately
+        if (enabled && daysBefore > 0) {
+            clearReminderStatus()
+        }
+    }
+
+    private fun clearReminderStatus() {
+        // Clear all reminder sent status for this recurring transaction
+        // This allows the reminder to be re-sent with new settings
+        val keyPrefix = RecurringReminderWorker.KEY_REMINDER_SENT_PREFIX
+        prefs.edit().remove(keyPrefix).apply()
     }
 
     fun toggleActive() {
