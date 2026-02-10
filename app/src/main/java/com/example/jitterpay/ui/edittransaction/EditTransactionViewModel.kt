@@ -204,8 +204,8 @@ class EditTransactionViewModel @Inject constructor(
                 val amountCents = TransactionEntity.parseAmountToCents(amount)
                 val dateMillis = state.selectedDateMillis
 
-                // 如果是支出且有预算且未关联预算，先更新（不关联预算），然后跳转到选择页面
-                if (state.selectedType == TransactionType.EXPENSE && state.hasBudgets && state.selectedBudgetId == null) {
+                // 如果是支出且有预算，跳转到选择页面
+                if (state.selectedType == TransactionType.EXPENSE && state.hasBudgets) {
                     _uiState.value = _uiState.value.copy(
                         needsBudgetSelection = true
                     )
@@ -226,7 +226,7 @@ class EditTransactionViewModel @Inject constructor(
                     return@launch
                 }
 
-                // 非支出或已关联预算的情况，直接更新
+                // 非支出或没有预算的情况，直接更新
                 val updatedTransaction = originalTransaction.copy(
                     type = state.selectedType.name,
                     amountCents = amountCents,

@@ -40,7 +40,7 @@ class SelectBudgetViewModel @Inject constructor(
 
     private var currentTransactionId: Long? = null
 
-    fun loadBudgets(transactionId: Long?) {
+    fun loadBudgets(transactionId: Long?, originalBudgetId: Long? = null) {
         currentTransactionId = transactionId
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
@@ -62,10 +62,12 @@ class SelectBudgetViewModel @Inject constructor(
                             budget.toBudgetData(spentAmount / 100.0)
                         }
 
-                    // 获取当前交易的预算ID（如果有的话）
-                    val currentTransactionBudgetId = transactionId?.let { txId ->
-                        transactionRepository.getTransactionById(txId)?.budgetId
-                    }
+                    // 使用传入的原始预算ID（从 Edit 页面传递过来）
+                    // 如果没有传入，则尝试从数据库获取（新增模式）
+                    val currentTransactionBudgetId = originalBudgetId
+                        ?: transactionId?.let { txId ->
+                            transactionRepository.getTransactionById(txId)?.budgetId
+                        }
 
                     // 排序：将当前交易关联的预算排在第一个
                     val sortedBudgets = if (currentTransactionBudgetId != null) {
@@ -76,9 +78,9 @@ class SelectBudgetViewModel @Inject constructor(
                         activeBudgets
                     }
 
-                    // 默认选中当前交易的预算（如果有），否则选中第一个预算
+                    // 默认选中当前交易的预算（如果有）
+                    // 如果原本没有关联预算（originalBudgetId = null），则选中"不添加预算"选项
                     val defaultSelectedBudgetId = currentTransactionBudgetId
-                        ?: sortedBudgets.firstOrNull()?.id
 
                     SelectBudgetUiState(
                         budgets = sortedBudgets,
@@ -110,12 +112,18 @@ class SelectBudgetViewModel @Inject constructor(
         val transactionId = currentTransactionId ?: return
         val selectedBudgetId = state.selectedBudgetId
 
+        // 防止重复点击
+        if (state.saveSuccess) return
+
         viewModelScope.launch {
             try {
                 // 更新交易的预算ID
                 transactionRepository.updateTransactionBudgetId(transactionId, selectedBudgetId)
                 Log.d(TAG, "Transaction $transactionId budget updated to $selectedBudgetId")
                 _uiState.value = _uiState.value.copy(saveSuccess = true)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                // 协程被取消时静默处理（页面销毁导致）
+                // 不记录日志，因为这是正常的导航行为
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to update transaction budget", e)
                 _uiState.value = _uiState.value.copy(

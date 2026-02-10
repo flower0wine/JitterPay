@@ -33,7 +33,7 @@ import java.util.*
 fun EditTransactionScreen(
     transactionId: Long,
     onClose: () -> Unit,
-    onNavigateToBudgetSelection: (transactionId: Long) -> Unit,
+    onNavigateToBudgetSelection: (transactionId: Long, originalBudgetId: Long?) -> Unit,
     viewModel: EditTransactionViewModel = hiltViewModel(),
     navController: NavController = rememberNavController()
 ) {
@@ -58,7 +58,7 @@ fun EditTransactionScreen(
         if (uiState.saveSuccess) {
             if (uiState.needsBudgetSelection) {
                 // 需要选择预算，跳转到预算选择页面
-                onNavigateToBudgetSelection(transactionId)
+                onNavigateToBudgetSelection(transactionId, uiState.originalTransaction?.budgetId)
             } else {
                 // 不需要选择预算，直接关闭
                 onClose()

@@ -25,6 +25,7 @@ import com.example.jitterpay.ui.components.selectbudget.SelectBudgetHeader
 @Composable
 fun SelectBudgetScreen(
     transactionId: Long? = null,
+    originalBudgetId: Long? = null,
     onBack: () -> Unit,
     onComplete: () -> Unit,
     viewModel: SelectBudgetViewModel = hiltViewModel()
@@ -33,7 +34,7 @@ fun SelectBudgetScreen(
     var isVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        viewModel.loadBudgets(transactionId)
+        viewModel.loadBudgets(transactionId, originalBudgetId)
         isVisible = true
     }
 

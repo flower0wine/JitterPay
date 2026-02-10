@@ -200,9 +200,13 @@ fun JitterPayApp(
                 }
 
                 composable(
-                    route = NavigationRoutes.SELECT_BUDGET + "?transactionId={transactionId}",
+                    route = NavigationRoutes.SELECT_BUDGET + "?transactionId={transactionId}&originalBudgetId={originalBudgetId}",
                     arguments = listOf(
                         navArgument("transactionId") {
+                            type = NavType.LongType
+                            defaultValue = -1L
+                        },
+                        navArgument("originalBudgetId") {
                             type = NavType.LongType
                             defaultValue = -1L
                         }
@@ -214,9 +218,12 @@ fun JitterPayApp(
                 ) { backStackEntry ->
                     val transactionIdArg = backStackEntry.arguments?.getLong("transactionId")
                     val transactionId = if (transactionIdArg == -1L) null else transactionIdArg
+                    val originalBudgetIdArg = backStackEntry.arguments?.getLong("originalBudgetId")
+                    val originalBudgetId = if (originalBudgetIdArg == -1L) null else originalBudgetIdArg
 
                     SelectBudgetScreen(
                         transactionId = transactionId,
+                        originalBudgetId = originalBudgetId,
                         onBack = {
                             navController.popBackStack()
                         },
@@ -244,8 +251,8 @@ fun JitterPayApp(
                         onClose = {
                             navController.popBackStack()
                         },
-                        onNavigateToBudgetSelection = { id ->
-                            navController.navigate("${NavigationRoutes.SELECT_BUDGET}?transactionId=$id")
+                        onNavigateToBudgetSelection = { txId, originalBudgetId ->
+                            navController.navigate("${NavigationRoutes.SELECT_BUDGET}?transactionId=$txId&originalBudgetId=${originalBudgetId ?: -1}")
                         }
                     )
                 }
