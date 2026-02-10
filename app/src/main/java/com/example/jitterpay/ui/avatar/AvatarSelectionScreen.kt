@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -243,6 +244,15 @@ private fun CustomAvatarSection(
                         contentDescription = "Custom avatar",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Image,
+                        contentDescription = "Select avatar",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        tint = Color.Gray.copy(alpha = 0.5f)
                     )
                 }
             }
