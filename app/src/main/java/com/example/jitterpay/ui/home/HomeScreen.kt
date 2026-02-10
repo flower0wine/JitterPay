@@ -28,7 +28,7 @@ fun HomeScreen(
 ) {
     val navController = LocalNavController.current
     val uiState by viewModel.uiState.collectAsState()
-    val avatarId by profileViewModel.avatarId.collectAsState()
+    val avatar by profileViewModel.avatar.collectAsState()
 
     // 格式化金额显示
     val balanceFormatted = formatCurrency(uiState.totalBalance)
@@ -53,7 +53,7 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             TopHeader(
-                avatarId = avatarId,
+                avatar = avatar,
                 onSearchClick = {
                     navController.navigate(NavigationRoutes.SEARCH)
                 }

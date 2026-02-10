@@ -33,7 +33,7 @@ import com.example.jitterpay.ui.animation.AnimationConstants
 @Composable
 fun AvatarGrid(
     avatars: List<Int>,
-    @DrawableRes selectedAvatarId: Int,
+    @DrawableRes selectedAvatarId: Int?,
     onAvatarSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -56,7 +56,7 @@ fun AvatarGrid(
         itemsIndexed(avatars) { index, avatarId ->
             AvatarItem(
                 avatarId = avatarId,
-                isSelected = avatarId == selectedAvatarId,
+                isSelected = selectedAvatarId == avatarId,
                 onClick = { onAvatarSelected(avatarId) },
                 isVisible = isVisible,
                 animationDelay = index * 50

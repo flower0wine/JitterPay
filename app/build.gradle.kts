@@ -238,6 +238,9 @@ dependencies {
     // Lottie for splash animation
     implementation(libs.lottie.compose)
 
+    // Coil for image loading
+    implementation(libs.coil.compose)
+
     implementation(libs.annotations)
 
     // Testing

@@ -17,21 +17,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.example.jitterpay.R
+import com.example.jitterpay.data.model.UserAvatar
 import com.example.jitterpay.ui.animation.AnimationConstants
 
-// TODO: Add avatar images to app/src/main/res/drawable/ directory
-// Example filenames: avatar_1.png, avatar_2.png, avatar_3.png, etc.
-// Currently using avatar_1 as default
-
+/**
+ * Top header component with user avatar and search/notification buttons
+ *
+ * @param modifier Modifier for the component
+ * @param avatar UserAvatar - can be Default or Custom
+ * @param onSearchClick Callback when search is clicked
+ */
 @Composable
 fun TopHeader(
     modifier: Modifier = Modifier,
-    avatarId: Int = R.drawable.avatar_1,
+    avatar: UserAvatar = UserAvatar.Default(R.drawable.avatar_1),
     onSearchClick: () -> Unit = {}
 ) {
     Row(
@@ -49,11 +56,9 @@ fun TopHeader(
                     .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
             ) {
                 // Profile image
-                Image(
-                    painter = painterResource(id = avatarId),
-                    contentDescription = "Profile Avatar",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                AvatarImage(
+                    avatar = avatar,
+                    modifier = Modifier.fillMaxSize()
                 )
 
                 // Active status dot
@@ -119,5 +124,39 @@ fun TopHeader(
             }
         }
     }
+}
+
+/**
+ * Avatar image component
+ *
+ * Loads image based on UserAvatar type
+ */
+@Composable
+private fun AvatarImage(
+    avatar: UserAvatar,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+    val painter = when (avatar) {
+        is UserAvatar.Default -> {
+            painterResource(id = avatar.resourceId)
+        }
+        is UserAvatar.Custom -> {
+            rememberAsyncImagePainter(
+                ImageRequest.Builder(context)
+                    .data(avatar.uri)
+                    .crossfade(true)
+                    .build()
+            )
+        }
+    }
+
+    Image(
+        painter = painter,
+        contentDescription = "Profile Avatar",
+        modifier = modifier,
+        contentScale = ContentScale.Crop
+    )
 }
 

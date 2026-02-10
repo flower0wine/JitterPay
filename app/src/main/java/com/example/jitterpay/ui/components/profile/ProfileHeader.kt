@@ -29,23 +29,23 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.example.jitterpay.R
+import com.example.jitterpay.data.model.UserAvatar
 import com.example.jitterpay.ui.animation.AnimationConstants
-
-// TODO: Add avatar images to app/src/main/res/drawable/ directory
-// Example filenames: avatar_1.png, avatar_2.png, avatar_3.png, etc.
-// Currently using avatar_1 as default
 
 /**
  * Profile header with staggered entrance animations for smooth appearance
  *
  * @param userName User's display name
  * @param userEmail User's email address
- * @param avatarId Resource ID of the avatar image
+ * @param avatar UserAvatar - can be Default or Custom
  * @param isPro Whether user has pro plan
  * @param onAvatarClick Callback when avatar is clicked
  * @param modifier Modifier for column container
@@ -55,7 +55,7 @@ fun ProfileHeader(
     modifier: Modifier = Modifier,
     userName: String,
     userEmail: String,
-    avatarId: Int = R.drawable.avatar_1,
+    avatar: UserAvatar = UserAvatar.Default(R.drawable.avatar_1),
     isPro: Boolean = true,
     onAvatarClick: () -> Unit = {}
 ) {
@@ -170,15 +170,13 @@ fun ProfileHeader(
                 contentAlignment = Alignment.BottomEnd
             ) {
                 // Avatar circle
-                Image(
-                    painter = painterResource(id = avatarId),
-                    contentDescription = "Profile Avatar",
+                AvatarImage(
+                    avatar = avatar,
                     modifier = Modifier
                         .size(120.dp)
                         .clip(CircleShape)
                         .border(4.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                        .clickable(onClick = onAvatarClick),
-                    contentScale = ContentScale.Crop
+                        .clickable(onClick = onAvatarClick)
                 )
 
                 // Edit button with staggered appearance
@@ -250,4 +248,38 @@ fun ProfileHeader(
             }
         }
     }
+}
+
+/**
+ * 头像图片组件
+ *
+ * 根据UserAvatar类型加载对应的图片
+ */
+@Composable
+private fun AvatarImage(
+    avatar: UserAvatar,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+    val painter = when (avatar) {
+        is UserAvatar.Default -> {
+            painterResource(id = avatar.resourceId)
+        }
+        is UserAvatar.Custom -> {
+            rememberAsyncImagePainter(
+                ImageRequest.Builder(context)
+                    .data(avatar.uri)
+                    .crossfade(true)
+                    .build()
+            )
+        }
+    }
+
+    Image(
+        painter = painter,
+        contentDescription = "Profile Avatar",
+        modifier = modifier,
+        contentScale = ContentScale.Crop
+    )
 }

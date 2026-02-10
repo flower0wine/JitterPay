@@ -38,7 +38,7 @@ fun ProfileScreen(
 ) {
     val navController = LocalNavController.current
     val uiState by viewModel.uiState.collectAsState()
-    val avatarId by profileViewModel.avatarId.collectAsState()
+    val avatar by profileViewModel.avatar.collectAsState()
     val context = LocalContext.current
     var isVisible by remember { mutableStateOf(false) }
 
@@ -70,7 +70,7 @@ fun ProfileScreen(
                 ProfileHeader(
                     userName = "Alex Morgan",
                     userEmail = "alex.morgan@flowpay.io",
-                    avatarId = avatarId,
+                    avatar = avatar,
                     isPro = true,
                     onAvatarClick = {
                         navController.navigate(NavigationRoutes.AVATAR_SELECTION)
